@@ -4,12 +4,14 @@
 #include <iostream>
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+#define GLM_ENABLE_EXPERIMENTAL 
 
 #if defined(__APPLE__) || defined(MACOSX)
   #include <OpenGL/gl3.h>
   #include <OpenGL/GLU.h>
 #else //linux as default
   #include <GL/glew.h>
+  //#include <GLFW/glfw3.h>
   //#include <GL/glu.h>
 #endif
 
