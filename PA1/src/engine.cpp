@@ -25,7 +25,7 @@ Engine::~Engine()
   m_graphics = NULL;
 }
 
-bool Engine::Initialize()
+bool Engine::Initialize(const std::string& vertexFilePath, const std::string& fragmentFilePath)
 {
   // Start a window
   m_window = new Window();
@@ -37,7 +37,7 @@ bool Engine::Initialize()
 
   // Start the graphics
   m_graphics = new Graphics();
-  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT))
+  if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, vertexFilePath, fragmentFilePath))
   {
     printf("The graphics failed to initialize.\n");
     return false;

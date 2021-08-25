@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#include <fstream>
+
 Shader::Shader()
 {
   m_shaderProg = 0;
@@ -23,7 +25,7 @@ bool Shader::Initialize()
 {
   m_shaderProg = glCreateProgram();
 
-  if (m_shaderProg == 0) 
+  if (m_shaderProg == 0)
   {
     std::cerr << "Error creating shader program\n";
     return false;
@@ -33,79 +35,47 @@ bool Shader::Initialize()
 }
 
 // Use this method to add shaders to the program. When finished - call finalize()
-bool Shader::AddShader(GLenum ShaderType)
-{
-  std::string s;
+bool Shader::AddShader(GLenum ShaderType, const std::string& filePath) {
+	// Make sure that the provided file exists
+	std::ifstream file(filePath);
+	if(!file){
+		std::cerr << "The file `" << filePath << "` doesn't exist!" << std::endl;
+		return false;
+	}
 
-  if(ShaderType == GL_VERTEX_SHADER)
-  {
-    s = "#version 330\n \
-          \
-          layout (location = 0) in vec3 v_position; \
-          layout (location = 1) in vec3 v_color; \
-          \
-          smooth out vec3 color; \
-          \
-          uniform mat4 projectionMatrix; \
-          uniform mat4 viewMatrix; \
-          uniform mat4 modelMatrix; \
-          \
-          void main(void) \
-          { \
-            vec4 v = vec4(v_position, 1.0); \
-            gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v; \
-            color = v_color; \
-          } \
-          ";
-  }
-  else if(ShaderType == GL_FRAGMENT_SHADER)
-  {
-    s = "#version 330\n \
-          \
-          smooth in vec3 color; \
-          \
-          out vec4 frag_color; \
-          \
-          void main(void) \
-          { \
-             frag_color = vec4(color.rgb, 1.0); \
-          } \
-          ";
-  }
+	// Read it in
+	std::string s( (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>() );
 
-  GLuint ShaderObj = glCreateShader(ShaderType);
+	GLuint ShaderObj = glCreateShader(ShaderType);
 
-  if (ShaderObj == 0) 
-  {
-    std::cerr << "Error creating shader type " << ShaderType << std::endl;
-    return false;
-  }
+	if (ShaderObj == 0) {
+		std::cerr << "Error creating shader type " << ShaderType << std::endl;
+		return false;
+	}
 
-  // Save the shader object - will be deleted in the destructor
-  m_shaderObjList.push_back(ShaderObj);
+	// Save the shader object - will be deleted in the destructor
+	m_shaderObjList.push_back(ShaderObj);
 
-  const GLchar* p[1];
-  p[0] = s.c_str();
-  GLint Lengths[1] = { (GLint)s.size() };
+	const GLchar* p[1];
+	p[0] = s.c_str();
+	GLint Lengths[1] = { (GLint)s.size() };
 
-  glShaderSource(ShaderObj, 1, p, Lengths);
+	glShaderSource(ShaderObj, 1, p, Lengths);
 
-  glCompileShader(ShaderObj);
+	glCompileShader(ShaderObj);
 
-  GLint success;
-  glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
+	GLint success;
+	glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
 
-  if (!success) 
-  {
-    GLchar InfoLog[1024];
-    glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-    std::cerr << "Error compiling: " << InfoLog << std::endl;
-    return false;
-  }
+	if (!success) {
+		GLchar InfoLog[1024];
+		glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
+		std::cerr << "Error compiling: " << InfoLog << std::endl;
+		return false;
+	}
 
-  glAttachShader(m_shaderProg, ShaderObj);
-
-  return true;
+	glAttachShader(m_shaderProg, ShaderObj);
+	return true;
 }
 
 
