@@ -32,7 +32,7 @@ bool Engine::Initialize(const Arguments& args) {
 
 	// Start the graphics
 	m_graphics = new Graphics();
-	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, args)) {
+	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, this, args)) {
 		printf("The graphics failed to initialize.\n");
 		return false;
 	}
@@ -51,12 +51,24 @@ void Engine::Run() {
 		// Update the DT
 		m_DT = getDT();
 
-		// Check the keyboard input
+		// Process events
 		while(SDL_PollEvent(&m_event) != 0) {
+			// Quit Events
 			if(m_event.type == SDL_QUIT)
 				m_running = false;
-			else if (m_event.type == SDL_KEYDOWN)
-				Keyboard();
+			// Key Events
+			else if (m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP){
+				// Escape is quit
+				if(m_event.key.keysym.sym == SDLK_ESCAPE)
+					m_running = false;
+				else
+					keyboardEvent(m_event.key);
+			// Mouse Motion events
+			} else if(m_event.type == SDL_MOUSEMOTION)
+				mouseMotionEvent(m_event.motion);
+			// Mouse Button events
+			else if (m_event.type == SDL_MOUSEBUTTONDOWN || m_event.type == SDL_MOUSEBUTTONUP)
+				mouseButtonEvent(m_event.button);
 		}
 
 		// Update and render the graphics
@@ -65,13 +77,6 @@ void Engine::Run() {
 
 		// Swap to the Window
 		m_window->Swap();
-	}
-}
-
-void Engine::Keyboard() {
-	// handle key down events here
-	if (m_event.key.keysym.sym == SDLK_ESCAPE) {
-		m_running = false;
 	}
 }
 

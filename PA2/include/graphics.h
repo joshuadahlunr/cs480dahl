@@ -11,11 +11,13 @@ using namespace std;
 #include "object.h"
 #include "arguments.h"
 
+class Engine;
+
 class Graphics {
 public:
 	Graphics();
 	~Graphics();
-	bool Initialize(int width, int height, const Arguments& args);
+	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
 	void Update(unsigned int dt);
 	void Render();
 

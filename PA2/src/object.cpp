@@ -57,7 +57,8 @@ Object::Object() {
 	for(unsigned int i = 0; i < Indices.size(); i++)
 		Indices[i] = Indices[i] - 1;
 
-	angle = 0.0f;
+	rotationAngle = orbitAngle = 0.0f;
+	m_reverseOrbit = m_reverseRotation = pauseOrbit = pauseRotation = false;
 
 	glGenBuffers(1, &VB);
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -74,15 +75,17 @@ Object::~Object() {
 }
 
 void Object::Update(unsigned int dt) {
-	angle += dt * M_PI/1000;
+	// std::cout << m_reverseOrbit << " - " << m_reverseRotation << " - " << pauseOrbit << " - " << pauseRotation << std::endl;
+	if(!pauseOrbit)
+		orbitAngle += dt * M_PI/1000 * (m_reverseOrbit ? -1 : 1);
+	if(!pauseRotation)
+		rotationAngle += dt * M_PI/1000 * (m_reverseRotation ? -1 : 1);
 
-	glm::vec3 translation(cos(angle * 2) * 5, 0, sin(angle * 2) * 5);
-	model = glm::translate( glm::rotate(glm::mat4(1.0f), (angle), glm::vec3(0.0, 1.0, 0.0)), translation );
+	glm::vec3 translation(cos(orbitAngle) * 5, 0, sin(orbitAngle) * 5);
+	model = glm::rotate(glm::translate( glm::mat4(1.0f), translation ), (rotationAngle), glm::vec3(0.0, 1.0, 0.0));
 }
 
-glm::mat4 Object::GetModel() {
-	return model;
-}
+glm::mat4 Object::GetModel() { return model; }
 
 void Object::Render() {
 	glEnableVertexAttribArray(0);
@@ -99,3 +102,30 @@ void Object::Render() {
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 }
+
+void Object::Keyboard(const SDL_KeyboardEvent& e){
+	if(e.type != SDL_KEYDOWN) return;
+
+	if(e.keysym.sym == SDLK_o)
+		toggleOrbit();
+	else if(e.keysym.sym == SDLK_r)
+		toggleRotation();
+	else if(e.keysym.sym == SDLK_f)
+		reverseRotation();
+	else if(e.keysym.sym == SDLK_l)
+		reverseOrbit();
+}
+
+void Object::MouseButton(const SDL_MouseButtonEvent& e){
+	if(e.type != SDL_MOUSEBUTTONDOWN) return;
+
+	if(e.button == SDL_BUTTON_LEFT)
+		reverseOrbit();
+	else if(e.button == SDL_BUTTON_RIGHT)
+		reverseRotation();
+}
+
+void Object::toggleOrbit(){ pauseOrbit = !pauseOrbit; }
+void Object::toggleRotation(){ pauseRotation = !pauseRotation; }
+void Object::reverseOrbit(){ m_reverseOrbit = !m_reverseOrbit; }
+void Object::reverseRotation(){ m_reverseRotation = !m_reverseRotation; }

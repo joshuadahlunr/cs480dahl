@@ -7,6 +7,7 @@
 #include "window.h"
 #include "graphics.h"
 #include "arguments.h"
+#include "nytl/callback.hpp"
 
 class Engine {
 public:
@@ -15,9 +16,12 @@ public:
 	~Engine();
 	bool Initialize(const Arguments& args);
 	void Run();
-	void Keyboard();
 	unsigned int getDT();
 	long long GetCurrentTimeMillis();
+
+	nytl::Callback<void(const SDL_KeyboardEvent&)> keyboardEvent;
+	nytl::Callback<void(const SDL_MouseMotionEvent&)> mouseMotionEvent;
+	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
 
 private:
 	// Window related variables

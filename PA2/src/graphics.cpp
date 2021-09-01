@@ -1,10 +1,11 @@
 #include "graphics.h"
+#include "engine.h"
 
 Graphics::Graphics() { }
 
 Graphics::~Graphics() { }
 
-bool Graphics::Initialize(int width, int height, const Arguments& args) {
+bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments& args) {
 	// Used for the linux OS
 #if !defined(__APPLE__) && !defined(MACOSX)
 	// cout << glewGetString(GLEW_VERSION) << endl;
@@ -37,6 +38,8 @@ bool Graphics::Initialize(int width, int height, const Arguments& args) {
 
 	// Create the object
 	m_cube = new Object();
+	engine->keyboardEvent += [&](auto event) { m_cube->Keyboard(event); };//std::bind(&Object::Keyboard, m_cube);
+	engine->mouseButtonEvent += [&](auto event) { m_cube->MouseButton(event); };//std::bind(&Object::MouseButton, m_cube);
 
 	// Set up the shaders
 	m_shader = new Shader();
