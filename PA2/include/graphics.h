@@ -9,12 +9,13 @@ using namespace std;
 #include "camera.h"
 #include "shader.h"
 #include "object.h"
+#include "arguments.h"
 
 class Graphics {
 public:
 	Graphics();
 	~Graphics();
-	bool Initialize(int width, int height, const std::string& vertexFilePath, const std::string& fragmentFilePath);
+	bool Initialize(int width, int height, const Arguments& args);
 	void Update(unsigned int dt);
 	void Render();
 

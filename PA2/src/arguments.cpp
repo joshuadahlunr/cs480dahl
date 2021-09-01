@@ -8,8 +8,24 @@ Arguments::Arguments(int argc, char **argv){
 		std::string arg = argv[i];
 		std::string file = arg.substr(2);
 
+		// If the argument is a help command
+		if(arg.substr(0, 2) == "-h" || arg.substr(0, 2) == "-?" || arg.substr(0, 6) == "--help"){
+			std::cout << std::string(60, '-') << std::endl;
+			std::cout << "Arguments" << std::endl;
+			std::cout << std::string(60, '-') << std::endl;
+
+			std::cout << "\t-h, -?, --help - Shows this help message" << std::endl;
+			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shader" << std::endl << "\t\tdirrectory)" << std::endl;
+			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shader" << std::endl << "\t\tdirrectory)" << std::endl;
+
+			std::cout << "Optional" << std::endl;
+			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
+
+			std::cout << std::string(60, '-') << std::endl;
+		}
+
 		// If the argument starts with "-v"
-		if(arg.substr(0, 2) == "-v"){
+		else if(arg.substr(0, 2) == "-v"){
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
 				vertexFilePath = file;
@@ -31,13 +47,15 @@ Arguments::Arguments(int argc, char **argv){
 				fragmentFilePath = argv[i];
 			}
 		}
+
+		// If the argument starts with "--resource-path"
+		else if(arg.substr(0, 2) == "--resource-path"){
+			i++;
+			resourcePath = argv[i];
+		}
 	}
 }
 
-std::string Arguments::getVertexFilePath(){
-	return vertexFilePath;
-}
-
-std::string Arguments::getFragmentFilePath(){
-	return fragmentFilePath;
-}
+std::string Arguments::getVertexFilePath() const { return vertexFilePath; }
+std::string Arguments::getResourcePath() const { return resourcePath; }
+std::string Arguments::getFragmentFilePath() const { return fragmentFilePath; }

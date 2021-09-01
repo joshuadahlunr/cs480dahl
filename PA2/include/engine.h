@@ -6,13 +6,14 @@
 
 #include "window.h"
 #include "graphics.h"
+#include "arguments.h"
 
 class Engine {
 public:
 	Engine(string name, int width, int height);
 	Engine(string name);
 	~Engine();
-	bool Initialize(const std::string& vertexFilePath, const std::string& fragmentFilePath);
+	bool Initialize(const Arguments& args);
 	void Run();
 	void Keyboard();
 	unsigned int getDT();

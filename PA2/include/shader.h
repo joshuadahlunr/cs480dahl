@@ -5,6 +5,7 @@
 #include <string>
 
 #include "graphics_headers.h"
+#include "arguments.h"
 
 class Shader {
 public:
@@ -12,7 +13,7 @@ public:
 	~Shader();
 	bool Initialize();
 	void Enable();
-	bool AddShader(GLenum ShaderType, const std::string& filePath);
+	bool AddShader(GLenum ShaderType, std::string filePath, const Arguments& args);
 	bool Finalize();
 	GLint GetUniformLocation(const char* pUniformName);
 

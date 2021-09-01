@@ -28,7 +28,12 @@ bool Shader::Initialize() {
 }
 
 // Use this method to add shaders to the program. When finished - call finalize()
-bool Shader::AddShader(GLenum ShaderType, const std::string& filePath) {
+bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments& args) {
+	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
+	std::string shaderDirectory = args.getResourcePath() + "shaders/";
+	if(filePath.find(shaderDirectory) == std::string::npos)
+		filePath = shaderDirectory + filePath;
+
 	// Make sure that the provided file exists
 	std::ifstream file(filePath);
 	if(!file) {

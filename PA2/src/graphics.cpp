@@ -4,7 +4,7 @@ Graphics::Graphics() { }
 
 Graphics::~Graphics() { }
 
-bool Graphics::Initialize(int width, int height, const std::string& vertexFilePath, const std::string& fragmentFilePath) {
+bool Graphics::Initialize(int width, int height, const Arguments& args) {
 	// Used for the linux OS
 #if !defined(__APPLE__) && !defined(MACOSX)
 	// cout << glewGetString(GLEW_VERSION) << endl;
@@ -46,13 +46,13 @@ bool Graphics::Initialize(int width, int height, const std::string& vertexFilePa
 	}
 
 	// Add the vertex shader
-	if(!m_shader->AddShader(GL_VERTEX_SHADER, vertexFilePath)) {
+	if(!m_shader->AddShader(GL_VERTEX_SHADER, args.getVertexFilePath(), args)) {
 		printf("Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
 	// Add the fragment shader
-	if(!m_shader->AddShader(GL_FRAGMENT_SHADER, fragmentFilePath)) {
+	if(!m_shader->AddShader(GL_FRAGMENT_SHADER, args.getFragmentFilePath(), args)) {
 		printf("Fragment Shader failed to Initialize\n");
 		return false;
 	}

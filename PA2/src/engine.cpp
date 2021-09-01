@@ -22,19 +22,17 @@ Engine::~Engine() {
 	m_graphics = NULL;
 }
 
-bool Engine::Initialize(const std::string& vertexFilePath, const std::string& fragmentFilePath) {
+bool Engine::Initialize(const Arguments& args) {
 	// Start a window
 	m_window = new Window();
-	if(!m_window->Initialize(m_WINDOW_NAME, &m_WINDOW_WIDTH, &m_WINDOW_HEIGHT))
-	{
+	if(!m_window->Initialize(m_WINDOW_NAME, &m_WINDOW_WIDTH, &m_WINDOW_HEIGHT)) {
 		printf("The window failed to initialize.\n");
 		return false;
 	}
 
 	// Start the graphics
 	m_graphics = new Graphics();
-	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, vertexFilePath, fragmentFilePath))
-	{
+	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, args)) {
 		printf("The graphics failed to initialize.\n");
 		return false;
 	}
