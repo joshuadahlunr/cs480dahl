@@ -9,6 +9,7 @@ using namespace std;
 #include "camera.h"
 #include "shader.h"
 #include "object.h"
+#include "gui.h"
 #include "arguments.h"
 
 class Engine;
@@ -21,8 +22,12 @@ public:
 	void Update(unsigned int dt);
 	void Render();
 
+	GUI* getGUI() const { return m_gui; }
+
 private:
 	std::string ErrorString(GLenum error);
+
+	GUI* m_gui;
 
 	Camera *m_camera;
 	Shader *m_shader;

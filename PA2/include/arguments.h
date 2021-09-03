@@ -12,9 +12,9 @@ private:
 public:
 	Arguments(int argc, char **argv);
 
-	std::string getVertexFilePath() const;
-	std::string getFragmentFilePath() const;
-	std::string getResourcePath() const;
+	std::string getVertexFilePath() const { return vertexFilePath; }
+	std::string getResourcePath() const { return resourcePath; }
+	std::string getFragmentFilePath() const { return fragmentFilePath; }
 };
 
 #endif // ARGUMENTS_H

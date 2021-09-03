@@ -91,6 +91,12 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	m_gui = new GUI();
+	if(!m_gui->Initialize(engine->getWindow())) {
+		printf("GUI Failed to Initialize\n");
+		return false;
+	}
+
 	return true;
 }
 
@@ -114,6 +120,9 @@ void Graphics::Render() {
 	// Render the object
 	glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->GetModel()));
 	m_cube->Render();
+
+	// Render the GUI
+	m_gui->Render();
 
 	// Get any errors from OpenGL
 	auto error = glGetError();

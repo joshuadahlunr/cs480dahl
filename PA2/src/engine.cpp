@@ -52,22 +52,25 @@ void Engine::Run() {
 		m_DT = getDT();
 
 		// Process events
+		GUI* gui = m_graphics->getGUI();
 		while(SDL_PollEvent(&m_event) != 0) {
+			auto shouldProcess = gui->ProcessEvent(m_event);
+
 			// Quit Events
 			if(m_event.type == SDL_QUIT)
 				m_running = false;
 			// Key Events
-			else if (m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP){
+			else if (shouldProcess.keyboard && (m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP)){
 				// Escape is quit
 				if(m_event.key.keysym.sym == SDLK_ESCAPE)
 					m_running = false;
 				else
 					keyboardEvent(m_event.key);
 			// Mouse Motion events
-			} else if(m_event.type == SDL_MOUSEMOTION)
+			} else if(shouldProcess.mouse && m_event.type == SDL_MOUSEMOTION)
 				mouseMotionEvent(m_event.motion);
 			// Mouse Button events
-			else if (m_event.type == SDL_MOUSEBUTTONDOWN || m_event.type == SDL_MOUSEBUTTONUP)
+			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEBUTTONDOWN || m_event.type == SDL_MOUSEBUTTONUP))
 				mouseButtonEvent(m_event.button);
 		}
 

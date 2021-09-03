@@ -23,6 +23,8 @@ public:
 	nytl::Callback<void(const SDL_MouseMotionEvent&)> mouseMotionEvent;
 	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
 
+	Window* getWindow() const { return m_window; }
+
 private:
 	// Window related variables
 	Window *m_window;

@@ -62,7 +62,3 @@ Arguments::Arguments(int argc, char **argv){
 		}
 	}
 }
-
-std::string Arguments::getVertexFilePath() const { return vertexFilePath; }
-std::string Arguments::getResourcePath() const { return resourcePath; }
-std::string Arguments::getFragmentFilePath() const { return fragmentFilePath; }

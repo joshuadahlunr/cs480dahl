@@ -12,6 +12,9 @@ public:
 	bool Initialize(const string &name, int* width, int* height);
 	void Swap();
 
+	SDL_Window* getWindow() const { return gWindow; }
+	SDL_GLContext getContext() const { return gContext; }
+
 private:
 	SDL_Window* gWindow;
 	SDL_GLContext gContext;
