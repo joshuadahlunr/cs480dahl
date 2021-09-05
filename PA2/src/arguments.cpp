@@ -15,13 +15,20 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << std::string(60, '-') << std::endl;
 
 			std::cout << "\t-h, -?, --help - Shows this help message" << std::endl;
-			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shader" << std::endl << "\t\tdirrectory)" << std::endl;
-			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shader" << std::endl << "\t\tdirrectory)" << std::endl;
+			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shader" << std::endl << "\t\tdirectory)" << std::endl;
+			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shader" << std::endl << "\t\tdirectory)" << std::endl;
 
 			std::cout << "Optional" << std::endl;
 			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
 
 			std::cout << std::string(60, '-') << std::endl;
+			std::cout << "Keys" << std::endl;
+			std::cout << std::string(60, '-') << std::endl;
+
+			std::cout << "\tR - pause the rotation of the cube" << std::endl;
+			std::cout << "\tO - pause the orbit of the cube" << std::endl;
+			std::cout << "\tleft click, L - reverse the orbit of the cube" << std::endl;
+			std::cout << "\tright click, F - reverse the rotation of the cube" << std::endl;
 		}
 
 		// If the argument starts with "-v"

@@ -1,5 +1,25 @@
 # PA1: Spinning Cube
 
+# Arguments and keys
+
+The command to run the program (assuming that we compiled in a build directory one level below root) is:  
+  ./Tutorial -v vert.glsl -f frag.glsl
+
+## Arguments
+* -h, -?, --help - Shows the help message
+* -v <file> - Sets the vertex shader (relative to the resource/shader directory)
+* -f <file> - Sets the fragment shader (relative to the resource/shader directory)
+### Optional
+* --resource-path <path> - Sets the resource directory, the directory where all of the program's resources can be found. [default=../]
+
+
+## Keys
+* R - pause the rotation of the cube
+* O - pause the orbit of the cube
+* left click, L - reverse the orbit of the cube
+* right click, F - reverse the rotation of the cube
+
+
 # Dependencies, Building, and Running
 
 ## Dependency Instructions
@@ -25,7 +45,7 @@ The second option is to use the provided Makefile which is used as usual.
 Running the make in a separate directory will allow easy cleanup of the build data, and an easy way to prevent unnecessary data to be added to the git repository.  
 
 ### CMake Instructions
-The building of the project is done using CMake, installation with apt-get or brew may be necessary. Later use with CMake and Shader files will be require the copy of a directory where those files are stored (ex. shaders). To do this in the ```add_custom_target``` function place 
+The building of the project is done using CMake, installation with apt-get or brew may be necessary. Later use with CMake and Shader files will be require the copy of a directory where those files are stored (ex. shaders). To do this in the ```add_custom_target``` function place
 ```cmake
 COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders/ ${CMAKE_CURRENT_BINARY_DIR}/shaders
 ```
@@ -38,7 +58,7 @@ make
 ./Tutorial
 ```
 
-### Makefile Instructions 
+### Makefile Instructions
 The makefile works as expected and must be updated with new files added in.
 
 ```bash
