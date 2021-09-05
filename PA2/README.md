@@ -3,7 +3,7 @@
 # Arguments and keys
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:  
-  ./Tutorial -v vert.glsl -f frag.glsl
+  ./Tutorial -v vert.glsl -f frag.glsl  
 
 ## Arguments
 * -h, -?, --help - Shows the help message
@@ -14,6 +14,8 @@ The command to run the program (assuming that we compiled in a build directory o
 
 
 ## Keys
+The cube menu at the top of the application is also capable of preforming all of the fellowing operations.  
+
 * R - pause the rotation of the cube
 * O - pause the orbit of the cube
 * left click, L - reverse the orbit of the cube

@@ -24,6 +24,7 @@ public:
 	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
 
 	Window* getWindow() const { return m_window; }
+	Graphics* getGraphics() const { return m_graphics; }
 
 private:
 	// Window related variables

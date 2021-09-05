@@ -3,9 +3,9 @@
 #include <SDL2/SDL.h>
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
-#include "window.h"
+#include "engine.h"
 
-// Initalize the ImGUI IO instance
+// Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -18,15 +18,18 @@ GUI::~GUI(){
     ImGui::DestroyContext();
 }
 
-bool GUI::Initialize(Window* window, const char* glsl_version/* = "#version 330"*/){
+bool GUI::Initialize(Engine* engine, const char* glsl_version/* = "#version 330"*/){
 	// Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
 	// Setup Platform/Renderer backends
-    if( !ImGui_ImplSDL2_InitForOpenGL(window->getWindow(), window->getContext()) )
+    if( !ImGui_ImplSDL2_InitForOpenGL(engine->getWindow()->getWindow(), engine->getWindow()->getContext()) )
 		return false;
     if( !ImGui_ImplOpenGL3_Init(glsl_version) )
 		return false;
+
+	// Save the pointer to the graphics
+	this->graphics = engine->getGraphics();
 
 	return true;
 }
@@ -45,8 +48,24 @@ void GUI::Render(){
 
 
 	// UI Generation
-	bool trash;
-	ImGui::ShowDemoWindow(&trash);
+	if (ImGui::BeginMainMenuBar()) {
+    	if (ImGui::BeginMenu("Cube")) {
+			if (ImGui::MenuItem((graphics->getSelected()->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
+				graphics->getSelected()->toggleOrbit();
+			if (ImGui::MenuItem((graphics->getSelected()->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
+				graphics->getSelected()->toggleRotation();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Reverse Orbit", "L"))
+				graphics->getSelected()->reverseOrbit();
+			if (ImGui::MenuItem("Reverse Rotation", "F"))
+				graphics->getSelected()->reverseRotation();
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 
 
 	// Render the UI results

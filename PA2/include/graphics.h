@@ -23,6 +23,7 @@ public:
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
+	Object* getSelected() const { return selected; }
 
 private:
 	std::string ErrorString(GLenum error);
@@ -37,6 +38,8 @@ private:
 	GLint m_modelMatrix;
 
 	Object *m_cube;
+
+	Object* selected;
 };
 
 #endif /* GRAPHICS_H */

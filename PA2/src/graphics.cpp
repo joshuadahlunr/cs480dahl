@@ -37,7 +37,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	}
 
 	// Create the object
-	m_cube = new Object();
+	selected = m_cube = new Object();
 	engine->keyboardEvent += [&](auto event) { m_cube->Keyboard(event); };//std::bind(&Object::Keyboard, m_cube);
 	engine->mouseButtonEvent += [&](auto event) { m_cube->MouseButton(event); };//std::bind(&Object::MouseButton, m_cube);
 
@@ -92,7 +92,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	glDepthFunc(GL_LESS);
 
 	m_gui = new GUI();
-	if(!m_gui->Initialize(engine->getWindow())) {
+	if(!m_gui->Initialize(engine)) {
 		printf("GUI Failed to Initialize\n");
 		return false;
 	}

@@ -20,6 +20,11 @@ public:
 	void toggleRotation();
 	void reverseRotation();
 
+	bool orbitIsPaused() { return pauseOrbit; }
+	bool rotationIsPaused() { return pauseRotation; }
+	bool orbitIsReversed() { return m_reverseOrbit; }
+	bool rotationIsReversed() { return m_reverseRotation; }
+
 	glm::mat4 GetModel();
 
 private:
