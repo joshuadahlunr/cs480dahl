@@ -3,8 +3,12 @@
 #include <iostream>
 
 Arguments::Arguments(int argc, char **argv){
+	// If we weren't given any arguments, skip argument parsing
+	if(argc == 1)
+		canContinue = false;
+
 	// Foreach argument
-	for(int i = 1; i < argc; i++){
+	for(int i = 1; i < argc && canContinue; i++){
 		std::string arg = argv[i];
 		std::string file = arg.substr(2);
 
@@ -29,6 +33,7 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << "\tO - pause the orbit of the cube" << std::endl;
 			std::cout << "\tleft click, L - reverse the orbit of the cube" << std::endl;
 			std::cout << "\tright click, F - reverse the rotation of the cube" << std::endl;
+			std::cerr << std::endl << std::endl;
 		}
 
 		// If the argument starts with "-v"
@@ -60,5 +65,17 @@ Arguments::Arguments(int argc, char **argv){
 			i++;
 			resourcePath = argv[i];
 		}
+	}
+
+	// State that we can't continue if either the vertex or fragment shader isn't specified
+	canContinue = !vertexFilePath.empty() && !fragmentFilePath.empty();
+
+	// If we can't continue provide an error message
+	if(!canContinue){
+		std::cerr << "To run the program you must specify the vertex and fragment shader to load:" << std::endl;
+		std::cerr << argv[0] << " -v <file> -f <file>" << std::endl;
+		std::cerr << std::endl << std::string(60, '-') << std::endl;
+		std::cerr << "For more infromation display the help menu:" << std::endl;
+		std::cerr << argv[0] << " -h" << std::endl;
 	}
 }
