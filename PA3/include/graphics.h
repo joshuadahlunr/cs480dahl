@@ -13,6 +13,7 @@ using namespace std;
 #include "arguments.h"
 
 class Engine;
+class Planet;
 
 class Graphics {
 public:
@@ -23,7 +24,9 @@ public:
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
-	Object* getSelected() const { return selected; }
+
+	template<class T = Object>
+	T* getSelected() const { return dynamic_cast<T*>(selected); }
 
 private:
 	std::string ErrorString(GLenum error);
@@ -37,7 +40,7 @@ private:
 	GLint m_viewMatrix;
 	GLint m_modelMatrix;
 
-	Object *m_cube;
+	Planet* sceneRoot;
 
 	Object* selected;
 };

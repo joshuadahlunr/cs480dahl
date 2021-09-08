@@ -4,6 +4,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
+#include "planet.h"
 
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
@@ -50,17 +51,17 @@ void GUI::Render(){
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
     	if (ImGui::BeginMenu("Cube")) {
-			if (ImGui::MenuItem((graphics->getSelected()->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
-				graphics->getSelected()->toggleOrbit();
-			if (ImGui::MenuItem((graphics->getSelected()->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
-				graphics->getSelected()->toggleRotation();
+			if (ImGui::MenuItem((graphics->getSelected<Planet>()->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
+				graphics->getSelected<Planet>()->toggleOrbit();
+			if (ImGui::MenuItem((graphics->getSelected<Planet>()->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
+				graphics->getSelected<Planet>()->toggleRotation();
 
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Reverse Orbit", "L"))
-				graphics->getSelected()->reverseOrbit();
+				graphics->getSelected<Planet>()->reverseOrbit();
 			if (ImGui::MenuItem("Reverse Rotation", "F"))
-				graphics->getSelected()->reverseRotation();
+				graphics->getSelected<Planet>()->reverseRotation();
 
 			ImGui::EndMenu();
 		}

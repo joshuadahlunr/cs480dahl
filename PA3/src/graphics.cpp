@@ -1,6 +1,9 @@
 #include "graphics.h"
 #include "engine.h"
 
+#include "planet.h"
+#include "moon.h"
+
 Graphics::Graphics() { }
 
 Graphics::~Graphics() { }
@@ -36,10 +39,13 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	// Create the object
-	selected = m_cube = new Object();
-	engine->keyboardEvent += [&](auto event) { m_cube->Keyboard(event); };//std::bind(&Object::Keyboard, m_cube);
-	engine->mouseButtonEvent += [&](auto event) { m_cube->MouseButton(event); };//std::bind(&Object::MouseButton, m_cube);
+	// Create the planet
+	selected = sceneRoot = new Planet();
+	engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
+	engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
+
+	// Create the moon
+	sceneRoot->addChild(new Moon());
 
 	// Set up the shaders
 	m_shader = new Shader();
@@ -102,7 +108,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 void Graphics::Update(unsigned int dt) {
 	// Update the object
-	m_cube->Update(dt);
+	sceneRoot->Update(dt);
 }
 
 void Graphics::Render() {
@@ -118,8 +124,7 @@ void Graphics::Render() {
 	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
 	// Render the object
-	glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, glm::value_ptr(m_cube->GetModel()));
-	m_cube->Render();
+	sceneRoot->Render(m_modelMatrix);
 
 	// Render the GUI
 	m_gui->Render();

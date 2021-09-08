@@ -9,34 +9,30 @@ class Object {
 public:
 	Object();
 	~Object();
-	void Update(unsigned int dt);
-	void Render();
+	virtual void Update(unsigned int dt);
+	virtual void Render(GLint modelMatrix);
 
-	void Keyboard(const SDL_KeyboardEvent& e);
-	void MouseButton(const SDL_MouseButtonEvent& e);
+	virtual void Keyboard(const SDL_KeyboardEvent& e);
+	virtual void MouseButton(const SDL_MouseButtonEvent& e);
 
-	void toggleOrbit();
-	void reverseOrbit();
-	void toggleRotation();
-	void reverseRotation();
+	Object* setParent(Object* p);
+	Object* getParent() const { return parent; }
+	Object* addChild(Object* child);
+	const std::vector<Object*>& getChildren() const { return children; }
 
-	bool orbitIsPaused() { return pauseOrbit; }
-	bool rotationIsPaused() { return pauseRotation; }
-	bool orbitIsReversed() { return m_reverseOrbit; }
-	bool rotationIsReversed() { return m_reverseRotation; }
+	glm::mat4 GetModel() { return model; }
+	void setModel(glm::mat4 _model) { model = _model; }
+	void setModelRelativeToParent(glm::mat4 _model);
 
-	glm::mat4 GetModel();
-
-private:
+protected:
 	glm::mat4 model;
 	std::vector<Vertex> Vertices;
 	std::vector<unsigned int> Indices;
 	GLuint VB;
 	GLuint IB;
 
-	float orbitAngle, rotationAngle;
-	bool pauseOrbit, pauseRotation;
-	bool m_reverseOrbit, m_reverseRotation;
+	Object* parent = nullptr;
+	std::vector<Object*> children;
 };
 
 #endif /* OBJECT_H */

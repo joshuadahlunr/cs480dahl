@@ -57,9 +57,6 @@ Object::Object() {
 	for(unsigned int i = 0; i < Indices.size(); i++)
 		Indices[i] = Indices[i] - 1;
 
-	rotationAngle = orbitAngle = 0.0f;
-	m_reverseOrbit = m_reverseRotation = pauseOrbit = pauseRotation = false;
-
 	glGenBuffers(1, &VB);
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
@@ -74,20 +71,14 @@ Object::~Object() {
 	Indices.clear();
 }
 
-void Object::Update(unsigned int dt) {
-	// std::cout << m_reverseOrbit << " - " << m_reverseRotation << " - " << pauseOrbit << " - " << pauseRotation << std::endl;
-	if(!pauseOrbit)
-		orbitAngle += dt * M_PI/1000 * (m_reverseOrbit ? -1 : 1);
-	if(!pauseRotation)
-		rotationAngle += dt * M_PI/1000 * (m_reverseRotation ? -1 : 1);
-
-	glm::vec3 translation(cos(orbitAngle) * 5, 0, sin(orbitAngle) * 5);
-	model = glm::rotate(glm::translate( glm::mat4(1.0f), translation ), (rotationAngle), glm::vec3(0.0, 1.0, 0.0));
+void Object::Update(unsigned int dt){
+	for(Object* child: children)
+		child->Update(dt);
 }
 
-glm::mat4 Object::GetModel() { return model; }
+void Object::Render(GLint modelMatrix) {
+	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(GetModel()));
 
-void Object::Render() {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
@@ -101,31 +92,47 @@ void Object::Render() {
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+
+	for(Object* child: children)
+		child->Render(modelMatrix);
+}
+
+Object* Object::setParent(Object* p){
+	if(parent == p) return p;
+
+	if(parent != nullptr)
+		for(int i = 0; i < parent->children.size(); i++)
+			if(parent->children[i] == this){ // TODO: Are pointer comparisons sufficient here?
+				parent->children.erase(parent->children.begin() + i);
+				break;
+			}
+
+	parent = p;
+	p->addChild(this);
+	return p;
+}
+
+Object* Object::addChild(Object* child){
+	// If the object is already a child... don't bother adding
+	for(Object* c: children)
+		if(c == child)
+			return child;
+
+	children.push_back(child);
+	child->setParent(this);
+	return child;
 }
 
 void Object::Keyboard(const SDL_KeyboardEvent& e){
-	if(e.type != SDL_KEYDOWN) return;
-
-	if(e.keysym.sym == SDLK_o)
-		toggleOrbit();
-	else if(e.keysym.sym == SDLK_r)
-		toggleRotation();
-	else if(e.keysym.sym == SDLK_f)
-		reverseRotation();
-	else if(e.keysym.sym == SDLK_l)
-		reverseOrbit();
+	for(Object* child: children)
+		child->Keyboard(e);
 }
 
 void Object::MouseButton(const SDL_MouseButtonEvent& e){
-	if(e.type != SDL_MOUSEBUTTONDOWN) return;
-
-	if(e.button == SDL_BUTTON_LEFT)
-		reverseOrbit();
-	else if(e.button == SDL_BUTTON_RIGHT)
-		reverseRotation();
+	for(Object* child: children)
+		child->MouseButton(e);
 }
 
-void Object::toggleOrbit(){ pauseOrbit = !pauseOrbit; }
-void Object::toggleRotation(){ pauseRotation = !pauseRotation; }
-void Object::reverseOrbit(){ m_reverseOrbit = !m_reverseOrbit; }
-void Object::reverseRotation(){ m_reverseRotation = !m_reverseRotation; }
+void Object::setModelRelativeToParent(glm::mat4 _model){
+	model = (parent ? parent->model : glm::mat4(1)) * _model;
+}
