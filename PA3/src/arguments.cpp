@@ -29,10 +29,14 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << "Keys" << std::endl;
 			std::cout << std::string(60, '-') << std::endl;
 
-			std::cout << "\tR - pause the rotation of the cube" << std::endl;
-			std::cout << "\tO - pause the orbit of the cube" << std::endl;
-			std::cout << "\tleft click, L - reverse the orbit of the cube" << std::endl;
-			std::cout << "\tright click, F - reverse the rotation of the cube" << std::endl;
+			std::cout << "\tR - Pause the rotation of the planet" << std::endl;
+			std::cout << "\tO - Pause the orbit of the planet" << std::endl;
+			std::cout << "\tleft click, L - Reverse the orbit of the planet" << std::endl;
+			std::cout << "\tright click, F - Reverse the rotation of the planet" << std::endl;
+			std::cout << std::endl;
+
+			std::cout << "The orbit and rotation speed of the planet can be adjusted in the planet menu." << std::endl
+				<< "Likewise the scale of the moon can be adjusted in the moon menu." << std::endl;
 			std::cerr << std::endl << std::endl;
 		}
 

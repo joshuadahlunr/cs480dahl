@@ -2,8 +2,10 @@
 
 # Arguments and keys
 
-The command to run the program (assuming that we compiled in a build directory one level below root) is:  
-  ./Tutorial -v vert.glsl -f frag.glsl  
+The command to run the program (assuming that we compiled in a build directory one level below root) is:
+```bash
+./PA3 -v vert.glsl -f frag.glsl  
+```
 
 ## Arguments
 * -h, -?, --help - Shows the help message
@@ -14,12 +16,15 @@ The command to run the program (assuming that we compiled in a build directory o
 
 
 ## Keys
-The cube menu at the top of the application is also capable of preforming all of the fellowing operations.  
+The Planet dropdown menu at the top of the application is also capable of preforming all of the following operations.  
 
-* R - pause the rotation of the cube
-* O - pause the orbit of the cube
-* left click, L - reverse the orbit of the cube
-* right click, F - reverse the rotation of the cube
+* R - Pause the rotation of the planet.
+* O - Pause the orbit of the planet.
+* left click, L - Reverse the orbit of the planet.
+* right click, F - Reverse the rotation of the planet.
+
+Additionally, the orbit and rotation speed of the planet can be adjusted in the planet dropdown menu.
+Likewise the scale of the moon can be adjusted in the moon dropdown menu.
 
 
 # Dependencies, Building, and Running
@@ -27,49 +32,23 @@ The cube menu at the top of the application is also capable of preforming all of
 ## Dependency Instructions
 For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
 
-These programs should already be installed on the ECC computers.
-
-### Ubuntu/Linux
+## Dear ImGui
+The program relies on the Dear ImGui library. If git is being used this library is included as a submodule and may be downloaded by running:
 ```bash
-sudo apt-get install libglew-dev libglm-dev libsdl2-dev
+git submodule init
+git submodule update
 ```
 
-### Mac OSX
-Installation of brew is suggested to easily install the libs. Ensure that the latest version of the Developer Tools is installed.
-```bash
-brew install glew glm sdl2
-```
+If git is not being used the library will need to be download from: https://github.com/ocornut/imgui
+The the code zip must be extracted into `PA3/thirdparty`.
 
-## Building and Running
-To build this project there are two options. One is to use CMake which makes including new libraries easier, and handles new files added automatically to the src and include directory. CMake is a small new learning curve but makes things easier in the future.
-The second option is to use the provided Makefile which is used as usual.
-
-Running the make in a separate directory will allow easy cleanup of the build data, and an easy way to prevent unnecessary data to be added to the git repository.  
-
-### CMake Instructions
-The building of the project is done using CMake, installation with apt-get or brew may be necessary. Later use with CMake and Shader files will be require the copy of a directory where those files are stored (ex. shaders). To do this in the ```add_custom_target``` function place
-```cmake
-COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders/ ${CMAKE_CURRENT_BINARY_DIR}/shaders
-```
+## CMake Instructions
+The building of the project is done using CMake, installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).
 
 ```bash
 mkdir build
 cd build
 cmake ..
 make
-./Tutorial
+./PA3 -v vert.glsl -f frag.glsl  
 ```
-
-### Makefile Instructions
-The makefile works as expected and must be updated with new files added in.
-
-```bash
-mkdir build
-cd build
-cp ../makefile .
-make
-./Tutorial
-```
-
-## Netboot Ubuntu\Debian
-The project should run on the network install of Debian in the ECC. To boot into this OS, restart the computer and use the arrow keys on boot to select Ubuntu\Debian from the startup list (currently its listed under CS135).

@@ -27,24 +27,16 @@ The cube menu at the top of the application is also capable of preforming all of
 ## Dependency Instructions
 For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
 
-These programs should already be installed on the ECC computers.
-
-### Ubuntu/Linux
+## Dear ImGui
+The program relies on the Dear ImGui library. If git is being used this library is included as a submodule and may be downloaded by running:
 ```bash
-sudo apt-get install libglew-dev libglm-dev libsdl2-dev
+git submodule init
+git submodule update
 ```
 
-### Mac OSX
-Installation of brew is suggested to easily install the libs. Ensure that the latest version of the Developer Tools is installed.
-```bash
-brew install glew glm sdl2
-```
+If git is not being used the library will need to be download from: https://github.com/ocornut/imgui
+The the code zip must be extracted into `PA2/thirdparty`.
 
-## Building and Running
-To build this project there are two options. One is to use CMake which makes including new libraries easier, and handles new files added automatically to the src and include directory. CMake is a small new learning curve but makes things easier in the future.
-The second option is to use the provided Makefile which is used as usual.
-
-Running the make in a separate directory will allow easy cleanup of the build data, and an easy way to prevent unnecessary data to be added to the git repository.  
 
 ### CMake Instructions
 The building of the project is done using CMake, installation with apt-get or brew may be necessary. Later use with CMake and Shader files will be require the copy of a directory where those files are stored (ex. shaders). To do this in the ```add_custom_target``` function place
@@ -70,6 +62,3 @@ cp ../makefile .
 make
 ./Tutorial
 ```
-
-## Netboot Ubuntu\Debian
-The project should run on the network install of Debian in the ECC. To boot into this OS, restart the computer and use the arrow keys on boot to select Ubuntu\Debian from the startup list (currently its listed under CS135).
