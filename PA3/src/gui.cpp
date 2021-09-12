@@ -48,21 +48,39 @@ void GUI::Render(){
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
+	// bool open = true;
+	// ImGui::ShowDemoWindow(&open);
 
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-    	if (ImGui::BeginMenu("Cube")) {
-			if (ImGui::MenuItem((graphics->getSelected<Planet>()->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
-				graphics->getSelected<Planet>()->toggleOrbit();
-			if (ImGui::MenuItem((graphics->getSelected<Planet>()->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
-				graphics->getSelected<Planet>()->toggleRotation();
+    	if (ImGui::BeginMenu("Planet")) {
+			// Get Reference to the planet
+			Planet* planet = graphics->getSelected<Planet>();
+
+			// Pause options
+			if (ImGui::MenuItem((planet->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
+				planet->toggleOrbit();
+			if (ImGui::MenuItem((planet->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
+				planet->toggleRotation();
 
 			ImGui::Separator();
 
+			// Reverse options
 			if (ImGui::MenuItem("Reverse Orbit", "L"))
-				graphics->getSelected<Planet>()->reverseOrbit();
+				planet->reverseOrbit();
 			if (ImGui::MenuItem("Reverse Rotation", "F"))
-				graphics->getSelected<Planet>()->reverseRotation();
+				planet->reverseRotation();
+
+			ImGui::Separator();
+
+			// Speed options
+			float speed = planet->getOrbitSpeed();
+			if(ImGui::SliderFloat((planet->orbitIsReversed() ? "Orbit Reversed Speed" : "Orbit Speed"), &speed, 0.1f, 5.0f))
+				planet->setOrbitSpeed(speed);
+			speed = planet->getRotationSpeed();
+			if(ImGui::SliderFloat((planet->rotationIsReversed() ? "Rotation Reversed Speed" : "Rotation Speed"), &speed, 0.1f, 5.0f))
+				planet->setRotationSpeed(speed);
+
 			ImGui::EndMenu();
 		}
 

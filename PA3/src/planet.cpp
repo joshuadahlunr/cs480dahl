@@ -3,9 +3,9 @@
 void Planet::Update(unsigned int dt) {
 	// std::cout << m_reverseOrbit << " - " << m_reverseRotation << " - " << pauseOrbit << " - " << pauseRotation << std::endl;
 	if(!pauseOrbit)
-		orbitAngle += dt * M_PI/1000 * (m_reverseOrbit ? -1 : 1);
+		orbitAngle += dt * M_PI/1000 * (m_reverseOrbit ? -1 : 1) * orbitSpeed;
 	if(!pauseRotation)
-		rotationAngle += dt * M_PI/1000 * (m_reverseRotation ? -1 : 1);
+		rotationAngle += dt * M_PI/1000 * (m_reverseRotation ? -1 : 1) * rotationSpeed;
 
 	glm::vec3 translation(cos(orbitAngle) * 5, 0, sin(orbitAngle) * 5);
 	setModel( glm::rotate(glm::translate( glm::mat4(1.0f), translation ), (rotationAngle), glm::vec3(0.0, 1.0, 0.0)) );
