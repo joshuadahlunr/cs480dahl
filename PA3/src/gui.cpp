@@ -5,6 +5,7 @@
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
 #include "planet.h"
+#include "moon.h"
 
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
@@ -62,6 +63,16 @@ void GUI::Render(){
 				graphics->getSelected<Planet>()->reverseOrbit();
 			if (ImGui::MenuItem("Reverse Rotation", "F"))
 				graphics->getSelected<Planet>()->reverseRotation();
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Moon")) {
+			Moon* moon = reinterpret_cast<Moon*>( graphics->getSelected<Planet>()->getChildren()[0] );
+
+			// Moon scale
+			float scale = moon->getScale();
+			if(ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f))
+				moon->setScale(scale);
 
 			ImGui::EndMenu();
 		}
