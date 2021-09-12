@@ -74,12 +74,14 @@ void GUI::Render(){
 			ImGui::Separator();
 
 			// Speed options
-			float speed = planet->getOrbitSpeed();
+			float speed = (planet->orbitIsPaused() ? 0 : planet->getOrbitSpeed());
 			if(ImGui::SliderFloat((planet->orbitIsReversed() ? "Orbit Reversed Speed" : "Orbit Speed"), &speed, 0.1f, 5.0f))
-				planet->setOrbitSpeed(speed);
-			speed = planet->getRotationSpeed();
+				if(!planet->orbitIsPaused())
+					planet->setOrbitSpeed(speed);
+			speed = (planet->rotationIsPaused() ? 0 : planet->getRotationSpeed());
 			if(ImGui::SliderFloat((planet->rotationIsReversed() ? "Rotation Reversed Speed" : "Rotation Speed"), &speed, 0.1f, 5.0f))
-				planet->setRotationSpeed(speed);
+				if(!planet->rotationIsPaused())
+					planet->setRotationSpeed(speed);
 
 			ImGui::EndMenu();
 		}
