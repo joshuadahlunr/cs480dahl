@@ -8,6 +8,11 @@ The command to run the program (assuming that we compiled in a build directory o
 ```
 
 The slight variations in color of the box model are intended to provide a little bit of fake depth perception.
+Several additional object files have been included for testing:
+* Colored Cube: startingCube.obj
+* UTAH Bunny: bunny.obj
+* Stanford Teapot: teapot.obj
+* 3D Printing Benchmark Boat: benchy.obj
 
 ## Arguments
 * -h, -?, --help - Shows the help message
