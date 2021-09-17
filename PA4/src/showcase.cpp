@@ -1,6 +1,6 @@
-#include "planet.h"
+#include "showcase.h"
 
-void Planet::Update(unsigned int dt) {
+void Showcase::Update(unsigned int dt) {
 	// std::cout << m_reverseOrbit << " - " << m_reverseRotation << " - " << pauseOrbit << " - " << pauseRotation << std::endl;
 	if(!pauseOrbit)
 		orbitAngle += dt * M_PI/1000 * (m_reverseOrbit ? -1 : 1) * orbitSpeed;
@@ -13,7 +13,7 @@ void Planet::Update(unsigned int dt) {
 	Object::Update(dt);
 }
 
-void Planet::Keyboard(const SDL_KeyboardEvent& e){
+void Showcase::Keyboard(const SDL_KeyboardEvent& e){
 	if(e.type != SDL_KEYDOWN) return;
 
 	if(e.keysym.sym == SDLK_o)
@@ -28,7 +28,7 @@ void Planet::Keyboard(const SDL_KeyboardEvent& e){
 	// No reference to base keyboard... we don't pass events to moons
 }
 
-void Planet::MouseButton(const SDL_MouseButtonEvent& e){
+void Showcase::MouseButton(const SDL_MouseButtonEvent& e){
 	if(e.type != SDL_MOUSEBUTTONDOWN) return;
 
 	if(e.button == SDL_BUTTON_LEFT)
@@ -39,7 +39,7 @@ void Planet::MouseButton(const SDL_MouseButtonEvent& e){
 	// No reference to base keyboard... we don't pass events to moons
 }
 
-void Planet::toggleOrbit(){ pauseOrbit = !pauseOrbit; }
-void Planet::toggleRotation(){ pauseRotation = !pauseRotation; }
-void Planet::reverseOrbit(){ m_reverseOrbit = !m_reverseOrbit; }
-void Planet::reverseRotation(){ m_reverseRotation = !m_reverseRotation; }
+void Showcase::toggleOrbit(){ pauseOrbit = !pauseOrbit; }
+void Showcase::toggleRotation(){ pauseRotation = !pauseRotation; }
+void Showcase::reverseOrbit(){ m_reverseOrbit = !m_reverseOrbit; }
+void Showcase::reverseRotation(){ m_reverseRotation = !m_reverseRotation; }

@@ -1,8 +1,7 @@
 #include "graphics.h"
 #include "engine.h"
 
-#include "planet.h"
-#include "moon.h"
+#include "showcase.h"
 
 Graphics::Graphics() { }
 
@@ -39,13 +38,10 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	// Create the planet
-	selected = sceneRoot = new Planet();
+	// Create the showcase
+	selected = sceneRoot = new Showcase();
 	engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
 	engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
-
-	// Create the moon
-	sceneRoot->addChild(new Moon());
 
 	// Set up the shaders
 	m_shader = new Shader();

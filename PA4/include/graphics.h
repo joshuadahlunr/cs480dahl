@@ -13,7 +13,7 @@ using namespace std;
 #include "arguments.h"
 
 class Engine;
-class Planet;
+class Showcase;
 
 class Graphics {
 public:
@@ -40,7 +40,7 @@ private:
 	GLint m_viewMatrix;
 	GLint m_modelMatrix;
 
-	Planet* sceneRoot;
+	Showcase* sceneRoot;
 
 	Object* selected;
 };

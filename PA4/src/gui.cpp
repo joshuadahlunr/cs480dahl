@@ -4,8 +4,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
-#include "planet.h"
-#include "moon.h"
+#include "showcase.h"
 
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
@@ -53,49 +52,39 @@ void GUI::Render(){
 
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-    	if (ImGui::BeginMenu("Planet")) {
-			// Get Reference to the planet
-			Planet* planet = graphics->getSelected<Planet>();
+    	if (ImGui::BeginMenu("Showcase")) {
+			// Get Reference to the showcase
+			Showcase* showcase = graphics->getSelected<Showcase>();
 
 			// Pause options
-			if (ImGui::MenuItem((planet->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
-				planet->toggleOrbit();
-			if (ImGui::MenuItem((planet->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
-				planet->toggleRotation();
+			if (ImGui::MenuItem((showcase->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
+				showcase->toggleOrbit();
+			if (ImGui::MenuItem((showcase->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
+				showcase->toggleRotation();
 
 			ImGui::Separator();
 
 			// Reverse options
 			if (ImGui::MenuItem("Reverse Orbit", "L"))
-				planet->reverseOrbit();
+				showcase->reverseOrbit();
 			if (ImGui::MenuItem("Reverse Rotation", "F"))
-				planet->reverseRotation();
+				showcase->reverseRotation();
 
 			ImGui::Separator();
 
 			// Speed options
-			float speed = (planet->orbitIsPaused() ? 0 : planet->getOrbitSpeed());
-			if(ImGui::SliderFloat((planet->orbitIsReversed() ? "Orbit Reversed Speed" : "Orbit Speed"), &speed, 0.1f, 5.0f))
-				if(!planet->orbitIsPaused())
-					planet->setOrbitSpeed(speed);
-			speed = (planet->rotationIsPaused() ? 0 : planet->getRotationSpeed());
-			if(ImGui::SliderFloat((planet->rotationIsReversed() ? "Rotation Reversed Speed" : "Rotation Speed"), &speed, 0.1f, 5.0f))
-				if(!planet->rotationIsPaused())
-					planet->setRotationSpeed(speed);
+			float speed = (showcase->orbitIsPaused() ? 0 : showcase->getOrbitSpeed());
+			if(ImGui::SliderFloat((showcase->orbitIsReversed() ? "Orbit Reversed Speed" : "Orbit Speed"), &speed, 0.1f, 5.0f))
+				if(!showcase->orbitIsPaused())
+					showcase->setOrbitSpeed(speed);
+			speed = (showcase->rotationIsPaused() ? 0 : showcase->getRotationSpeed());
+			if(ImGui::SliderFloat((showcase->rotationIsReversed() ? "Rotation Reversed Speed" : "Rotation Speed"), &speed, 0.1f, 5.0f))
+				if(!showcase->rotationIsPaused())
+					showcase->setRotationSpeed(speed);
 
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Moon")) {
-			Moon* moon = reinterpret_cast<Moon*>( graphics->getSelected<Planet>()->getChildren()[0] );
-
-			// Moon scale
-			float scale = moon->getScale();
-			if(ImGui::SliderFloat("Scale", &scale, 0.1f, 5.0f))
-				moon->setScale(scale);
-
-			ImGui::EndMenu();
-		}
 		ImGui::EndMainMenuBar();
 	}
 

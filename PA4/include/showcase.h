@@ -1,9 +1,9 @@
-#ifndef PLANET_H
-#define PLANET_H
+#ifndef SHOWCASE_H
+#define SHOWCASE_H
 
 #include "object.h"
 
-class Planet: public Object {
+class Showcase: public Object {
 public:
 	void Update(unsigned int dt) override;
 
