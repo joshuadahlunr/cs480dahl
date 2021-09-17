@@ -4,27 +4,29 @@
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:
 ```bash
-./PA4 -v vert.glsl -f frag.glsl  
+./PA4 -v vert.glsl -f frag.glsl -m box.obj
 ```
+
+The slight variations in color of the box model are intended to provide a little bit of fake depth perception.
 
 ## Arguments
 * -h, -?, --help - Shows the help message
-* -v <file> - Sets the vertex shader (relative to the resource/shader directory)
-* -f <file> - Sets the fragment shader (relative to the resource/shader directory)
+* -v <file> - Sets the vertex shader (relative to the resource/shaders directory)
+* -f <file> - Sets the fragment shader (relative to the resource/shaders directory)
+* -m <file> - Sets the obj model (relative to the resource/models directory)
 ### Optional
 * --resource-path <path> - Sets the resource directory, the directory where all of the program's resources can be found. [default=../]
 
 
 ## Keys
-The Planet dropdown menu at the top of the application is also capable of preforming all of the following operations.  
+The Showcase dropdown menu at the top of the application is also capable of preforming all of the following operations.  
 
-* R - Pause the rotation of the planet.
-* O - Pause the orbit of the planet.
-* left click, L - Reverse the orbit of the planet.
-* right click, F - Reverse the rotation of the planet.
+* R - Pause the rotation of the Showcase.
+* O - Pause the orbit of the Showcase.
+* left click, L - Reverse the orbit of the Showcase.
+* right click, F - Reverse the rotation of the Showcase.
 
-Additionally, the orbit and rotation speed of the planet can be adjusted in the planet dropdown menu.
-Likewise the scale of the moon can be adjusted in the moon dropdown menu.
+Additionally, the orbit and rotation speed of the Showcase can be adjusted in the Showcase dropdown menu.
 
 
 # Dependencies, Building, and Running

@@ -4,11 +4,13 @@
 #include <vector>
 #include <SDL2/SDL.h>
 #include "graphics_headers.h"
+#include "arguments.h"
 
 class Object {
 public:
 	Object();
 	~Object();
+	virtual void Initialize(const Arguments& args);
 	virtual void Update(unsigned int dt);
 	virtual void Render(GLint modelMatrix);
 
@@ -23,6 +25,9 @@ public:
 	glm::mat4 GetModel() { return model; }
 	void setModel(glm::mat4 _model) { model = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);
+
+protected:
+	void LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 protected:
 	glm::mat4 model;

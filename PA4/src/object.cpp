@@ -1,74 +1,131 @@
 #include "object.h"
 
+#include <fstream>
+#include <sstream>
+
 Object::Object() {
-	/*
-		# Blender File for a Cube
-		o Cube
-		v 1.000000 -1.000000 -1.000000
-		v 1.000000 -1.000000 1.000000
-		v -1.000000 -1.000000 1.000000
-		v -1.000000 -1.000000 -1.000000
-		v 1.000000 1.000000 -0.999999
-		v 0.999999 1.000000 1.000001
-		v -1.000000 1.000000 1.000000
-		v -1.000000 1.000000 -1.000000
-		s off
-		f 2 3 4
-		f 8 7 6
-		f 1 5 6
-		f 2 6 7
-		f 7 8 4
-		f 1 4 8
-		f 1 2 4
-		f 5 8 6
-		f 2 1 6
-		f 3 2 7
-		f 3 7 4
-		f 5 1 8
-	*/
-
-	Vertices = {
-		{{1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}},
-		{{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
-		{{-1.0f, -1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-		{{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}},
-		{{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}},
-		{{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
-		{{-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f}},
-		{{-1.0f, 1.0f, -1.0f}, {1.0f, 1.0f, 1.0f}}
-	};
-
-	Indices = {
-		2, 3, 4,
-		8, 7, 6,
-		1, 5, 6,
-		2, 6, 7,
-		7, 8, 4,
-		1, 4, 8,
-		1, 2, 4,
-		5, 8, 6,
-		2, 1, 6,
-		3, 2, 7,
-		3, 7, 4,
-		5, 1, 8
-	};
-
-	// The index works at a 0th index
-	for(unsigned int i = 0; i < Indices.size(); i++)
-		Indices[i] = Indices[i] - 1;
-
+	// Create the vertex and index buffers for this object
 	glGenBuffers(1, &VB);
-	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
-
 	glGenBuffers(1, &IB);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
 }
 
 Object::~Object() {
 	Vertices.clear();
 	Indices.clear();
+}
+
+void Object::Initialize(const Arguments& args){
+	// Get the showcase path from the arguments
+	std::string filepath = args.getShowcaseModelPath();
+	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
+	std::string modelDirectory = args.getResourcePath() + "models/";
+	if(filepath.find(modelDirectory) == std::string::npos)
+		filepath = modelDirectory + filepath;
+
+	// Load the model
+	LoadOBJFile(filepath);
+
+	for(Object* child: children)
+		child->Initialize(args);
+}
+
+void Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation){
+
+	std::ifstream objFile(path);
+
+	std::cout << "loading model" << std::endl;
+
+	std::string line;
+	while(objFile){
+		std::getline(objFile, line);
+		size_t lineStart = line.find_first_not_of(" \t\n\r");
+
+		// Variable unessicary characters can be read into
+		char trash;
+
+		// Ignore empty lines
+		if(line.empty())
+			continue;
+
+		// Ignore comment lines
+		if(line[lineStart] == '#')
+			continue;
+
+		// Parse the vertecies
+		if(line.substr(lineStart, lineStart + 2) == "v "){
+			std::stringstream s(line.substr(lineStart + 1));
+
+			// Parse the position
+			glm::vec3 pos;
+			s >> pos.x >> pos.y >> pos.z;
+
+			// Apply the import transformation to the position
+			glm::vec4 _pos;
+			_pos.x = pos.x; _pos.y = pos.y; _pos.z = pos.z; _pos.w = 1; // _pos = pos
+			_pos = onImportTransformation * _pos;
+			pos.x = _pos.x; pos.y = _pos.y; pos.z = _pos.z; // pos = _pos
+
+			// Parse the vertex color (may not be present so check that we are still good after each read)
+			glm::vec3 color;
+			if(s) s >> color.r;
+			if(s) s >> color.g;
+			if(s) s >> color.b;
+
+			Vertices.emplace_back(pos, color);
+		}
+
+		// Parse the indecies
+		if(line.substr(lineStart, lineStart + 2) == "f "){
+			std::stringstream s(line.substr(lineStart + 1));
+
+			std::string part;
+			// We are assuming three indecies per face
+			for(int i = 0; i < 3; i++){
+				s >> part;
+				std::stringstream partStream(part);
+
+				int vert, texture, normal;
+
+				partStream >> vert; // Vertex isn't optional
+				// Optional texture
+				if(partStream) partStream >> trash; // remove /
+				if(partStream) {
+					partStream >> trash;
+					// If there is a number in the middle, read it into texture
+					if(isdigit(trash) || trash == '-'){
+						partStream.putback(trash);
+						partStream >> texture;
+					// Otherwise there is no texture (vert//normal)
+					} else
+						partStream.putback(trash);
+				}
+				// Optional normal
+				if(partStream) partStream >> trash; // Remove /
+				if(partStream) partStream >> normal;
+
+				// If the vertex is negative... then it is based on the end of the vertex array instead of the beginning
+				if(vert < 0) vert = Vertices.size() + vert;
+				// Same thing for texture and normal
+
+				Indices.push_back(vert);
+			}
+		}
+
+
+		// std::cout << line << std::endl;
+	}
+
+	// The index works at a 0th index
+	for(unsigned int i = 0; i < Indices.size(); i++)
+		Indices[i] = Indices[i] - 1;
+
+	// Add the data to the vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VB);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
+
+	// Add the data to the index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
 }
 
 void Object::Update(unsigned int dt){

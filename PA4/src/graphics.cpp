@@ -40,6 +40,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 	// Create the showcase
 	selected = sceneRoot = new Showcase();
+	sceneRoot->Initialize(args);
 	engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
 	engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
 

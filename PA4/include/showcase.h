@@ -26,8 +26,8 @@ public:
 	float getRotationSpeed() { return rotationSpeed; }
 
 private:
-	float orbitAngle = 0, rotationAngle = 0;
-	bool pauseOrbit = false, pauseRotation = false;
+	float orbitAngle = 90, rotationAngle = 0;
+	bool pauseOrbit = true, pauseRotation = false;
 	bool m_reverseOrbit = false, m_reverseRotation = false;
 
 	float orbitSpeed = 1, rotationSpeed = 1;
