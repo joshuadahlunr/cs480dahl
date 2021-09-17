@@ -14,7 +14,9 @@ Object::~Object() {
 	Indices.clear();
 }
 
-void Object::Initialize(const Arguments& args){
+bool Object::Initialize(const Arguments& args){
+	bool success = true;
+
 	// Get the showcase path from the arguments
 	std::string filepath = args.getShowcaseModelPath();
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
@@ -23,17 +25,21 @@ void Object::Initialize(const Arguments& args){
 		filepath = modelDirectory + filepath;
 
 	// Load the model
-	LoadOBJFile(filepath);
+	success &= LoadOBJFile(filepath);
 
+	// Initialize the children
 	for(Object* child: children)
-		child->Initialize(args);
+		success &= child->Initialize(args);
+
+	return success;
 }
 
-void Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation){
-
+bool Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation){
 	std::ifstream objFile(path);
-
-	std::cout << "loading model" << std::endl;
+	if(!objFile){
+		std::cerr << "Model `" << path << "` not found!" << std::endl;
+		return false; // If the file doesn't exist then there is an issue
+	}
 
 	std::string line;
 	while(objFile){
@@ -81,7 +87,11 @@ void Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformati
 			std::string part;
 			// We are assuming three indecies per face
 			for(int i = 0; i < 3; i++){
-				s >> part;
+				if(s) s >> part;
+				else {  // If we don't have at least three vertecies there is a problem with the file
+					std::cerr << "Model face `" << line << "` contains too few vertecies!" << std::endl;
+					return false;
+				}
 				std::stringstream partStream(part);
 
 				int vert, texture, normal;
@@ -109,8 +119,13 @@ void Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformati
 
 				Indices.push_back(vert);
 			}
-		}
 
+			if(s) s >> part;
+			if(s) {	// If we have more than 3 vertecies there is a problem with file
+				std::cerr << "Model face `" << line << "` contains too many vertecies!" << std::endl;
+				return false;
+			}
+		}
 
 		// std::cout << line << std::endl;
 	}
@@ -126,6 +141,8 @@ void Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformati
 	// Add the data to the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
+
+	return true;
 }
 
 void Object::Update(unsigned int dt){

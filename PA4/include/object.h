@@ -10,7 +10,7 @@ class Object {
 public:
 	Object();
 	~Object();
-	virtual void Initialize(const Arguments& args);
+	virtual bool Initialize(const Arguments& args);
 	virtual void Update(unsigned int dt);
 	virtual void Render(GLint modelMatrix);
 
@@ -27,7 +27,7 @@ public:
 	void setModelRelativeToParent(glm::mat4 _model);
 
 protected:
-	void LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
+	bool LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 protected:
 	glm::mat4 model;
