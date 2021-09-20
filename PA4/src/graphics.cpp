@@ -5,7 +5,11 @@
 
 Graphics::Graphics() { }
 
-Graphics::~Graphics() { }
+Graphics::~Graphics() {
+	// Ensure that the scene root isn't leaked
+	delete sceneRoot;
+	sceneRoot = nullptr;
+}
 
 bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments& args) {
 	// Used for the linux OS

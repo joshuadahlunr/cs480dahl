@@ -10,6 +10,12 @@ Object::Object() {
 }
 
 Object::~Object() {
+	// Make sure all of the children are freed
+	for(Object* child: children){
+		delete child;
+		child = nullptr;
+	}
+
 	Vertices.clear();
 	Indices.clear();
 }
@@ -146,6 +152,7 @@ bool Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformati
 }
 
 void Object::Update(unsigned int dt){
+	// Pass along to children
 	for(Object* child: children)
 		child->Update(dt);
 }
@@ -172,8 +179,10 @@ void Object::Render(GLint modelMatrix) {
 }
 
 Object* Object::setParent(Object* p){
+	// If the parent is the same as what we are setting it to... do nothing
 	if(parent == p) return p;
 
+	// If this object already has a parent... remove it as a child of that parent
 	if(parent != nullptr)
 		for(int i = 0; i < parent->children.size(); i++)
 			if(parent->children[i] == this){ // TODO: Are pointer comparisons sufficient here?
@@ -181,7 +190,9 @@ Object* Object::setParent(Object* p){
 				break;
 			}
 
+	// Mark the new parent as our parent
 	parent = p;
+	// Add ourselves as a child of that parent
 	p->addChild(this);
 	return p;
 }
@@ -192,21 +203,26 @@ Object* Object::addChild(Object* child){
 		if(c == child)
 			return child;
 
+	// Add the object as a child
 	children.push_back(child);
+	// Mark us as the object's parent
 	child->setParent(this);
 	return child;
 }
 
 void Object::Keyboard(const SDL_KeyboardEvent& e){
+	// Pass along to children
 	for(Object* child: children)
 		child->Keyboard(e);
 }
 
 void Object::MouseButton(const SDL_MouseButtonEvent& e){
+	// Pass along to children
 	for(Object* child: children)
 		child->MouseButton(e);
 }
 
 void Object::setModelRelativeToParent(glm::mat4 _model){
+	// Multiply the new model by the parent's model (if we have a parent)
 	model = (parent ? parent->model : glm::mat4(1)) * _model;
 }

@@ -45,7 +45,6 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 	std::string s( (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>() );
 
 	GLuint ShaderObj = glCreateShader(ShaderType);
-
 	if (ShaderObj == 0) {
 		std::cerr << "Error creating shader type " << ShaderType << std::endl;
 		return false;
@@ -109,9 +108,7 @@ bool Shader::Finalize() {
 	return true;
 }
 
-
 void Shader::Enable() { glUseProgram(m_shaderProg); }
-
 
 GLint Shader::GetUniformLocation(const char* pUniformName) {
 	GLuint Location = glGetUniformLocation(m_shaderProg, pUniformName);
