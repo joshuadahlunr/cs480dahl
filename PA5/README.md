@@ -1,10 +1,17 @@
-# PA1: Spinning Cube
+# PA5: Assimp Model Loading
+
+## Team
+
+Our team is composed of the following members:  
+- Joshua Dahl  
+- Bryan Dedeurwaerder
+- Jonathan Peters
 
 # Arguments and keys
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:
 ```bash
-./PA4 -v vert.glsl -f frag.glsl -m box.obj
+./PA5 -v vert.glsl -f frag.glsl -m box.obj
 ```
 
 The slight variations in color of the box model are intended to provide a little bit of fake depth perception.
@@ -47,7 +54,13 @@ git submodule update
 ```
 
 If git is not being used the library will need to be download from: https://github.com/ocornut/imgui
-The the code zip must be extracted into `PA4/thirdparty`.
+The the code zip must be extracted into `PA5/thirdparty`.
+
+## Assimp Model Loading
+
+The program also relies on the Assimp library for model loading. See the assimp build install page for getting assimp installed.
+
+[Assimp build install](https://github.com/assimp/assimp/blob/master/Build.md)
 
 ## CMake Instructions
 The building of the project is done using CMake, installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).
@@ -57,5 +70,5 @@ mkdir build
 cd build
 cmake ..
 make
-./PA4 -v vert.glsl -f frag.glsl  
+./PA5 -v vert.glsl -f frag.glsl  
 ```
