@@ -19,6 +19,7 @@ Several additional object files have been included for testing:
 * Colored Cube: startingCube.obj
 * UTAH Bunny: bunny.obj
 * Stanford Teapot: teapot.obj
+* Stanford Dragon: dragon.obj
 * 3D Printing Benchmark Boat: benchy.obj
 
 ## Arguments
