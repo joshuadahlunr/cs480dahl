@@ -6,6 +6,11 @@
 #include "graphics_headers.h"
 #include "arguments.h"
 
+#include <assimp/Importer.hpp> //includes the importer, which is used to read our obj file
+#include <assimp/scene.h> //includes the aiScene object
+#include <assimp/postprocess.h> //includes the postprocessing variables for the importer
+#include <assimp/color4.h> //includes the aiColor4 object, which is used to handle the colors from the mesh objects
+
 class Object {
 public:
 	Object();
@@ -27,7 +32,7 @@ public:
 	void setModelRelativeToParent(glm::mat4 _model);
 
 protected:
-	bool LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
+	bool LoadModelFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 protected:
 	glm::mat4 model;

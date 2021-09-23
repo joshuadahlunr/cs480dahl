@@ -4,7 +4,7 @@
 #include <sstream>
 
 Object::Object() {
-	// Create the vertex and index buffers for this object
+	// Create the vertex and face buffers for this object
 	glGenBuffers(1, &VB);
 	glGenBuffers(1, &IB);
 }
@@ -31,7 +31,7 @@ bool Object::Initialize(const Arguments& args){
 		filepath = modelDirectory + filepath;
 
 	// Load the model
-	success &= LoadOBJFile(filepath);
+	success &= LoadModelFile(filepath);
 
 	// Initialize the children
 	for(Object* child: children)
@@ -40,111 +40,59 @@ bool Object::Initialize(const Arguments& args){
 	return success;
 }
 
-bool Object::LoadOBJFile(const std::string& path, glm::mat4 onImportTransformation){
-	std::ifstream objFile(path);
-	if(!objFile){
-		std::cerr << "Model `" << path << "` not found!" << std::endl;
-		return false; // If the file doesn't exist then there is an issue
+bool Object::LoadModelFile(const std::string& path, glm::mat4 onImportTransformation){
+	// Load the model
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+
+	// Error handling
+	if(scene == nullptr){
+		std::cerr << "Failed to import model `" << path << "`: ";
+		std::cerr << importer.GetErrorString() << std::endl;
+		return false;
 	}
 
-	std::string line;
-	while(objFile){
-		std::getline(objFile, line);
-		size_t lineStart = line.find_first_not_of(" \t\n\r");
+	// Variable which tracks the starting index in vertecies list of this mesh. That way if multiple models are loaded the indecies are correct for latter models
+	int startingIndex = 0;
+	// For each mesh...
+	for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++){
+		// Set the starting index to be the index after the current end of the vertecies array
+		startingIndex = Vertices.size();
 
-		// Variable unessicary characters can be read into
-		char trash;
+		const aiMesh* mesh = scene->mMeshes[meshIndex];
+		// For each vertex...
+		for(int vert = 0; vert < mesh->mNumVertices; vert++){
 
-		// Ignore empty lines
-		if(line.empty())
-			continue;
-
-		// Ignore comment lines
-		if(line[lineStart] == '#')
-			continue;
-
-		// Parse the vertecies
-		if(line.substr(lineStart, lineStart + 2) == "v "){
-			std::stringstream s(line.substr(lineStart + 1));
-
-			// Parse the position
-			glm::vec3 pos;
-			s >> pos.x >> pos.y >> pos.z;
-
-			// Apply the import transformation to the position
-			glm::vec4 _pos;
-			_pos.x = pos.x; _pos.y = pos.y; _pos.z = pos.z; _pos.w = 1; // _pos = pos
-			_pos = onImportTransformation * _pos;
-			pos.x = _pos.x; pos.y = _pos.y; pos.z = _pos.z; // pos = _pos
-
-			// Parse the vertex color (may not be present so check that we are still good after each read)
-			glm::vec3 color;
-			if(s) s >> color.r;
-			if(s) s >> color.g;
-			if(s) s >> color.b;
-
-			Vertices.emplace_back(pos, color);
-		}
-
-		// Parse the indecies
-		if(line.substr(lineStart, lineStart + 2) == "f "){
-			std::stringstream s(line.substr(lineStart + 1));
-
-			std::string part;
-			// We are assuming three indecies per face
-			for(int i = 0; i < 3; i++){
-				if(s) s >> part;
-				else {  // If we don't have at least three vertecies there is a problem with the file
-					std::cerr << "Model face `" << line << "` contains too few vertecies!" << std::endl;
-					return false;
-				}
-				std::stringstream partStream(part);
-
-				int vert, texture, normal;
-
-				partStream >> vert; // Vertex isn't optional
-				// Optional texture
-				if(partStream) partStream >> trash; // remove /
-				if(partStream) {
-					partStream >> trash;
-					// If there is a number in the middle, read it into texture
-					if(isdigit(trash) || trash == '-'){
-						partStream.putback(trash);
-						partStream >> texture;
-					// Otherwise there is no texture (vert//normal)
-					} else
-						partStream.putback(trash);
-				}
-				// Optional normal
-				if(partStream) partStream >> trash; // Remove /
-				if(partStream) partStream >> normal;
-
-				// If the vertex is negative... then it is based on the end of the vertex array instead of the beginning
-				if(vert < 0) vert = Vertices.size() + vert;
-				// Same thing for texture and normal
-
-				Indices.push_back(vert);
+			// Extract the position
+			auto _pos = mesh->mVertices[vert];
+			// Apply an input transformation (defaults to the identity matrix)
+			glm::vec4 pos(_pos.x, _pos.y, _pos.z, 1);
+			pos = onImportTransformation * pos;
+			
+			// Extract the (first) vertex color if it exists
+			glm::vec3 color(1, 1, 1); // White by default
+			if(mesh->HasVertexColors(0)){
+				auto col = mesh->mColors[0][vert];
+				color = glm::vec3(col.r, col.g, col.b);
 			}
 
-			if(s) s >> part;
-			if(s) {	// If we have more than 3 vertecies there is a problem with file
-				std::cerr << "Model face `" << line << "` contains too many vertecies!" << std::endl;
-				return false;
-			}
+			// Add the vertex to the list of vertecies
+			Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color);
 		}
 
-		// std::cout << line << std::endl;
+		// For each face...
+		for(int face = 0; face < mesh->mNumFaces; face++)
+			// For each index in the face (3 in the triangles)
+			for(int index = 0; index < 3; index++)
+				// Add the index to the list of indecies
+				Indices.push_back(mesh->mFaces[face].mIndices[index] + /* Make sure to compensate for multiple models */ startingIndex);
 	}
-
-	// The index works at a 0th index
-	for(unsigned int i = 0; i < Indices.size(); i++)
-		Indices[i] = Indices[i] - 1;
 
 	// Add the data to the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
 
-	// Add the data to the index buffer
+	// Add the data to the face buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
 
