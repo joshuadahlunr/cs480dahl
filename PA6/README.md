@@ -1,4 +1,4 @@
-# PA6: Assimp Model Loading
+# PA6: Assimp Texture Loading
 
 ## Team
 
@@ -11,11 +11,12 @@ Our team is composed of the following members:
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:
 ```bash
-./PA6 -v vert.glsl -f frag.glsl -m box.obj
+./PA6 -v vert.glsl -f frag.glsl -m buddha.obj
 ```
 
 The slight variations in color of the box model are intended to provide a little bit of fake depth perception.
 Several additional object files have been included for testing:
+* Buddha with Textures: buddha.obj
 * Colored Cube: startingCube.obj
 * UTAH Bunny: bunny.obj
 * Stanford Teapot: teapot.obj
@@ -71,5 +72,4 @@ mkdir build
 cd build
 cmake ..
 make
-./PA6 -v vert.glsl -f frag.glsl  
 ```

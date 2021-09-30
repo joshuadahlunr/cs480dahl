@@ -32,7 +32,7 @@ public:
 	void setModelRelativeToParent(glm::mat4 _model);
 
 protected:
-	bool LoadModelFile(const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
+	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 protected:
 	glm::mat4 model;
@@ -40,8 +40,9 @@ protected:
 	std::vector<unsigned int> Indices;
 	GLuint VB;
 	GLuint IB;
+	GLuint tex = -1;
 
-	Object* parent = nullptr;
+	Object* parent;
 	std::vector<Object*> children;
 };
 
