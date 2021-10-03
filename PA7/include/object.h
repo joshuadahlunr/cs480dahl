@@ -33,6 +33,7 @@ public:
 
 protected:
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
+	bool LoadTextureFile(const Arguments& args, std::string path);
 
 protected:
 	glm::mat4 model;

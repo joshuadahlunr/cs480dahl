@@ -4,7 +4,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
-#include "showcase.h"
+#include "celestial.h"
 
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
@@ -47,43 +47,9 @@ void GUI::Render(){
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	// bool open = true;
-	// ImGui::ShowDemoWindow(&open);
-
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-    	if (ImGui::BeginMenu("Showcase")) {
-			// Get Reference to the showcase
-			Showcase* showcase = graphics->getSelected<Showcase>();
-
-			// Pause options
-			if (ImGui::MenuItem((showcase->orbitIsPaused() ? "Resume Orbit" : "Pause Orbit"), "O"))
-				showcase->toggleOrbit();
-			if (ImGui::MenuItem((showcase->rotationIsPaused() ? "Resume Rotation" : "Pause Rotation"), "R"))
-				showcase->toggleRotation();
-
-			ImGui::Separator();
-
-			// Reverse options
-			if (ImGui::MenuItem("Reverse Orbit", "L"))
-				showcase->reverseOrbit();
-			if (ImGui::MenuItem("Reverse Rotation", "F"))
-				showcase->reverseRotation();
-
-			ImGui::Separator();
-
-			// Speed options
-			float speed = (showcase->orbitIsPaused() ? 0 : showcase->getOrbitSpeed());
-			if(ImGui::SliderFloat((showcase->orbitIsReversed() ? "Orbit Reversed Speed" : "Orbit Speed"), &speed, 0.1f, 5.0f))
-				if(!showcase->orbitIsPaused())
-					showcase->setOrbitSpeed(speed);
-			speed = (showcase->rotationIsPaused() ? 0 : showcase->getRotationSpeed());
-			if(ImGui::SliderFloat((showcase->rotationIsReversed() ? "Rotation Reversed Speed" : "Rotation Speed"), &speed, 0.1f, 5.0f))
-				if(!showcase->rotationIsPaused())
-					showcase->setRotationSpeed(speed);
-
-			ImGui::EndMenu();
-		}
+    	
 
 		ImGui::EndMainMenuBar();
 	}

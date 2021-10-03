@@ -1,7 +1,7 @@
 #include "graphics.h"
 #include "engine.h"
 
-#include "showcase.h"
+#include "celestial.h"
 
 Graphics::Graphics() { }
 
@@ -42,14 +42,14 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	// Create the showcase
-	selected = sceneRoot = new Showcase();
-	if(!sceneRoot->Initialize(args)) {
+	// Create the celestials
+	selected = sceneRoot = new Celestial();
+	if( !sceneRoot->Initialize(args, args.getResourcePath() + "textures/2k_mercury.jpg") ) {
 		printf("Failed to initialize scene tree\n");
 		return false;
 	}
-	engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
-	engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
+	// engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
+	// engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
 
 	// Set up the shaders
 	m_shader = new Shader();
@@ -117,7 +117,7 @@ void Graphics::Update(unsigned int dt) {
 
 void Graphics::Render() {
 	//clear the screen
-	glClearColor(0.0, 0.0, 0.2, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Start the correct program

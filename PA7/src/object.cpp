@@ -79,32 +79,10 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			aiString _path;
 			mat->GetTexture(aiTextureType_DIFFUSE, 0, &_path);
 
-			// If there is a diffuse texture
-			if(_path.length > 0) {
-				// Make the extracted path relative
-				std::string path(_path.C_Str());
-				std::string modelDirectory = args.getResourcePath() + "models/";
-				if(path.find(modelDirectory) == std::string::npos)
-					path = modelDirectory + path;
-
-				// Load the image
-				int width, height, channelsPresent;
-				unsigned char* img = stbi_load(path.c_str(), &width, &height, &channelsPresent, /*RGBA*/ 4);
-				if(img == nullptr) {
-					std::cerr << "Failed to load image `" << path << "`" << std::endl;
+			if(_path.length > 0) 
+				if( !obj->LoadTextureFile(args, std::string(_path.C_Str())) )
 					return false;
-				}
-
-				// Upload the imaage to the gpu
-				glGenTextures(1, &obj->tex);
-				glBindTexture(GL_TEXTURE_2D, obj->tex);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-				// Free the image
-				stbi_image_free(img);
-			}
+	
 		}
 
 		// For each vertex...
@@ -152,6 +130,34 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 
 	return true;
 }
+
+bool Object::LoadTextureFile(const Arguments& args, std::string path) {
+	// Make the extracted path relative
+	std::string modelDirectory = args.getResourcePath() + "models/";
+	if(path.find(modelDirectory) == std::string::npos)
+		path = modelDirectory + path;
+
+	// Load the image
+	int width, height, channelsPresent;
+	unsigned char* img = stbi_load(path.c_str(), &width, &height, &channelsPresent, /*RGBA*/ 4);
+	if(img == nullptr) {
+		std::cerr << "Failed to load image `" << path << "`" << std::endl;
+		return false;
+	}
+
+	// Upload the imaage to the gpu
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Free the image
+	stbi_image_free(img);
+
+	return true;
+}
+
 
 void Object::Update(unsigned int dt){
 	// Pass along to children
