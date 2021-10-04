@@ -14,7 +14,7 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 	success &= LoadModelFile(args, filepath);
 
 	glDeleteTextures(1, &tex);
-	success &= LoadTextureFile(args, texturePath);
+	success &= LoadTextureFile(args, texturePath, false);
 
 	orbitAngle = orbitInitialOffset;
 
@@ -46,7 +46,7 @@ void Celestial::Update(unsigned int dt) {
 
 	glm::mat4 planarModel = glm::translate(glm::mat4(1.0f), translation);
 	planarModel = planarModel * rotateTo(glm::vec3(0, 1, 0), axialTiltNormal);
-	planarModel = glm::rotate(planarModel, rotationAngle, glm::vec3(0, 1, 0));
+	planarModel = glm::rotate(planarModel, glm::radians(rotationAngle), glm::vec3(0, 1, 0));
 	planarModel = glm::scale(planarModel, glm::vec3(celestialRadius));
 
 	glm::mat4 orbitalTiltModel = rotateTo(glm::vec3(0, 1, 0), orbitalTiltNormal);

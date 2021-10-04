@@ -3,7 +3,7 @@
 
 #include "object.h"
 
-const float milliToSec = 0.001f;
+const float milliToSec = 1.0/1000.0;
 
 class Celestial: public Object {
 public:

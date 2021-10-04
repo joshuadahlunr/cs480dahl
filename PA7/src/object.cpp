@@ -131,10 +131,10 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 	return true;
 }
 
-bool Object::LoadTextureFile(const Arguments& args, std::string path) {
+bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeRelative) {
 	// Make the extracted path relative
 	std::string modelDirectory = args.getResourcePath() + "models/";
-	if(path.find(modelDirectory) == std::string::npos)
+	if(path.find(modelDirectory) == std::string::npos && makeRelative)
 		path = modelDirectory + path;
 
 	// Load the image
@@ -241,5 +241,10 @@ void Object::MouseButton(const SDL_MouseButtonEvent& e){
 
 void Object::setModelRelativeToParent(glm::mat4 _model){
 	// Multiply the new model by the parent's model (if we have a parent)
-	model = (parent ? parent->model : glm::mat4(1)) * _model;
+	childModel = model = (parent ? parent->childModel : glm::mat4(1)) * _model;
+}
+
+void Object::setChildModelRelativeToParent(glm::mat4 _model){
+	// Multiply the new model by the parent's model (if we have a parent)
+	childModel = (parent ? parent->childModel : glm::mat4(1)) * _model;
 }

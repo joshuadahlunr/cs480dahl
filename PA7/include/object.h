@@ -28,15 +28,18 @@ public:
 	const std::vector<Object*>& getChildren() const { return children; }
 
 	glm::mat4 GetModel() { return model; }
-	void setModel(glm::mat4 _model) { model = _model; }
+	void setModel(glm::mat4 _model) { childModel = model = _model; }
+	void setChildModel(glm::mat4 _model) { childModel = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);
+	void setChildModelRelativeToParent(glm::mat4 _model);
 
 protected:
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
-	bool LoadTextureFile(const Arguments& args, std::string path);
+	bool LoadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
 
 protected:
 	glm::mat4 model;
+	glm::mat4 childModel; // Model that is used as the base of to this object's children's model matricies
 	std::vector<Vertex> Vertices;
 	std::vector<unsigned int> Indices;
 	GLuint VB;
