@@ -37,7 +37,7 @@ bool Window::Initialize(const string &name, int* width, int* height) {
 		*width = current.w;
 	}
 
-	gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+	gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
 	if(gWindow == NULL) {
 		printf("Widow failed to create: %s\n", SDL_GetError());
 		return false;

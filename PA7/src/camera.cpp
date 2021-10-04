@@ -2,7 +2,10 @@
 
 Camera::Camera() { }
 
-Camera::~Camera() { }
+Camera::~Camera() {
+  // Unregister us as a listener to resize events
+  SDL_DelEventWatch(windowResizeEventListener, this);
+}
 
 bool Camera::Initialize(int w, int h) {
   //--Init the view and projection matrices
@@ -17,7 +20,29 @@ bool Camera::Initialize(int w, int h) {
 								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
 								 0.01f, //Distance to the near plane, normally a small value like this
 								 100.0f); //Distance to the far plane,
+
+  // Register us as a listener to resize events
+  SDL_AddEventWatch(windowResizeEventListener, this);
   return true;
+}
+
+int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
+  // Check if this is a window resize event
+  if (event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_RESIZED) {
+    // Extract the camera from the event data
+    Camera* camera = (Camera*) data;
+
+    int w = event->window.data1, h = event->window.data2;
+    camera->projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
+								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
+								 0.01f, //Distance to the near plane, normally a small value like this
+								 100.0f); //Distance to the far plane,
+    
+    // Resize the OpenGL viewport
+    glViewport(0, 0, w, h);
+  }
+  
+  return 0;
 }
 
 glm::mat4 Camera::GetProjection() { return projection; }

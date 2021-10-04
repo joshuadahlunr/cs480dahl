@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "graphics_headers.h"
+#include <SDL2/SDL.h>
 
 class Camera {
 public:
@@ -10,6 +11,8 @@ public:
 	bool Initialize(int w, int h);
 	glm::mat4 GetProjection();
 	glm::mat4 GetView();
+
+	static int windowResizeEventListener(void* data, SDL_Event* event);
 
 private:
 	glm::mat4 projection;
