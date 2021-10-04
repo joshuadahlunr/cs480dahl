@@ -1,5 +1,9 @@
 {
-    "Sun":
+    "Vertex Shader File Path": "vert.glsl",
+    "Fragment Shader File Path": "frag.glsl",
+    "Model File Path": "sphere.obj",
+
+    "Scene":
     {
         "Name:": "Sun",
         "Celestial Radius": 6.963,
@@ -13,8 +17,8 @@
                 "Orbit Initial Offset": 0,
                 "Orbital Tilt Normal": [1, 4, 0],
                 "Rotation Speed": 3.0,
-                "Axial Tilt Normal": [0, 1, 0],   
-                "Texture Path": "textures/2k_mercury.jpg",     
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_mercury.jpg",
                 "Children": [
                     {
                         "Name": "Mercury Hypothetical Moon",
@@ -24,7 +28,7 @@
                         "Orbit Initial Offset": 0,
                         "Orbital Tilt Normal": [0, 1, 0],
                         "Rotation Speed": 3.0,
-                        "Axial Tilt Normal": [0, 1, 0],        
+                        "Axial Tilt Normal": [0, 1, 0],
                         "Children": []
                     }
                 ]
@@ -38,7 +42,7 @@
                 "Orbital Tilt Normal": [0, 1, 0],
                 "Rotation Speed": 3.0,
                 "Axial Tilt Normal": [0, 1, 0],
-                "Texture Path": "textures/2k_venus_surface.jpg",      
+                "Texture Path": "textures/2k_venus_surface.jpg",
                 "Children": []
             },
             {
@@ -50,7 +54,7 @@
                 "Orbital Tilt Normal": [0, 1, 0],
                 "Rotation Speed": 3.0,
                 "Axial Tilt Normal": [0, 1, 0],
-                "Texture Path": "textures/2k_earth_daymap.jpg",      
+                "Texture Path": "textures/2k_earth_daymap.jpg",
                 "Children": []
             }
         ]

@@ -43,27 +43,8 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	//Open the config file, quit if opening fails
-	ifstream configFile(args.getResourcePath() + args.getConfigFilePath());
-	if(!configFile.is_open())
-	{
-		cout << "ERROR OPENING CONFIG FILE \"" << args.getConfigFilePath() << "\"." << endl;
-		return false;
-	}
-
-	json configJson;
-	configFile >> configJson;
-	configFile.close();
-	
 	// Create the celestials
-	// get JSON from args open it up
-	sceneRoot = CelestialFromJson(args, configJson["Sun"]);
-	// if( !sceneRoot->Initialize(args, args.getResourcePath() + "textures/2k_mercury.jpg") ) {
-	// 	printf("Failed to initialize scene tree\n");
-	// 	return false;
-	// }
-	// engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
-	// engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
+	sceneRoot = CelestialFromJson(args, args.getConfig()["Scene"]);
 
 	// Set up the shaders
 	m_shader = new Shader();

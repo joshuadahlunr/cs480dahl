@@ -12,10 +12,6 @@ using namespace std;
 #include "gui.h"
 #include "arguments.h"
 
-// for convenience
-#include <json.h>
-using json = nlohmann::json;
-
 class Engine;
 class Celestial;
 
@@ -25,7 +21,7 @@ public:
 	~Graphics();
 	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
 	Celestial* CelestialFromJson(const Arguments& args, json j);
-	
+
 	void Update(unsigned int dt);
 	void Render();
 

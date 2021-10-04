@@ -1,6 +1,7 @@
 #include "arguments.h"
 
 #include <iostream>
+#include <fstream>
 
 Arguments::Arguments(int argc, char **argv){
 	// If we weren't given any arguments, skip argument parsing
@@ -19,10 +20,10 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << std::string(60, '-') << std::endl;
 
 			std::cout << "\t-h, -?, --help - Shows this help message" << std::endl;
-			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)" << std::endl;
-			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)" << std::endl;
-			std::cout << "\t-m <file> - Sets the obj model (relative to the resource/models" << std::endl << "\t\tdirectory)" << std::endl;
-			std::cout << "\t-c <file> - Sets the config file" << std::endl;
+			std::cout << "\t-c <file> - Sets the config file (relative to the resource directory)\n\t\t[default=config.json]" << std::endl;
+			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Vertex Shader File Path\"]" << std::endl;
+			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Fragment Shader File Path\"]" << std::endl;
+			std::cout << "\t-m <file> - Sets the obj model (relative to the resource/models" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Model File Path\"]" << std::endl;
 
 			std::cout << "Optional" << std::endl;
 			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
@@ -96,10 +97,34 @@ Arguments::Arguments(int argc, char **argv){
 		}
 	}
 
-	// State that we can't continue if either the vertex or fragment shader isn't specified
-	canContinue = !vertexFilePath.empty() && !fragmentFilePath.empty() && !showcaseModelPath.empty();// && !configFilePath.empty();
+	// Make sure the config file exists and parse it
+	canContinue &= !configFilePath.empty();
+	if(canContinue){
+		std::ifstream configFile(resourcePath + configFilePath);
+		if(!configFile){
+			std::cerr << "Failed to open config file `" << resourcePath + configFilePath << "`" << std::endl;
+			canContinue = false;
+		}
+
+		try{
+			if(canContinue) configFile >> config;
+		} catch(json::parse_error& e) {
+			std::cerr << "Parsing the JSON config file failed: " << e.what() << std::endl;
+			canContinue = false;
+		}
+		configFile.close();
+	}
+
+	// Attempt to load the file paths from the config file if they weren't specified on the command line
+	if(vertexFilePath.empty() && config.contains("Vertex Shader File Path"))
+		vertexFilePath = config["Vertex Shader File Path"];
+	if(fragmentFilePath.empty() && config.contains("Fragment Shader File Path"))
+		fragmentFilePath = config["Fragment Shader File Path"];
+	if(showcaseModelPath.empty() && config.contains("Model File Path"))
+		showcaseModelPath = config["Model File Path"];
 
 	// If we can't continue provide an error message
+	canContinue &= !vertexFilePath.empty() && !fragmentFilePath.empty() && !showcaseModelPath.empty();
 	if(!canContinue){
 		std::cerr << "To run the program you must specify the vertex shader, fragment shader, model, and config file to load:" << std::endl;
 		std::cerr << argv[0] << " -v <file> -f <file> -m <file> -c <file>" << std::endl;
