@@ -1,0 +1,58 @@
+{
+    "Sun":
+    {
+        "Name:": "Sun",
+        "Celestial Radius": 6.963,
+        "Texture Path": "textures/2k_sun.jpg",
+        "Children": [
+            {
+                "Name": "Mercury",
+                "Celestial Radius": 1.0,
+                "Orbit Distance": 6.0,
+                "Orbit Speed": 100.0,
+                "Orbit Initial Offset": 0,
+                "Orbital Tilt Normal": [1, 4, 0],
+                "Rotation Speed": 3.0,
+                "Axial Tilt Normal": [0, 1, 0],   
+                "Texture Path": "textures/2k_mercury.jpg",     
+                "Children": [
+                    {
+                        "Name": "Mercury Hypothetical Moon",
+                        "Celestial Radius": 0.5,
+                        "Orbit Distance": 2.0,
+                        "Orbit Speed": 360.0,
+                        "Orbit Initial Offset": 0,
+                        "Orbital Tilt Normal": [0, 1, 0],
+                        "Rotation Speed": 3.0,
+                        "Axial Tilt Normal": [0, 1, 0],        
+                        "Children": []
+                    }
+                ]
+            },
+            {
+                "Name": "Venus",
+                "Celestial Radius": 1.0,
+                "Orbit Distance": 6.0,
+                "Orbit Speed": 100.0,
+                "Orbit Initial Offset": 180,
+                "Orbital Tilt Normal": [0, 1, 0],
+                "Rotation Speed": 3.0,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_venus_surface.jpg",      
+                "Children": []
+            },
+            {
+                "Name": "Earth",
+                "Celestial Radius": 1.0,
+                "Orbit Distance": 6.0,
+                "Orbit Speed": 100.0,
+                "Orbit Initial Offset": 90,
+                "Orbital Tilt Normal": [0, 1, 0],
+                "Rotation Speed": 3.0,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_earth_daymap.jpg",      
+                "Children": []
+            }
+        ]
+    }
+}

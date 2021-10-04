@@ -22,6 +22,7 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)" << std::endl;
 			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)" << std::endl;
 			std::cout << "\t-m <file> - Sets the obj model (relative to the resource/models" << std::endl << "\t\tdirectory)" << std::endl;
+			std::cout << "\t-c <file> - Sets the config file" << std::endl;
 
 			std::cout << "Optional" << std::endl;
 			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
@@ -76,6 +77,18 @@ Arguments::Arguments(int argc, char **argv){
 			}
 		}
 
+		// If the argument starts with -c
+		else if(arg.substr(0, 2) == "-c"){
+			// Check if the rest of the argument contains the file
+			if(file.find(".json") != std::string::npos)
+				configFilePath = file;
+			// And if it doesn't, the next argument does
+			else {
+				i++;
+				configFilePath = argv[i];
+			}
+		}
+
 		// If the argument starts with "--resource-path"
 		else if(arg.substr(0, 15) == "--resource-path"){
 			i++;
@@ -84,12 +97,12 @@ Arguments::Arguments(int argc, char **argv){
 	}
 
 	// State that we can't continue if either the vertex or fragment shader isn't specified
-	canContinue = !vertexFilePath.empty() && !fragmentFilePath.empty() && !vertexFilePath.empty();
+	canContinue = !vertexFilePath.empty() && !fragmentFilePath.empty() && !showcaseModelPath.empty();// && !configFilePath.empty();
 
 	// If we can't continue provide an error message
 	if(!canContinue){
-		std::cerr << "To run the program you must specify the vertex shader, fragment shader, and model to load:" << std::endl;
-		std::cerr << argv[0] << " -v <file> -f <file> -m <file>" << std::endl;
+		std::cerr << "To run the program you must specify the vertex shader, fragment shader, model, and config file to load:" << std::endl;
+		std::cerr << argv[0] << " -v <file> -f <file> -m <file> -c <file>" << std::endl;
 		std::cerr << std::endl << std::string(60, '-') << std::endl;
 		std::cerr << "For more infromation display the help menu:" << std::endl;
 		std::cerr << argv[0] << " -h" << std::endl;

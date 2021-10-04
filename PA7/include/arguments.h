@@ -12,6 +12,8 @@ private:
 
 	std::string showcaseModelPath;
 
+	std::string configFilePath;
+
 	// Variable tracking whether or not we can continue
 	bool canContinue = true;
 public:
@@ -23,6 +25,8 @@ public:
 	std::string getFragmentFilePath() const { return fragmentFilePath; }
 
 	std::string getShowcaseModelPath() const { return showcaseModelPath; }
+
+	std::string getConfigFilePath() const { return configFilePath; }
 
 	bool getCanContinue() const { return canContinue; }
 };

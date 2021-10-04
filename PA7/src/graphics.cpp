@@ -2,6 +2,7 @@
 #include "engine.h"
 
 #include "celestial.h"
+#include <fstream>
 
 Graphics::Graphics() { }
 
@@ -42,12 +43,25 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	// Create the celestials
-	selected = sceneRoot = new Celestial();
-	if( !sceneRoot->Initialize(args, args.getResourcePath() + "textures/2k_mercury.jpg") ) {
-		printf("Failed to initialize scene tree\n");
+	//Open the config file, quit if opening fails
+	ifstream configFile(args.getResourcePath() + args.getConfigFilePath());
+	if(!configFile.is_open())
+	{
+		cout << "ERROR OPENING CONFIG FILE \"" << args.getConfigFilePath() << "\"." << endl;
 		return false;
 	}
+
+	json configJson;
+	configFile >> configJson;
+	configFile.close();
+	
+	// Create the celestials
+	// get JSON from args open it up
+	sceneRoot = CelestialFromJson(args, configJson["Sun"]);
+	// if( !sceneRoot->Initialize(args, args.getResourcePath() + "textures/2k_mercury.jpg") ) {
+	// 	printf("Failed to initialize scene tree\n");
+	// 	return false;
+	// }
 	// engine->keyboardEvent += [&](auto event) { sceneRoot->Keyboard(event); };
 	// engine->mouseButtonEvent += [&](auto event) { sceneRoot->MouseButton(event); };
 
@@ -108,6 +122,40 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	}
 
 	return true;
+}
+
+// Helper function which converts a json array into a glm::vec3
+// Provides an optional default value in case the provided json is null
+glm::vec3 jsonToVec3(json j, glm::vec3 _default = glm::vec3(0, 1, 0)){
+	if(j.is_null()) return _default;
+
+	glm::vec3 out;
+	out.x = j[0];
+	out.y = j[1];
+	out.z = j[2];
+	return out;
+}
+
+Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
+	// Create a new celestial object and set all of its properties
+	Celestial* celestial = new Celestial();
+	celestial->celestialRadius = j.value("Celestial Radius", 1);
+	celestial->orbitDistance = j.value("Orbit Distance", 0);
+	celestial->orbitSpeed = j.value("Orbit Speed", 0);
+	celestial->orbitInitialOffset = j.value("Orbit Initial Offset", 0);
+	celestial->orbitalTiltNormal = jsonToVec3(j["Orbital Tilt Normal"], glm::vec3(0, 1, 0));
+	celestial->rotationSpeed = j.value("Rotation Speed", 0);
+	celestial->axialTiltNormal = jsonToVec3(j["Axial Tilt Normal"], glm::vec3(0, 1, 0));
+
+	// Initalize the celestial and set its texture
+	std::string texturePath = j.value("Texture Path", "textures/invalid.png");
+	celestial->Initialize(args, args.getResourcePath() + texturePath);
+
+	// Recursively initalize the celestial's children
+	for (auto child: j["Children"])
+		celestial->addChild(CelestialFromJson(args, child));
+
+	return celestial;
 }
 
 void Graphics::Update(unsigned int dt) {
