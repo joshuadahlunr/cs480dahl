@@ -36,7 +36,7 @@
             {
                 "Name": "Venus",
                 "Celestial Radius": 1.0,
-                "Orbit Distance": 6.0,
+                "Orbit Distance": [6.0, 5.0],
                 "Orbit Speed": 100.0,
                 "Orbit Initial Offset": 180,
                 "Orbital Tilt Normal": [0, 1, 0],

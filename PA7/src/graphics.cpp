@@ -107,7 +107,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 // Helper function which converts a json array into a glm::vec3
 // Provides an optional default value in case the provided json is null
-glm::vec3 jsonToVec3(json j, glm::vec3 _default = glm::vec3(0, 1, 0)){
+glm::vec3 jsonToVec3(json j, glm::vec3 _default = glm::vec3(0)){
 	if(j.is_null()) return _default;
 
 	glm::vec3 out;
@@ -117,11 +117,28 @@ glm::vec3 jsonToVec3(json j, glm::vec3 _default = glm::vec3(0, 1, 0)){
 	return out;
 }
 
+// Helper function which converts a json array into a glm::vec3
+// Provides an optional default value in case the provided json is null
+glm::vec2 jsonToVec2(json j, glm::vec2 _default = glm::vec2(0)){
+	if(j.is_null()) return _default;
+
+	glm::vec2 out;
+	out.x = j[0];
+	out.y = j[1];
+	return out;
+}
+
 Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
 	// Create a new celestial object and set all of its properties
 	Celestial* celestial = new Celestial();
 	celestial->celestialRadius = j.value("Celestial Radius", 1);
-	celestial->orbitDistance = j.value("Orbit Distance", 0);
+	
+	// Distance can be provided as a single number or a pair
+	auto od = j["Orbit Distance"];
+	if(od.is_number()) celestial->orbitDistance = glm::vec2((float) od);
+	else if(od.is_array()) celestial->orbitDistance = jsonToVec2(od);
+	else celestial->orbitDistance = glm::vec2(0);
+
 	celestial->orbitSpeed = j.value("Orbit Speed", 0);
 	celestial->orbitInitialOffset = j.value("Orbit Initial Offset", 0);
 	celestial->orbitalTiltNormal = jsonToVec3(j["Orbital Tilt Normal"], glm::vec3(0, 1, 0));

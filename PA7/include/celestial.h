@@ -11,8 +11,9 @@ public:
 	void Update(unsigned int dt) override;
 
 	float celestialRadius = 1;
-	float orbitDistance = 5;
-	float orbitSpeed = 36; 
+	// Distance at which object orbits its parent (both x and y)
+	glm::vec2 orbitDistance = glm::vec2(5);
+	float orbitSpeed = 36;
 	float orbitInitialOffset = 0;
 	glm::vec3 orbitalTiltNormal = glm::vec3(0, 1, 0);
 	float rotationSpeed = 1;

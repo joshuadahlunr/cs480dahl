@@ -38,11 +38,10 @@ glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 }
 
 void Celestial::Update(unsigned int dt) {
-	// std::cout << m_reverseOrbit << " - " << m_reverseRotation << " - " << pauseOrbit << " - " << pauseRotation << std::endl;
 	orbitAngle += dt * milliToSec * orbitSpeed;
 	rotationAngle += dt * milliToSec * rotationSpeed;
 
-	glm::vec3 translation(glm::cos(glm::radians(orbitAngle)) * orbitDistance, 0, glm::sin(glm::radians(orbitAngle)) * orbitDistance);
+	glm::vec3 translation(glm::cos(glm::radians(orbitAngle)) * orbitDistance.x, 0, glm::sin(glm::radians(orbitAngle)) * orbitDistance.y);
 
 	glm::mat4 planarModel = glm::translate(glm::mat4(1.0f), translation);
 	planarModel = planarModel * rotateTo(glm::vec3(0, 1, 0), axialTiltNormal);
