@@ -128,28 +128,30 @@ glm::vec2 jsonToVec2(json j, glm::vec2 _default = glm::vec2(0)){
 	return out;
 }
 
+// Recursively initializes a scene tree from the provided json data
 Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
-	// Create a new celestial object and set all of its properties
+	// Create a new celestial object
 	Celestial* celestial = new Celestial();
 	celestial->celestialRadius = j.value("Celestial Radius", 1);
-	
+
 	// Distance can be provided as a single number or a pair
 	auto od = j["Orbit Distance"];
 	if(od.is_number()) celestial->orbitDistance = glm::vec2((float) od);
 	else if(od.is_array()) celestial->orbitDistance = jsonToVec2(od);
 	else celestial->orbitDistance = glm::vec2(0);
 
+	// Set the properties of the newly created object
 	celestial->orbitSpeed = j.value("Orbit Speed", 0);
 	celestial->orbitInitialOffset = j.value("Orbit Initial Offset", 0);
 	celestial->orbitalTiltNormal = jsonToVec3(j["Orbital Tilt Normal"], glm::vec3(0, 1, 0));
 	celestial->rotationSpeed = j.value("Rotation Speed", 0);
 	celestial->axialTiltNormal = jsonToVec3(j["Axial Tilt Normal"], glm::vec3(0, 1, 0));
 
-	// Initalize the celestial and set its texture
+	// Initialize the celestial and set its texture
 	std::string texturePath = j.value("Texture Path", "textures/invalid.png");
 	celestial->Initialize(args, args.getResourcePath() + texturePath);
 
-	// Recursively initalize the celestial's children
+	// Recursively initialize the celestial's children
 	for (auto child: j["Children"])
 		celestial->addChild(CelestialFromJson(args, child));
 

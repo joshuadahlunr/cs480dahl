@@ -7,6 +7,7 @@
 #include "graphics_headers.h"
 #include "arguments.h"
 
+// Object representing a shader program
 class Shader {
 public:
 	Shader();

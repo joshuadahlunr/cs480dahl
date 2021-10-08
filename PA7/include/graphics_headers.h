@@ -3,9 +3,9 @@
 
 #include <iostream>
 
+// Include OpenGL
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #define GLM_ENABLE_EXPERIMENTAL
-
 #if defined(__APPLE__) || defined(MACOSX)
 #	include <OpenGL/gl3.h>
 #	include <OpenGL/GLU.h>
@@ -25,6 +25,7 @@
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 
+// Struct defining the vertecies sent to OpenGL
 struct Vertex {
 	glm::vec3 vertex;
 	glm::vec3 color;

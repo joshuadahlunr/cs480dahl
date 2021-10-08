@@ -7,9 +7,11 @@ Shader::Shader() {
 }
 
 Shader::~Shader() {
+	// Delete all of the compiled shader objects
 	for (std::vector<GLuint>::iterator it = m_shaderObjList.begin() ; it != m_shaderObjList.end() ; it++)
 		glDeleteShader(*it);
 
+	// Delete the shader program
 	if (m_shaderProg != 0) {
 		glDeleteProgram(m_shaderProg);
 		m_shaderProg = 0;
@@ -43,7 +45,6 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 
 	// Read it in
 	std::string s( (std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>() );
-
 	GLuint ShaderObj = glCreateShader(ShaderType);
 	if (ShaderObj == 0) {
 		std::cerr << "Error creating shader type " << ShaderType << std::endl;
@@ -53,17 +54,16 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 	// Save the shader object - will be deleted in the destructor
 	m_shaderObjList.push_back(ShaderObj);
 
+	// Set the shader's source code and compile it
 	const GLchar* p[1];
 	p[0] = s.c_str();
 	GLint Lengths[1] = { (GLint)s.size() };
-
 	glShaderSource(ShaderObj, 1, p, Lengths);
-
 	glCompileShader(ShaderObj);
 
+	// Maje sure compilation was successful
 	GLint success;
 	glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
-
 	if (!success) {
 		GLchar InfoLog[1024];
 		glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
@@ -71,6 +71,7 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 		return false;
 	}
 
+	// Attach the shader to our compiled program
 	glAttachShader(m_shaderProg, ShaderObj);
 	return true;
 }
@@ -82,8 +83,9 @@ bool Shader::Finalize() {
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { 0 };
 
+	// Link the program
 	glLinkProgram(m_shaderProg);
-
+	// Ensure program linking was successful
 	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &Success);
 	if (Success == 0) {
 		glGetProgramInfoLog(m_shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
@@ -91,6 +93,7 @@ bool Shader::Finalize() {
 		return false;
 	}
 
+	// Validate the linked program
 	glValidateProgram(m_shaderProg);
 	glGetProgramiv(m_shaderProg, GL_VALIDATE_STATUS, &Success);
 	if (!Success) {
@@ -111,8 +114,10 @@ bool Shader::Finalize() {
 void Shader::Enable() { glUseProgram(m_shaderProg); }
 
 GLint Shader::GetUniformLocation(const char* pUniformName) {
+	// Get the shader location
 	GLuint Location = glGetUniformLocation(m_shaderProg, pUniformName);
 
+	// Warn if the location was invalid
 	if (Location == INVALID_UNIFORM_LOCATION)
 		fprintf(stderr, "Warning! Unable to get the location of uniform '%s'\n", pUniformName);
 

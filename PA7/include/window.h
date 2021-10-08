@@ -5,6 +5,7 @@
 #include <string>
 using namespace std;
 
+// Class holding the window and OpenGL Context
 class Window {
 public:
 	Window();

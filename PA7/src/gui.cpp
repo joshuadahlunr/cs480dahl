@@ -36,8 +36,10 @@ bool GUI::Initialize(Engine* engine, const char* glsl_version/* = "#version 330"
 }
 
 GUI::ShouldProcessEvents GUI::ProcessEvent(SDL_Event& event){
+	// Pass events along to ImGUI
 	ImGui_ImplSDL2_ProcessEvent(&event);
 
+	// Return if ImGUI is hogging our events
 	return { !io.WantCaptureKeyboard, !io.WantCaptureMouse };
 }
 
@@ -49,7 +51,7 @@ void GUI::Render(){
 
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-    	
+
 
 		ImGui::EndMainMenuBar();
 	}

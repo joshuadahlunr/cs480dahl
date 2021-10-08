@@ -18,8 +18,10 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 
+	// Run it
 	engine->Run();
 
+	// Clean it up
 	delete engine;
 	engine = NULL;
 	return 0;

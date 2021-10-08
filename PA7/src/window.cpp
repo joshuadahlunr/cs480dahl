@@ -31,12 +31,13 @@ bool Window::Initialize(const string &name, int* width, int* height) {
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
 
-	//use for fullscreen
+	// Use for fullscreen
 	if (*height == 0 && *width == 0) {
 		*height = current.h;
 		*width = current.w;
 	}
 
+	// Use SDL to create a window
 	gWindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, *width, *height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
 	if(gWindow == NULL) {
 		printf("Widow failed to create: %s\n", SDL_GetError());

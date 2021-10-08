@@ -4,13 +4,21 @@
 #include <fstream>
 #include <sstream>
 
+// Object loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+// Model loading
+#include <assimp/Importer.hpp>	//includes the importer, which is used to read our obj file
+#include <assimp/scene.h>		//includes the aiScene object
+#include <assimp/postprocess.h>	//includes the postprocessing variables for the importer
+#include <assimp/color4.h>		//includes the aiColor4 object, which is used to handle the colors from the mesh objects
 
 Object::Object() {
 	// Create the vertex and face buffers for this object
 	glGenBuffers(1, &VB);
 	glGenBuffers(1, &IB);
+	// Mark that we don't have a parent
 	parent = nullptr;
 }
 
@@ -22,6 +30,7 @@ Object::~Object() {
 		parent = nullptr;
 	}
 
+	// Clean up the lists of vertecies and indices
 	Vertices.clear();
 	Indices.clear();
 }
@@ -73,16 +82,16 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 
 		// If the mesh has a material...
 		if(mesh->mMaterialIndex > 0){
-			// Extract the matrial from the scene
+			// Extract the material from the scene
 			const aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 			// Extract the path to the diffuse texture
 			aiString _path;
 			mat->GetTexture(aiTextureType_DIFFUSE, 0, &_path);
 
-			if(_path.length > 0) 
+			if(_path.length > 0)
 				if( !obj->LoadTextureFile(args, std::string(_path.C_Str())) )
 					return false;
-	
+
 		}
 
 		// For each vertex...
@@ -116,7 +125,7 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 		for(int face = 0; face < mesh->mNumFaces; face++)
 			// For each index in the face (3 in the triangles)
 			for(int index = 0; index < 3; index++)
-				// Add the index to the list of indecies
+				// Add the index to the list of indices
 				obj->Indices.push_back(mesh->mFaces[face].mIndices[index]);
 
 		// Add the data to the vertex buffer
@@ -166,18 +175,20 @@ void Object::Update(unsigned int dt){
 }
 
 void Object::Render(GLint modelMatrix) {
+	// Set the model matrix
 	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(GetModel()));
 
+	// Enable 3 vertex attributes
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
+	// Specify that we are using the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
+	// Specify where in the vertex buffer we can find position, color, and UVs
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 
 	//bind texture (if it exists)
 	if(tex != -1){
@@ -185,12 +196,18 @@ void Object::Render(GLint modelMatrix) {
 		glBindTexture(GL_TEXTURE_2D, tex);
 	}
 
+	// Specify that we are using the index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
+
+	// Draw the triangles
 	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
 
+	// Disable the attributes
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 
+	// Pass along to children.
 	for(Object* child: children)
 		child->Render(modelMatrix);
 }

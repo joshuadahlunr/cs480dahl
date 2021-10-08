@@ -12,23 +12,24 @@ using namespace std;
 #include "gui.h"
 #include "arguments.h"
 
+// Forward declarations
 class Engine;
 class Celestial;
 
+// Class which provides the graphics engine
 class Graphics {
 public:
 	Graphics();
 	~Graphics();
 	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
+
+	// Recursively initializes a scene tree from the provided json data
 	Celestial* CelestialFromJson(const Arguments& args, json j);
 
 	void Update(unsigned int dt);
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
-
-	template<class T = Object>
-	T* getSelected() const { return dynamic_cast<T*>(selected); }
 
 private:
 	std::string ErrorString(GLenum error);
@@ -43,8 +44,6 @@ private:
 	GLint m_modelMatrix;
 
 	Celestial* sceneRoot;
-
-	Object* selected;
 };
 
 #endif /* GRAPHICS_H */

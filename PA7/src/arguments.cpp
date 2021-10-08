@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+// Constructor parses the arguments
 Arguments::Arguments(int argc, char **argv){
 	// If we weren't given any arguments, skip argument parsing
 	if(argc == 1)
@@ -100,18 +101,22 @@ Arguments::Arguments(int argc, char **argv){
 	// Make sure the config file exists and parse it
 	canContinue &= !configFilePath.empty();
 	if(canContinue){
+		// Open the config file
 		std::ifstream configFile(resourcePath + configFilePath);
 		if(!configFile){
 			std::cerr << "Failed to open config file `" << resourcePath + configFilePath << "`" << std::endl;
 			canContinue = false;
 		}
 
+		// Parse the config file
 		try{
 			if(canContinue) configFile >> config;
 		} catch(json::parse_error& e) {
 			std::cerr << "Parsing the JSON config file failed: " << e.what() << std::endl;
 			canContinue = false;
 		}
+
+		// Close the config file
 		configFile.close();
 	}
 

@@ -9,6 +9,7 @@
 #include "arguments.h"
 #include "nytl/callback.hpp"
 
+// Class which provides engine related internals
 class Engine {
 public:
 	Engine(string name, int width, int height);
@@ -16,9 +17,12 @@ public:
 	~Engine();
 	bool Initialize(const Arguments& args);
 	void Run();
+
+	// Time functions
 	unsigned int getDT();
 	long long GetCurrentTimeMillis();
 
+	// Keyboard and Mouse callbacks
 	nytl::Callback<void(const SDL_KeyboardEvent&)> keyboardEvent;
 	nytl::Callback<void(const SDL_MouseMotionEvent&)> mouseMotionEvent;
 	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
