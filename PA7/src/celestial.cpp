@@ -25,8 +25,8 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 
 void Celestial::Update(unsigned int dt) {
 	// Update our angle with respect to rotation and orbit
-	orbitAngle += dt * milliToSec * orbitSpeed;
-	rotationAngle += dt * milliToSec * rotationSpeed;
+	orbitAngle += dt * milliToSec * orbitSpeed * globalTimeScale;
+	rotationAngle += dt * milliToSec * rotationSpeed * globalTimeScale;
 
 	// Find our current position along an elipse
 	glm::vec3 translation(glm::cos(glm::radians(orbitAngle)) * orbitDistance.x, 0, glm::sin(glm::radians(orbitAngle)) * orbitDistance.y);

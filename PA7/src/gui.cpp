@@ -6,6 +6,9 @@
 #include "engine.h"
 #include "celestial.h"
 
+// Provide a backing for the globalTimeScale global variable
+float globalTimeScale = 1;
+
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
 	IMGUI_CHECKVERSION();
@@ -51,7 +54,13 @@ void GUI::Render(){
 
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
+		if(ImGui::BeginMenu("Simulation Controls")) {
+			float speed = globalTimeScale;
+			if(ImGui::SliderFloat("Simulation Time Scale", &speed, 0.001, 10))
+				globalTimeScale = speed;
 
+			ImGui::EndMenu();
+		}
 
 		ImGui::EndMainMenuBar();
 	}

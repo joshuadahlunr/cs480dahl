@@ -50,4 +50,7 @@ static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 	return glm::mat4_cast(q);
 }
 
+// Global variable representing the current timescale
+extern float globalTimeScale;
+
 #endif /* GRAPHICS_HEADERS_H */
