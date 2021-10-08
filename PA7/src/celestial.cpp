@@ -23,22 +23,6 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 	return success;
 }
 
-// Function which returns the matrix needed to rotate the <original> vector into the <target> vector
-glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
-	glm::quat q;
-	glm::vec3 a = glm::cross(original, target);
-	q.x = a.x;
-	q.y = a.y;
-	q.z = a.z;
-
-	float originalLength = glm::length(original);
-	float targetLength = glm::length(target);
-	q.w = glm::sqrt((originalLength * originalLength) * (targetLength * targetLength) + glm::dot(original, target));
-
-	q = glm::normalize(q);
-	return glm::mat4_cast(q);
-}
-
 void Celestial::Update(unsigned int dt) {
 	// Update our angle with respect to rotation and orbit
 	orbitAngle += dt * milliToSec * orbitSpeed;

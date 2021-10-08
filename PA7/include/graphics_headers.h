@@ -34,4 +34,20 @@ struct Vertex {
 	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 u): vertex(v), color(c), uv(u) {}
 };
 
+// Function which returns the matrix needed to rotate the <original> vector into the <target> vector
+static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
+	glm::quat q;
+	glm::vec3 a = glm::cross(original, target);
+	q.x = a.x;
+	q.y = a.y;
+	q.z = a.z;
+
+	float originalLength = glm::length(original);
+	float targetLength = glm::length(target);
+	q.w = glm::sqrt((originalLength * originalLength) * (targetLength * targetLength) + glm::dot(original, target));
+
+	q = glm::normalize(q);
+	return glm::mat4_cast(q);
+}
+
 #endif /* GRAPHICS_HEADERS_H */

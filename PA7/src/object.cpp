@@ -55,6 +55,17 @@ bool Object::Initialize(const Arguments& args){
 	return success;
 }
 
+// Uploads the model data to the GPU
+void Object::FinalizeModel() {
+	// Add the data to the vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VB);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
+
+	// Add the data to the face buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
+}
+
 bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation){
 	// Load the model
 	Assimp::Importer importer;
@@ -128,13 +139,8 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 				// Add the index to the list of indices
 				obj->Indices.push_back(mesh->mFaces[face].mIndices[index]);
 
-		// Add the data to the vertex buffer
-		glBindBuffer(GL_ARRAY_BUFFER, obj->VB);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * obj->Vertices.size(), &obj->Vertices[0], GL_STATIC_DRAW);
-
-		// Add the data to the face buffer
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->IB);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * obj->Indices.size(), &obj->Indices[0], GL_STATIC_DRAW);
+		// Upload the model to the GPU
+		obj->FinalizeModel();
 	}
 
 	return true;
@@ -154,7 +160,7 @@ bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeR
 		return false;
 	}
 
-	// Upload the imaage to the gpu
+	// Upload the image to the gpu
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
@@ -199,6 +205,8 @@ void Object::Render(GLint modelMatrix) {
 	// Specify that we are using the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 
+	// Enable backface culling
+	glEnable(GL_CULL_FACE);
 	// Draw the triangles
 	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
 

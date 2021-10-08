@@ -14,7 +14,7 @@ smooth out vec3 color;
 smooth out vec2 uv;
 
 void main(void) {
-  // Make the position we loaded homogenious and apply MVP
+  // Make the position we loaded homogeneous and apply MVP
   vec4 v = vec4(v_position, 1.0);
   gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v;
   // Output the color and texture coordinates

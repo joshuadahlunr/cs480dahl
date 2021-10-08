@@ -2,6 +2,7 @@
 #include "engine.h"
 
 #include "celestial.h"
+#include "rings.h"
 #include <fstream>
 
 Graphics::Graphics() { }
@@ -150,6 +151,20 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
 	// Initialize the celestial and set its texture
 	std::string texturePath = j.value("Texture Path", "textures/invalid.png");
 	celestial->Initialize(args, args.getResourcePath() + texturePath);
+
+	// If there is a ring defined
+	if(j.contains("Ring")){
+		// Create a child ring and set its properties
+		Ring* ring = (Ring*) celestial->addChild(new Ring());
+		ring->innerRadius = j["Ring"].value("Inner Radius", 1);
+		ring->outerRadius = j["Ring"].value("Outer Radius", 2);
+		ring->resolution = j["Ring"].value("Resolution", 128);
+		ring->tilt = jsonToVec3(j["Ring"]["Tilt"], glm::vec3(0, 1, 0));
+
+		// Initialize the ring and set its texture
+		std::string texturePath = j["Ring"].value("Texture Path", "textures/invalid.png");
+		ring->Initialize(args, args.getResourcePath() + texturePath);
+	}
 
 	// Recursively initialize the celestial's children
 	for (auto child: j["Children"])

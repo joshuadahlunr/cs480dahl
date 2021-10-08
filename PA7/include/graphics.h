@@ -43,7 +43,7 @@ private:
 	GLint m_viewMatrix;
 	GLint m_modelMatrix;
 
-	Celestial* sceneRoot;
+	Object* sceneRoot;
 };
 
 #endif /* GRAPHICS_H */
