@@ -1,4 +1,5 @@
 #include "camera.h"
+#include <algorithm> // for clamp
 
 Camera::Camera() { }
 
@@ -8,14 +9,20 @@ Camera::~Camera() {
 }
 
 bool Camera::Initialize(int w, int h) {
-  //--Init the view and projection matrices
-  //  if you will be having a moving camera the view matrix will need to more dynamic
-  //  ...Like you should update it before you render more dynamic
-  //  for this project having them static will be fine
-  view = glm::lookAt( glm::vec3(0.0, 8.0, -16.0), //Eye Position
-					  glm::vec3(0.0, 0.0, 0.0), //Focus point
-					  glm::vec3(0.0, 1.0, 0.0)); //Positive Y is up
+  // Init the starting eye and focus pos details
+  eyePos = glm::vec3(0.0, 0.0, -20.0);
+  focusPos = glm::vec3(0.0, 0.0, 0.0);
 
+  // Determine the distance, starting pos in sphere and camera orbit angles based on eyePos and focusPos
+  glm::vec3 diffVec = eyePos - focusPos;
+  distanceFromFocusPos = glm::length(diffVec);
+  posInSphere = glm::normalize(diffVec);
+  cameraOrbitAngles = glm::vec2(180.0, 90.0); // if start eye and focus change this will have to change
+
+  // Set some value for movement scale when scrolling
+	zoomScale = 5.0;
+
+  //Init projection matrices
   projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
 								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
 								 0.01f, //Distance to the near plane, normally a small value like this
@@ -24,6 +31,14 @@ bool Camera::Initialize(int w, int h) {
   // Register us as a listener to resize events
   SDL_AddEventWatch(windowResizeEventListener, this);
   return true;
+}
+
+void Camera::Update(unsigned int dt) {
+  // The eye needs to be constantly updated if focus pos is constantly moving
+  eyePos = focusPos + (posInSphere * distanceFromFocusPos);
+
+  // View dynamically updates with camera control movements
+  view = glm::lookAt(eyePos, focusPos, glm::vec3(0.0, 1.0, 0.0)); 
 }
 
 int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
@@ -44,6 +59,56 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 
   return 0;
 }
+
+void Camera::Keyboard(const SDL_KeyboardEvent& e){
+  if (e.type == SDL_KEYDOWN) {
+    if (e.keysym.sym == SDLK_TAB) {
+      // TODO set focus object using round robin
+    }
+  }
+}
+
+void Camera::MouseButton(const SDL_MouseButtonEvent& e){
+  // No purpose yet
+}
+
+void Camera::MouseMotion(const SDL_MouseMotionEvent& e){
+  // Check if right mouse button held
+  if ((e.state & SDL_BUTTON_RMASK) != 0) {
+    // Get xy as xDiff yDiff from last frame
+    int diffx = e.x - mouseLastPos.x, 
+    diffy = e.y - mouseLastPos.y;
+
+    // Calculate xDiff and yDiff as a percentage of window size
+    int w, h;
+    SDL_GetWindowSize(SDL_GetWindowFromID(e.windowID), &w, &h);
+    glm::vec2 movePercent;
+    movePercent.x = (float) diffx / (float) w;
+    movePercent.y = (float) diffy / (float) h;
+    
+    // Determine new angle based on percentage movement
+    cameraOrbitAngles.x = -(movePercent.x * orbitAngleChangeRate) + cameraOrbitAngles.x;
+    cameraOrbitAngles.y = -(movePercent.y * orbitAngleChangeRate) + cameraOrbitAngles.y;
+
+    // Clamp y angles so 0 > y > 180 otherwise up normal flips
+    cameraOrbitAngles.y = (cameraOrbitAngles.y < 0.0) ? 0.001 : cameraOrbitAngles.y;
+    cameraOrbitAngles.y = (cameraOrbitAngles.y > 180.0) ? 179.999 : cameraOrbitAngles.y;
+
+    // Set the pos in unit sphere to new angles within unit sphere
+    posInSphere.x = glm::sin(glm::radians(cameraOrbitAngles.x)) * glm::sin(glm::radians(cameraOrbitAngles.y));
+    posInSphere.z = glm::cos(glm::radians(cameraOrbitAngles.x)) * glm::sin(glm::radians(cameraOrbitAngles.y));
+    posInSphere.y = glm::cos(glm::radians(cameraOrbitAngles.y));
+  }
+
+  // Store mouse position for next frame
+  mouseLastPos = glm::vec2(e.x, e.y);
+}
+
+void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
+  // increase/decrease the distance from the focus pos based on wheel scroll up/down
+  distanceFromFocusPos -= e.y * zoomScale;
+}
+
 
 glm::mat4 Camera::GetProjection() { return projection; }
 glm::mat4 Camera::GetView() { return view; }

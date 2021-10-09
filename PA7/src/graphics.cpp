@@ -44,6 +44,12 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
+	// Hookup camera mouse and keyboard events
+	engine->keyboardEvent += [&](auto event) { m_camera->Keyboard(event); };
+	engine->mouseButtonEvent += [&](auto event) { m_camera->MouseButton(event); };
+	engine->mouseMotionEvent += [&](auto event) { m_camera->MouseMotion(event); };
+	engine->mouseWheelEvent += [&](auto event) { m_camera->MouseWheel(event); };
+
 	// Create the celestials
 	sceneRoot = CelestialFromJson(args, args.getConfig()["Scene"]);
 
@@ -176,6 +182,9 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
 void Graphics::Update(unsigned int dt) {
 	// Update the object
 	sceneRoot->Update(dt);
+	
+	// Update the camera
+	m_camera->Update(dt);
 }
 
 void Graphics::Render() {
