@@ -1,16 +1,15 @@
 TODO:
-* Camera controls
 * Accurate data
     * sizes
     * orbit paths
     * orbit speeds
     * rotate speeds
-* Saturn rings
-* Simulation time scaling
 * Orbit path visuals
 
-
 DONE:
+* Camera controls
+* Saturn rings
+* Simulation time scaling
 * Celestial object with information about:
     a) orbit speed/radius
     b) rotation speed
