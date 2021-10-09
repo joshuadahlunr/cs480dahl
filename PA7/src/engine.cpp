@@ -72,6 +72,9 @@ void Engine::Run() {
 			// Mouse Button events
 			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEBUTTONDOWN || m_event.type == SDL_MOUSEBUTTONUP))
 				mouseButtonEvent(m_event.button);
+			// Mouse Wheel events
+			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEWHEEL))
+				mouseWheelEvent(m_event.wheel);
 		}
 
 		// Update and render the graphics

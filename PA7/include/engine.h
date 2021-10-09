@@ -26,6 +26,7 @@ public:
 	nytl::Callback<void(const SDL_KeyboardEvent&)> keyboardEvent;
 	nytl::Callback<void(const SDL_MouseMotionEvent&)> mouseMotionEvent;
 	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
+	nytl::Callback<void(const SDL_MouseWheelEvent&)> mouseWheelEvent;
 
 	Window* getWindow() const { return m_window; }
 	Graphics* getGraphics() const { return m_graphics; }
