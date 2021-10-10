@@ -1,5 +1,7 @@
 #include "celestial.h"
 
+#include "orbitPath.h"
+
 bool Celestial::Initialize(const Arguments& args, const std::string& texturePath) {
 	bool success = true;
 
@@ -17,12 +19,12 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 	glDeleteTextures(1, &tex);
 	success &= LoadTextureFile(args, texturePath, false);
 
+	// Create and initialize the orbit path
+	OrbitPath* orbitPath = (OrbitPath*) addChild(new OrbitPath());
+	success &= orbitPath->Initialize(args, texturePath, orbitDistance, orbitalTiltNormal);
+
 	// Apply our initial offset
 	orbitAngle = orbitInitialOffset;
-
-	// Create and initialize the orbit path
-	orbitPath = new OrbitPath();
-	orbitPath->Initialize(args, texturePath, orbitDistance, orbitalTiltNormal);
 
 	return success;
 }
@@ -50,11 +52,4 @@ void Celestial::Update(unsigned int dt) {
 	setChildModelRelativeToParent( orbitalTiltModel * glm::translate(glm::mat4(1.0f), translation) );
 
 	Object::Update(dt);
-}
-
-void Celestial::Render(GLint modelMatrix) {
-	// Render the orbit path. Not a child, so needs to be called here
-	orbitPath->Render(modelMatrix);
-
-	Object::Render(modelMatrix);
 }

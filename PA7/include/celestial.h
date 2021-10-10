@@ -2,7 +2,6 @@
 #define CELESTIAL_H
 
 #include "object.h"
-#include "orbitPath.h"
 
 const float milliToSec = 1.0/1000.0;
 
@@ -12,7 +11,6 @@ public:
 	// Must be initialized with the desired texture
 	bool Initialize(const Arguments& args, const std::string& texturePath);
 	void Update(unsigned int dt) override;
-	void Render(GLint modelMatrix) override;
 
 	// Radius of the object
 	float celestialRadius = 1;
@@ -34,7 +32,6 @@ protected:
 	// Variables tracking the current orbit and rotation angle of the planet over time
 	float orbitAngle = 90 + orbitInitialOffset, rotationAngle = 0;
 
-	OrbitPath* orbitPath;
 };
 
 #endif
