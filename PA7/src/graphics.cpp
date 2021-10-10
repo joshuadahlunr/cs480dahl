@@ -3,6 +3,7 @@
 
 #include "celestial.h"
 #include "rings.h"
+#include "skybox.h"
 #include <fstream>
 
 Graphics::Graphics() { }
@@ -99,15 +100,23 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
-	//enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
+	// Create the GUI
 	m_gui = new GUI();
 	if(!m_gui->Initialize(engine)) {
 		printf("GUI Failed to Initialize\n");
 		return false;
 	}
+
+	// Create the skybox
+	m_skybox = new Skybox();
+	if(!m_skybox->Initialize(args, m_camera)) {
+		printf("Skybox Failed to Initialize\n");
+		return false;
+	}
+
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	return true;
 }
@@ -182,7 +191,7 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
 void Graphics::Update(unsigned int dt) {
 	// Update the object
 	sceneRoot->Update(dt);
-	
+
 	// Update the camera
 	m_camera->Update(dt);
 }
@@ -191,6 +200,9 @@ void Graphics::Render() {
 	//clear the screen
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Render the skybox first (thus everything else is drawn in front of it)
+	m_skybox->Render();
 
 	// Start the correct program
 	m_shader->Enable();

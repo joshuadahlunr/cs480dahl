@@ -15,6 +15,7 @@ using namespace std;
 // Forward declarations
 class Engine;
 class Celestial;
+class Skybox;
 
 // Class which provides the graphics engine
 class Graphics {
@@ -38,6 +39,7 @@ private:
 
 	Camera *m_camera;
 	Shader *m_shader;
+	Skybox* m_skybox;
 
 	GLint m_projectionMatrix;
 	GLint m_viewMatrix;

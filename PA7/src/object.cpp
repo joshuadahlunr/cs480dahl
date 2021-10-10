@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-// Object loading
+// Texture loading
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
