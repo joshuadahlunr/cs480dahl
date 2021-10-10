@@ -37,7 +37,6 @@ Object::~Object() {
 
 bool Object::Initialize(const Arguments& args){
 	bool success = true;
-
 	// Get the showcase path from the arguments
 	std::string filepath = args.getShowcaseModelPath();
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
