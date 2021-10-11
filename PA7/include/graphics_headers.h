@@ -52,5 +52,7 @@ static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 
 // Global variable representing the current timescale
 extern float globalTimeScale;
+// Global variable tracking if we should be using scaled choordinates or not
+extern bool globalShouldScale;
 
 #endif /* GRAPHICS_HEADERS_H */

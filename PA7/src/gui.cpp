@@ -8,6 +8,8 @@
 
 // Provide a backing for the globalTimeScale global variable
 float globalTimeScale = 1;
+// Provide a backing for the globalShouldScale global variable;
+bool globalShouldScale = true;
 
 // Initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
@@ -58,6 +60,9 @@ void GUI::Render(){
 			float speed = globalTimeScale;
 			if(ImGui::SliderFloat("Simulation Time Scale", &speed, 0.001, 10))
 				globalTimeScale = speed;
+
+			if (ImGui::MenuItem((globalShouldScale ? "Use Actual Data" : "Use Scaled Data")))
+				globalShouldScale = !globalShouldScale;
 
 			ImGui::EndMenu();
 		}
