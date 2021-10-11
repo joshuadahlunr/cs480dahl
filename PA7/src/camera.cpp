@@ -20,13 +20,16 @@ bool Camera::Initialize(int w, int h) {
   cameraOrbitAngles = glm::vec2(180.0, 90.0); // if start eye and focus change this will have to change
 
   // Set some value for movement scale when scrolling
-	zoomScale = 5.0;
+	zoomScale = 0.25;
+
+  // Set a minimum distance cap
+  minCap = 20.0;
 
   //Init projection matrices
   projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
 								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
 								 0.01f, //Distance to the near plane, normally a small value like this
-								 100.0f); //Distance to the far plane,
+								 10000000.0f); //Distance to the far plane,
 
   // Register us as a listener to resize events
   SDL_AddEventWatch(windowResizeEventListener, this);
@@ -51,7 +54,7 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
     camera->projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
 								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
 								 0.01f, //Distance to the near plane, normally a small value like this
-								 100.0f); //Distance to the far plane,
+								 10000000.0f); //Distance to the far plane,
 
     // Resize the OpenGL viewport
     glViewport(0, 0, w, h);
@@ -64,6 +67,12 @@ void Camera::Keyboard(const SDL_KeyboardEvent& e){
   if (e.type == SDL_KEYDOWN) {
     if (e.keysym.sym == SDLK_TAB) {
       // TODO set focus object using round robin
+    } else if (e.keysym.sym == SDLK_LSHIFT) {
+      zoomScale = 0.1;
+    }
+  } else if (e.type == SDL_KEYUP) {
+    if (e.keysym.sym == SDLK_LSHIFT) {
+      zoomScale = 0.25;
     }
   }
 }
@@ -106,7 +115,10 @@ void Camera::MouseMotion(const SDL_MouseMotionEvent& e){
 
 void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
   // increase/decrease the distance from the focus pos based on wheel scroll up/down
-  distanceFromFocusPos -= e.y * zoomScale;
+  distanceFromFocusPos -= e.y * distanceFromFocusPos * zoomScale;
+  if (distanceFromFocusPos < minCap) {
+    distanceFromFocusPos = minCap;
+  }
 }
 
 

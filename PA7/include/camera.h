@@ -36,6 +36,7 @@ private:
 	Object* focusObject;
 	float distanceFromFocusPos;
 	float zoomScale;
+	float minCap;
 
 	static constexpr float orbitAngleChangeRate = 270.0;
 };
