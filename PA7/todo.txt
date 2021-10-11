@@ -1,15 +1,17 @@
 TODO:
+* Documentation
+* Extra Fluff?
+
+DONE:
+* Camera controls
 * Accurate data
     * sizes
     * orbit paths
     * orbit speeds
     * rotate speeds
-* Orbit path visuals
-
-DONE:
-* Camera controls
 * Saturn rings
 * Simulation time scaling
+* Orbit path visuals
 * Celestial object with information about:
     a) orbit speed/radius
     b) rotation speed
