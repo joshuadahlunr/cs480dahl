@@ -6,6 +6,7 @@ Camera::Camera() { }
 Camera::~Camera() {
   // Unregister us as a listener to resize events
   SDL_DelEventWatch(windowResizeEventListener, this);
+  m_graphics = nullptr;
 }
 
 bool Camera::Initialize(int w, int h) {
@@ -37,7 +38,10 @@ bool Camera::Initialize(int w, int h) {
 }
 
 void Camera::Update(unsigned int dt) {
-  // The eye needs to be constantly updated if focus pos is constantly moving
+  // Get the focus position from the current focus object
+  focusPos = focusCelestial->GetPosition();
+
+  // Get the eye position relative to the focus position and at some point in rotation sphere
   eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
   // View dynamically updates with camera control movements
@@ -66,12 +70,16 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 void Camera::Keyboard(const SDL_KeyboardEvent& e){
   if (e.type == SDL_KEYDOWN) {
     if (e.keysym.sym == SDLK_TAB) {
-      // TODO set focus object using round robin
+      // Get next focus object in list
+      focusCelestial = m_graphics->getNextCelestial();
+      eyePos += focusCelestial->GetPosition();
     } else if (e.keysym.sym == SDLK_LSHIFT) {
+      // When holding shift decrease zoom amount
       zoomScale = 0.1;
     }
   } else if (e.type == SDL_KEYUP) {
     if (e.keysym.sym == SDLK_LSHIFT) {
+      // When shift is released increase zoom amount
       zoomScale = 0.25;
     }
   }
@@ -116,9 +124,10 @@ void Camera::MouseMotion(const SDL_MouseMotionEvent& e){
 void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
   // increase/decrease the distance from the focus pos based on wheel scroll up/down
   distanceFromFocusPos -= e.y * distanceFromFocusPos * zoomScale;
-  if (distanceFromFocusPos < minCap) {
+
+  // Limit the max zoom based on the scale of the focused celestial
+  if (distanceFromFocusPos < minCap) 
     distanceFromFocusPos = minCap;
-  }
 }
 
 

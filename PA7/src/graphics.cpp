@@ -1,5 +1,6 @@
 #include "graphics.h"
 #include "engine.h"
+#include "camera.h"
 
 #include "celestial.h"
 #include "rings.h"
@@ -45,6 +46,9 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 		return false;
 	}
 
+	// Give camera access to graphics
+	m_camera->setGraphics(this);
+
 	// Hookup camera mouse and keyboard events
 	engine->keyboardEvent += [&](auto event) { m_camera->Keyboard(event); };
 	engine->mouseButtonEvent += [&](auto event) { m_camera->MouseButton(event); };
@@ -53,6 +57,9 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 	// Create the celestials
 	sceneRoot = CelestialFromJson(args, args.getConfig()["Scene"]);
+
+	// Focus the camera on a celestial
+	m_camera->setFocusCelestial(celestials.back());
 
 	// Set up the shaders
 	m_shader = new Shader();
@@ -194,6 +201,9 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j, uint depth
 	// Recursively initialize the celestial's children
 	for (auto child: j["Children"])
 		celestial->addChild(CelestialFromJson(args, child, depth + 1));
+
+	// Add all celestials to a list for round robin indexing
+	celestials.push_back(celestial);
 
 	return celestial;
 }

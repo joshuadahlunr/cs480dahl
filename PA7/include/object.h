@@ -29,6 +29,7 @@ public:
 	// Sets model matrix
 	glm::mat4 GetModel() { return model; }
 	glm::mat4 GetChildBaseModel() { return childModel;  }
+	glm::vec3 GetPosition() { return glm::vec3(model[3][0], model[3][1], model[3][2]); }
 	void setModel(glm::mat4 _model) { childModel = model = _model; }
 	void setChildModel(glm::mat4 _model) { childModel = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);

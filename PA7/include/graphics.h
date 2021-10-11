@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #include "graphics_headers.h"
-#include "camera.h"
 #include "shader.h"
 #include "object.h"
 #include "gui.h"
@@ -16,6 +16,7 @@ using namespace std;
 class Engine;
 class Celestial;
 class Skybox;
+class Camera;
 
 // Class which provides the graphics engine
 class Graphics {
@@ -31,6 +32,7 @@ public:
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
+	Celestial* getNextCelestial() { celestialIndex++; if (celestialIndex >= celestials.size()) celestialIndex = 0; return celestials[celestialIndex]; }
 
 private:
 	std::string ErrorString(GLenum error);
@@ -46,6 +48,10 @@ private:
 	GLint m_modelMatrix;
 
 	Object* sceneRoot;
+
+	vector<Celestial*> celestials;
+	int celestialIndex = 0;
+
 };
 
 #endif /* GRAPHICS_H */
