@@ -25,7 +25,7 @@ public:
 	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
 
 	// Recursively initializes a scene tree from the provided json data
-	Celestial* CelestialFromJson(const Arguments& args, json j);
+	Celestial* CelestialFromJson(const Arguments& args, json j, uint depth = 0);
 
 	void Update(unsigned int dt);
 	void Render();

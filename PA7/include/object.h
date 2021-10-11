@@ -28,10 +28,14 @@ public:
 
 	// Sets model matrix
 	glm::mat4 GetModel() { return model; }
+	glm::mat4 GetChildBaseModel() { return childModel;  }
 	void setModel(glm::mat4 _model) { childModel = model = _model; }
 	void setChildModel(glm::mat4 _model) { childModel = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);
 	void setChildModelRelativeToParent(glm::mat4 _model);
+
+	// The depth in the scene tree of this object
+	uint sceneDepth = 0;
 
 protected:
 	// Uploads the model data to the GPU

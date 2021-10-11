@@ -232,6 +232,10 @@ Object* Object::setParent(Object* p){
 				break;
 			}
 
+	// Update the depth to be one more than the depth of the parent
+	if(p) sceneDepth = p->sceneDepth + 1;
+	else sceneDepth = 0;
+
 	// Mark the new parent as our parent
 	parent = p;
 	// Add ourselves as a child of that parent
@@ -249,6 +253,7 @@ Object* Object::addChild(Object* child){
 	children.push_back(child);
 	// Mark us as the object's parent
 	child->setParent(this);
+
 	return child;
 }
 

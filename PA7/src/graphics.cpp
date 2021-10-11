@@ -153,7 +153,7 @@ float jsonToFloat(json j, float _default = 0) {
 }
 
 // Recursively initializes a scene tree from the provided json data
-Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
+Celestial* Graphics::CelestialFromJson(const Arguments& args, json j, uint depth) {
 	// Create a new celestial object
 	Celestial* celestial = new Celestial();
 	celestial->sceneDepth = depth;
@@ -193,7 +193,7 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j) {
 
 	// Recursively initialize the celestial's children
 	for (auto child: j["Children"])
-		celestial->addChild(CelestialFromJson(args, child));
+		celestial->addChild(CelestialFromJson(args, child, depth + 1));
 
 	return celestial;
 }
