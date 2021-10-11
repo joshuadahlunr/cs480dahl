@@ -6,62 +6,146 @@
     "Scene":
     {
         "Name:": "Sun",
-        "Celestial Radius": 6.963,
+        "Celestial Radius": 696347.06,
         "Texture Path": "textures/2k_sun.jpg",
+        "Rotation Speed": 25.379995,
         "Children": [
             {
                 "Name": "Mercury",
-                "Celestial Radius": 1.0,
-                "Orbit Distance": 6.0,
-                "Orbit Speed": 100.0,
+                "Celestial Radius": 2439.7,
+                "Orbit Distance": 57909227.0,
+                "Orbit Speed": 24.912,
                 "Orbit Initial Offset": 0,
-                "Orbital Tilt Normal": [1, 4, 0],
-                "Rotation Speed": 3.0,
-                "Axial Tilt Normal": [0, 1, 0],
-                "Texture Path": "textures/2k_mercury.jpg",
-                "Ring": {
-                  "Texture Path": "textures/2k_saturn_ring_alpha.png",
-                  "Resolution": 64,
-                  "Inner Radius": 2,
-                  "Outer Radius": 3,
-                  "Tilt": [1, 2, 3]
-                },
-                "Children": [
-                    {
-                        "Name": "Mercury Hypothetical Moon",
-                        "Celestial Radius": 0.5,
-                        "Orbit Distance": 2.0,
-                        "Orbit Speed": 360.0,
-                        "Orbit Initial Offset": 0,
-                        "Orbital Tilt Normal": [0, 1, 0],
-                        "Rotation Speed": 3.0,
-                        "Axial Tilt Normal": [0, 1, 0],
-                        "Children": []
-                    }
-                ]
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.1220426, 0.9925249, 0],
+                "Rotation Speed": 58.6462,
+                "Axial Tilt Normal": [-0.0005235988, 0.9999999, 0],
+                "Texture Path": "textures/2k_mercury.jpg"
             },
             {
                 "Name": "Venus",
-                "Celestial Radius": 1.0,
-                "Orbit Distance": [6.0, 5.0],
-                "Orbit Speed": 100.0,
+                "Celestial Radius": 6051.80,
+                "Orbit Distance": 108209475.0,
+                "Orbit Speed": 9.753,
                 "Orbit Initial Offset": 180,
-                "Orbital Tilt Normal": [0, 1, 0],
-                "Rotation Speed": 3.0,
-                "Axial Tilt Normal": [0, 1, 0],
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.05913215, 0.9982502, 0],
+                "Rotation Speed": -243.0226,
+                "Axial Tilt Normal": [-0.04606039, 0.9989387, 0],
                 "Texture Path": "textures/2k_venus_surface.jpg",
                 "Children": []
             },
             {
                 "Name": "Earth",
-                "Celestial Radius": 1.0,
-                "Orbit Distance": 6.0,
-                "Orbit Speed": 100.0,
+                "Celestial Radius": 6371.0,
+                "Orbit Distance": 149598262.0,
+                "Orbit Speed": 6.0,
                 "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
                 "Orbital Tilt Normal": [0, 1, 0],
-                "Rotation Speed": 3.0,
+                "Rotation Speed": 0.99726968,
                 "Axial Tilt Normal": [0, 1, 0],
                 "Texture Path": "textures/2k_earth_daymap.jpg",
+                "Children": [
+                    {
+                        "Name": "Luna",
+                        "Celestial Radius": 1737.44778,
+                        "Orbit Distance": 384400.0,
+                        "Orbit Speed": -6.0,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 0,
+                        "Orbital Tilt Normal": [-0.08976348, 0.9959631, 0],
+                        "Rotation Speed": 27.321661,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/2k_moon.jpg"
+                    }
+                ]
+            },
+            {
+                "Name": "Mars",
+                "Celestial Radius": 3389.5,
+                "Orbit Distance": 227943824.0,
+                "Orbit Speed": 3.190,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                "Rotation Speed": 1.02595675,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_mars.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Jupiter",
+                "Celestial Radius": 69911.0,
+                "Orbit Distance": 778340821.0,
+                "Orbit Speed": 0.51,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                "Rotation Speed": 0.41354,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_jupiter.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Saturn",
+                "Celestial Radius": 58232.0,
+                "Orbit Distance": 1426666422.0,
+                "Orbit Speed": 0.204,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.04344502, 0.9990558, 0],
+                "Rotation Speed": 0.44002,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_saturn.jpg",
+                "Ring": {
+                    "Texture Path": "textures/2k_saturn_ring_alpha.png",
+                    "Resolution": 128,
+                    "Inner Radius Unscaled": 66900,
+                    "Inner Radius": 6.029718590,
+                    "Outer Radius Unscaled": 480000,
+                    "Outer Radius": 8.872674880,
+                    "Tilt": [0, 1, 0]
+                  },
+                "Children": []
+            },
+            {
+                "Name": "Uranus",
+                "Celestial Radius": 25362.0,
+                "Orbit Distance": 2870658186.0,
+                "Orbit Speed": -0.071,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.01343863, 0.9999097, 0],
+                "Rotation Speed": -0.71833,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_uranus.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Neptune",
+                "Celestial Radius": 24622.0,
+                "Orbit Distance": 4498396441.0,
+                "Orbit Speed": 0.0364,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03088742, 0.9995229, 0],
+                "Rotation Speed": 0.67125,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_neptune.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Pluto",
+                "Celestial Radius": 1188.30742,
+                "Orbit Distance": 5909100000.00,
+                "Orbit Speed": 0.222,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.2947075, 0.9555875, 0],
+                "Rotation Speed": -6.38718,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/plutomap2k.jpg",
                 "Children": []
             }
         ]
