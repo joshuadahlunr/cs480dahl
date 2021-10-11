@@ -1,0 +1,21 @@
+TODO:
+* Camera controls
+* Accurate data
+    * sizes
+    * orbit paths
+    * orbit speeds
+    * rotate speeds
+* Saturn rings
+* Simulation time scaling
+* Orbit path visuals
+
+
+DONE:
+* Celestial object with information about:
+    a) orbit speed/radius
+    b) rotation speed
+    b) scale
+    c) normal of the orbit plane
+    d) normal of the rotation plane
+* JSON file loading
+* Update perspective matrix when the window is resized
