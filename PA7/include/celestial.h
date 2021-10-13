@@ -21,7 +21,7 @@ public:
 	// Distance at which object orbits its parent (both x and y)
 	glm::vec2 orbitDistance = glm::vec2(0);
 	// Speed at which the object orbits its parent
-	double orbitSpeed = 0;
+	long double orbitSpeed = 0;
 	// Initial offset of the object's orbit along its parent
 	float orbitInitialOffset = 0;
 	// Tilt of the orbit

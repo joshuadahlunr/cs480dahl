@@ -9,8 +9,8 @@ bool Ring::Initialize(const Arguments& args, const std::string& texturePath) {
 	// For each step of resolution
 	for(int i = 0; i <= resolution; i++){
 		// Calculate the inner and outer positions of a vertex at this step
-		glm::vec3 outerPosition = glm::vec3(cos(angleStep * i) * outerRadius, 0, sin(angleStep * i) * outerRadius);
-		glm::vec3 innerPosition = glm::vec3(cos(angleStep * i) * innerRadius, 0, sin(angleStep * i) * innerRadius);
+		glm::vec3 outerPosition = glm::vec3(cos(angleStep * i) * scaledRadius(outerRadius), 0, sin(angleStep * i) * scaledRadius(outerRadius));
+		glm::vec3 innerPosition = glm::vec3(cos(angleStep * i) * scaledRadius(innerRadius), 0, sin(angleStep * i) * scaledRadius(innerRadius));
 
 		// Add a vertex/index for the outer point
 		Vertices.emplace_back(outerPosition, glm::vec3(1), glm::vec2(0, uvStep * i));
@@ -76,4 +76,11 @@ void Ring::Render(GLint modelMatrix) {
 	// Pass along to children.
 	for(Object* child: children)
 		child->Render(modelMatrix);
+}
+
+// Scales the radius to the appropriate scale
+float Ring::scaledRadius(float r){
+	if(!globalShouldScale) return r / 100000;
+
+	return log(r) / log(2) - 10;
 }

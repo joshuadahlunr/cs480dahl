@@ -10,6 +10,9 @@ public:
 	void Render(GLint modelMatrix) override;
 	void Update(unsigned int dt) override;
 
+	// Functions which provide scaled versions of the below variables
+	float scaledRadius(float r);
+
 	// The resolution of the generated ring mesh
 	int resolution = 128;
 	// The inside radius of the ring

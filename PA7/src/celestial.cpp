@@ -27,7 +27,7 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 	}
 
 	// Apply our initial offset
-	orbitAngle = orbitInitialOffset;
+	orbitAngle = rand() % 360; //orbitInitialOffset;
 
 	return success;
 }

@@ -164,21 +164,28 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j, uint depth
 	// Create a new celestial object
 	Celestial* celestial = new Celestial();
 	celestial->sceneDepth = depth;
-	celestial->celestialRadius = j.value("Celestial Radius", 1);
+	celestial->celestialRadius = j.value("Mean Radius (km)", 1);
 
 	// Distance can be provided as a single number or a pair
-	auto od = j["Orbit Distance"];
+	auto od = j["Mean Orbit Radius (km)"];
 	if(od.is_number()) celestial->orbitDistance = glm::vec2((float) od);
 	else if(od.is_array()) celestial->orbitDistance = jsonToVec2(od);
 	else celestial->orbitDistance = glm::vec2(0);
 
 	// Set the properties of the newly created object
-	celestial->orbitSpeed = jsonToFloat(j["Orbit Speed"]);
+	celestial->orbitSpeed = jsonToFloat(j["Orbit Period (d)"]);
+	celestial->orbitSpeed = 360.0 / (((celestial->orbitSpeed)/365.0) * 60.0);
+	if(isinf(celestial->orbitSpeed)) celestial->orbitSpeed = 0;
+
+	//celestial->orbitSpeed = celestial->orbitSpeed/(60 * 60 * 360);
 	celestial->orbitInitialOffset = jsonToFloat(j["Orbit Initial Offset"]);
 	celestial->eclipticInclination = jsonToFloat(j["Ecliptic Inclination"]);
 	celestial->orbitalTiltNormal = jsonToVec3(j["Orbital Tilt Normal"], glm::vec3(0, 1, 0));
-	celestial->rotationSpeed = jsonToFloat(j["Rotation Speed"]);
+	celestial->rotationSpeed = jsonToFloat(j["Sidereal Rotation Period (d)"]);
+	celestial->rotationSpeed = 360.0 / (((celestial->rotationSpeed)/365.0) * 60.0);
+	if(isinf(celestial->rotationSpeed)) celestial->rotationSpeed = 0;
 	celestial->axialTiltNormal = jsonToVec3(j["Axial Tilt Normal"], glm::vec3(0, 1, 0));
+	std::cout << celestial->rotationSpeed << std::endl;
 
 	// Initialize the celestial and set its texture
 	std::string texturePath = j.value("Texture Path", "textures/invalid.png");
@@ -188,8 +195,8 @@ Celestial* Graphics::CelestialFromJson(const Arguments& args, json j, uint depth
 	if(j.contains("Ring")){
 		// Create a child ring and set its properties
 		Ring* ring = (Ring*) celestial->addChild(new Ring());
-		ring->innerRadius = jsonToFloat(j["Ring"]["Inner Radius"], 1);
-		ring->outerRadius = jsonToFloat(j["Ring"]["Outer Radius"], 2);
+		ring->innerRadius = jsonToFloat(j["Ring"]["Inner Radius (km)"], 1);
+		ring->outerRadius = jsonToFloat(j["Ring"]["Outer Radius (km)"], 2);
 		ring->resolution = j["Ring"].value("Resolution", 128);
 		ring->tilt = jsonToVec3(j["Ring"]["Tilt"], glm::vec3(0, 1, 0));
 
