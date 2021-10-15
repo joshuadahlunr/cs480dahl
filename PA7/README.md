@@ -1,30 +1,22 @@
-# PA7: Assimp Texture Loading
+# PA7: Solar System
 
 ## Team
 
 Our team is composed of the following members:  
-- Joshua Dahl  
+- Joshua Dahl
 - Bryan Dedeurwaerder
 - Jonathan Peters
 
-# Arguments and keys
+# Arguments and Operation
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:
 ```bash
-./PA7 -v vert.glsl -f frag.glsl -m buddha.obj
+./PA7 -c config.json
 ```
 
-The slight variations in color of the box model are intended to provide a little bit of fake depth perception.
-Several additional object files have been included for testing:
-* Buddha with Textures: buddha.obj
-* Colored Cube: startingCube.obj
-* UTAH Bunny: bunny.obj
-* Stanford Teapot: teapot.obj
-* Stanford Dragon: dragon.obj
-* 3D Printing Benchmark Boat: benchy.obj
-
 ## Arguments
-* -h, -?, --help - Shows the help message
+* -h, -?, --help - Shows a help message
+* -c <file> - Sets the configuration file (relative to the resource directory)
 * -v <file> - Sets the vertex shader (relative to the resource/shaders directory)
 * -f <file> - Sets the fragment shader (relative to the resource/shaders directory)
 * -m <file> - Sets the obj model (relative to the resource/models directory)
@@ -32,15 +24,11 @@ Several additional object files have been included for testing:
 * --resource-path <path> - Sets the resource directory, the directory where all of the program's resources can be found. [default=../]
 
 
-## Keys
-The Showcase dropdown menu at the top of the application is also capable of preforming all of the following operations.  
+## Operation
+You can navigate the solar system by holding the right mouse button and dragging, or scrolling the mouse wheel to zoom in or out. The tab key can be pressed to cycle which celestial object the camera is focused on.
 
-* R - Pause the rotation of the Showcase.
-* O - Pause the orbit of the Showcase.
-* left click, L - Reverse the orbit of the Showcase.
-* right click, F - Reverse the rotation of the Showcase.
-
-Additionally, the orbit and rotation speed of the Showcase can be adjusted in the Showcase dropdown menu.
+The Simulation control menu at the top of the program has options for controlling the speed of the simulation. It also has a toggle to switch between an actual view of the solar system and a scaled logarithmic view which makes it easier to see the various planets and moons.
+If you need a reminder about this information it is available in the help menu at the top of the program.
 
 
 # Dependencies, Building, and Running
