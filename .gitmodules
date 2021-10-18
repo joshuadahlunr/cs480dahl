@@ -1,18 +1,3 @@
 [submodule "PA2/thirdparty/dearimgui"]
 	path = PA2/thirdparty/dearimgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "PA3/thirdparty/dearimgui"]
-	path = PA3/thirdparty/dearimgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "PA4/thirdparty/dearimgui"]
-	path = PA4/thirdparty/dearimgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "PA5/thirdparty/dearimgui"]
-	path = PA5/thirdparty/dearimgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "PA6/thirdparty/dearimgui"]
-	path = PA6/thirdparty/dearimgui
-	url = https://github.com/ocornut/imgui.git
-[submodule "PA7/thirdparty/dearimgui"]
-	path = PA7/thirdparty/dearimgui
-	url = https://github.com/ocornut/imgui.git
