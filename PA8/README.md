@@ -36,15 +36,15 @@ If you need a reminder about this information it is available in the help menu a
 ## Dependency Instructions
 For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
 
-## Dear ImGui
+## Dear ImGui and ReactPhysics3D
 The program relies on the Dear ImGui library. If git is being used this library is included as a submodule and may be downloaded by running:
 ```bash
 git submodule init
 git submodule update
 ```
 
-If git is not being used the library will need to be download from: https://github.com/ocornut/imgui
-The the code zip must be extracted into `PA8/thirdparty`.
+If git is not being used the two libraries will need to be download from: https://github.com/ocornut/imgui  and: https://github.com/DanielChappuis/reactphysics3d respectively.
+The the code zip for both must then be extracted into `PA8/thirdparty` (The dearimgui symbolic link must be overwritten).
 
 ## Assimp Model Loading
 

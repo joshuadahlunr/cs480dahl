@@ -1,3 +1,6 @@
 [submodule "PA2/thirdparty/dearimgui"]
 	path = PA2/thirdparty/dearimgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "PA8/thirdparty/reactphysics3d"]
+	path = PA8/thirdparty/reactphysics3d
+	url = https://github.com/DanielChappuis/reactphysics3d.git
