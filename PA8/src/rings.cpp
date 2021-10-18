@@ -1,6 +1,6 @@
 #include "rings.h"
 
-bool Ring::Initialize(const Arguments& args, const std::string& texturePath) {
+bool Ring::InitializeGraphics(const Arguments& args, const std::string& texturePath) {
 	// Calculate how many radians apart each vertex should be
 	float angleStep = glm::radians(360.0 / resolution);
 	// Calculate how far along the UV each step should go

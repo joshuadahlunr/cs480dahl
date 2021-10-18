@@ -3,7 +3,7 @@
 #include "orbitPath.h"
 #include <cmath>
 
-bool Celestial::Initialize(const Arguments& args, const std::string& texturePath) {
+bool Celestial::InitializeGraphics(const Arguments& args, const std::string& texturePath) {
 	bool success = true;
 
 	// Get the showcase path from the arguments
@@ -23,7 +23,7 @@ bool Celestial::Initialize(const Arguments& args, const std::string& texturePath
 	// Create and initialize the orbit path (if this isn't the sun)
 	if(!sceneDepth == 0) {
 		OrbitPath* orbitPath = (OrbitPath*) addChild(new OrbitPath());
-		success &= orbitPath->Initialize(args, texturePath, scaledOrbitDistance(), orbitDistance, orbitalTiltNormal, sceneDepth);
+		success &= orbitPath->InitializeGraphics(args, texturePath, scaledOrbitDistance(), orbitDistance, orbitalTiltNormal, sceneDepth);
 	}
 
 	// Apply our initial offset

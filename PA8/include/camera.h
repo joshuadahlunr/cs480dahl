@@ -2,13 +2,14 @@
 #define CAMERA_H
 
 #include "celestial.h"
-#include "graphics.h"
 #include <SDL2/SDL.h>
+
+class Engine;
 
 // Class representing a camera
 class Camera {
 public:
-	Camera();
+	Camera(Engine* engine);
 	~Camera();
 	bool Initialize(int w, int h);
 	void Update(unsigned int dt);
@@ -23,11 +24,8 @@ public:
 	void MouseMotion(const SDL_MouseMotionEvent& e);
 	void MouseWheel(const SDL_MouseWheelEvent& e);
 
-	void setGraphics(Graphics* gphx) { m_graphics = gphx; }
-	void setFocusCelestial(Celestial* celestial) { focusCelestial = celestial; }
-
 private:
-	Graphics* m_graphics;
+	Engine* m_engine;
 
 	glm::mat4 projection;
 	glm::mat4 view;
@@ -38,7 +36,6 @@ private:
 	glm::vec3 posInSphere;
 	glm::vec3 eyePos;
 	glm::vec3 focusPos;
-	Celestial* focusCelestial;
 
 	float distanceFromFocusPos;
 	float zoomScale;

@@ -21,18 +21,13 @@ class Camera;
 // Class which provides the graphics engine
 class Graphics {
 public:
-	Graphics();
+	Graphics(Object*& sceneRoot);
 	~Graphics();
 	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
-
-	// Recursively initializes a scene tree from the provided json data
-	Celestial* CelestialFromJson(const Arguments& args, json j, uint depth = 0);
-
 	void Update(unsigned int dt);
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
-	Celestial* getNextCelestial() { celestialIndex++; if (celestialIndex >= celestials.size()) celestialIndex = 0; return celestials[celestialIndex]; }
 
 private:
 	std::string ErrorString(GLenum error);
@@ -47,11 +42,7 @@ private:
 	GLint m_viewMatrix;
 	GLint m_modelMatrix;
 
-	Object* sceneRoot;
-
-	vector<Celestial*> celestials;
-	int celestialIndex = 0;
-
+	Object*& sceneRoot;
 };
 
 #endif /* GRAPHICS_H */

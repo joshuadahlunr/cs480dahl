@@ -3,17 +3,12 @@
 #include "camera.h"
 
 #include "celestial.h"
-#include "rings.h"
 #include "skybox.h"
 #include <fstream>
 
-Graphics::Graphics() { }
+Graphics::Graphics(Object*& sceneRoot) : sceneRoot(sceneRoot) { }
 
-Graphics::~Graphics() {
-	// Ensure that the scene root isn't leaked
-	delete sceneRoot;
-	sceneRoot = nullptr;
-}
+Graphics::~Graphics() { }
 
 bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments& args) {
 	// Used for the linux OS
@@ -40,26 +35,17 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	glBindVertexArray(vao);
 
 	// Init Camera
-	m_camera = new Camera();
+	m_camera = new Camera(engine);
 	if(!m_camera->Initialize(width, height)) {
 		printf("Camera Failed to Initialize\n");
 		return false;
 	}
-
-	// Give camera access to graphics
-	m_camera->setGraphics(this);
 
 	// Hookup camera mouse and keyboard events
 	engine->keyboardEvent += [&](auto event) { m_camera->Keyboard(event); };
 	engine->mouseButtonEvent += [&](auto event) { m_camera->MouseButton(event); };
 	engine->mouseMotionEvent += [&](auto event) { m_camera->MouseMotion(event); };
 	engine->mouseWheelEvent += [&](auto event) { m_camera->MouseWheel(event); };
-
-	// Create the celestials
-	sceneRoot = CelestialFromJson(args, args.getConfig()["Scene"]);
-
-	// Focus the camera on a celestial
-	m_camera->setFocusCelestial(celestials.back());
 
 	// Set up the shaders
 	m_shader = new Shader();
@@ -128,97 +114,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	return true;
 }
 
-// Helper function which converts a json array into a glm::vec3
-// Provides an optional default value in case the provided json is null
-glm::vec3 jsonToVec3(json j, glm::vec3 _default = glm::vec3(0)){
-	if(j.is_null()) return _default;
-
-	glm::vec3 out;
-	out.x = j[0];
-	out.y = j[1];
-	out.z = j[2];
-	return out;
-}
-
-// Helper function which converts a json array into a glm::vec3
-// Provides an optional default value in case the provided json is null
-glm::vec2 jsonToVec2(json j, glm::vec2 _default = glm::vec2(0)){
-	if(j.is_null()) return _default;
-
-	glm::vec2 out;
-	out.x = j[0];
-	out.y = j[1];
-	return out;
-}
-
-// Helper function which converts a json array into a float
-// Provides an optional default value in case the provided json is null
-float jsonToFloat(json j, float _default = 0) {
-	if(j.is_null()) return _default;
-
-	return j;
-}
-
-// Recursively initializes a scene tree from the provided json data
-Celestial* Graphics::CelestialFromJson(const Arguments& args, json j, uint depth) {
-	// Create a new celestial object
-	Celestial* celestial = new Celestial();
-	celestial->sceneDepth = depth;
-	celestial->celestialRadius = j.value("Mean Radius (km)", 1);
-
-	// Distance can be provided as a single number or a pair
-	auto od = j["Mean Orbit Radius (km)"];
-	if(od.is_number()) celestial->orbitDistance = glm::vec2((float) od);
-	else if(od.is_array()) celestial->orbitDistance = jsonToVec2(od);
-	else celestial->orbitDistance = glm::vec2(0);
-
-	// Set the properties of the newly created object
-	celestial->orbitSpeed = jsonToFloat(j["Orbit Period (d)"]);
-	celestial->orbitSpeed = 360.0 / (((celestial->orbitSpeed)/365.0) * 60.0);
-	if(isinf(celestial->orbitSpeed)) celestial->orbitSpeed = 0;
-
-	//celestial->orbitSpeed = celestial->orbitSpeed/(60 * 60 * 360);
-	celestial->orbitInitialOffset = jsonToFloat(j["Orbit Initial Offset"]);
-	celestial->eclipticInclination = jsonToFloat(j["Ecliptic Inclination"]);
-	celestial->orbitalTiltNormal = jsonToVec3(j["Orbital Tilt Normal"], glm::vec3(0, 1, 0));
-	celestial->rotationSpeed = jsonToFloat(j["Sidereal Rotation Period (d)"]);
-	celestial->rotationSpeed = 360.0 / (((celestial->rotationSpeed)/365.0) * 60.0);
-	if(isinf(celestial->rotationSpeed)) celestial->rotationSpeed = 0;
-	celestial->axialTiltNormal = jsonToVec3(j["Axial Tilt Normal"], glm::vec3(0, 1, 0));
-	std::cout << celestial->rotationSpeed << std::endl;
-
-	// Initialize the celestial and set its texture
-	std::string texturePath = j.value("Texture Path", "textures/invalid.png");
-	celestial->Initialize(args, args.getResourcePath() + texturePath);
-
-	// If there is a ring defined
-	if(j.contains("Ring")){
-		// Create a child ring and set its properties
-		Ring* ring = (Ring*) celestial->addChild(new Ring());
-		ring->innerRadius = jsonToFloat(j["Ring"]["Inner Radius (km)"], 1);
-		ring->outerRadius = jsonToFloat(j["Ring"]["Outer Radius (km)"], 2);
-		ring->resolution = j["Ring"].value("Resolution", 128);
-		ring->tilt = jsonToVec3(j["Ring"]["Tilt"], glm::vec3(0, 1, 0));
-
-		// Initialize the ring and set its texture
-		std::string texturePath = j["Ring"].value("Texture Path", "textures/invalid.png");
-		ring->Initialize(args, args.getResourcePath() + texturePath);
-	}
-
-	// Recursively initialize the celestial's children
-	for (auto child: j["Children"])
-		celestial->addChild(CelestialFromJson(args, child, depth + 1));
-
-	// Add all celestials to a list for round robin indexing
-	celestials.push_back(celestial);
-
-	return celestial;
-}
-
 void Graphics::Update(unsigned int dt) {
-	// Update the object
-	sceneRoot->Update(dt);
-
 	// Update the camera
 	m_camera->Update(dt);
 }

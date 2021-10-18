@@ -6,7 +6,7 @@
 // Object representing planetary rings
 class Ring: public Object {
 public:
-	bool Initialize(const Arguments& args, const std::string& texturePath);
+	bool InitializeGraphics(const Arguments& args, const std::string& texturePath);
 	void Render(GLint modelMatrix) override;
 	void Update(unsigned int dt) override;
 

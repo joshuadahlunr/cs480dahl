@@ -4,6 +4,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
+#include "window.h"
 #include "celestial.h"
 
 // Provide a backing for the globalTimeScale global variable
@@ -110,7 +111,7 @@ void GUI::Render(){
 					ImGui::Text("Right Button");
 					ImGui::TableSetColumnIndex(2);
 					ImGui::Text("Move Camera");
-				
+
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text(" ");
@@ -118,7 +119,7 @@ void GUI::Render(){
 					ImGui::Text("Scroll Wheel");
 					ImGui::TableSetColumnIndex(2);
 					ImGui::Text("Zoom");
-				
+
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("KeyBoard");
@@ -133,8 +134,8 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("Left Shift");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Slow Zoom Speed");				
-					
+					ImGui::Text("Slow Zoom Speed");
+
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text(" ");
@@ -142,7 +143,7 @@ void GUI::Render(){
 					ImGui::Text("Escape");
 					ImGui::TableSetColumnIndex(2);
 					ImGui::Text("Quit");
-			
+
 				ImGui::EndTable();
 			}
 

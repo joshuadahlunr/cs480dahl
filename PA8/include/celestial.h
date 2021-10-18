@@ -9,7 +9,7 @@ const float milliToSec = 1.0/1000.0;
 class Celestial: public Object {
 public:
 	// Must be initialized with the desired texture
-	bool Initialize(const Arguments& args, const std::string& texturePath);
+	bool InitializeGraphics(const Arguments& args, const std::string& texturePath);
 	void Update(unsigned int dt) override;
 
 	// Functions which provide scaled versions of the below variables

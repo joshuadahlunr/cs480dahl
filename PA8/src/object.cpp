@@ -1,5 +1,4 @@
 #include "object.h"
-#include "submesh.h"
 
 #include <fstream>
 #include <sstream>
@@ -35,7 +34,7 @@ Object::~Object() {
 	Indices.clear();
 }
 
-bool Object::Initialize(const Arguments& args){
+bool Object::InitializeGraphics(const Arguments& args){
 	bool success = true;
 	// Get the showcase path from the arguments
 	std::string filepath = args.getShowcaseModelPath();
@@ -49,7 +48,7 @@ bool Object::Initialize(const Arguments& args){
 
 	// Initialize the children
 	for(Object* child: children)
-		success &= child->Initialize(args);
+		success &= child->InitializeGraphics(args);
 
 	return success;
 }

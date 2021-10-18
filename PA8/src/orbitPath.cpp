@@ -1,6 +1,6 @@
 #include "orbitPath.h"
 
-bool OrbitPath::Initialize(const Arguments& args, const std::string& texturePath, glm::vec2 orbitDistanceScaled, glm::vec2 orbitDistanceActual, glm::vec3 orbitalTiltNormal, int depth) {
+bool OrbitPath::InitializeGraphics(const Arguments& args, const std::string& texturePath, glm::vec2 orbitDistanceScaled, glm::vec2 orbitDistanceActual, glm::vec3 orbitalTiltNormal, int depth) {
 	this->orbitalTiltNormal = orbitalTiltNormal;
 
 	// Calculate how many radians apart each vertex should be
@@ -15,7 +15,7 @@ bool OrbitPath::Initialize(const Arguments& args, const std::string& texturePath
 		// Calculate the inner and outer positions of a vertex at this step
 		glm::vec3 outerPositionScaled = glm::vec3(cos(angleStep * i) * (orbitDistanceScaled.x + width), 0, sin(angleStep * i) * (orbitDistanceScaled.y + width));
 		glm::vec3 innerPositionScaled = glm::vec3(cos(angleStep * i) * (orbitDistanceScaled.x - width), 0, sin(angleStep * i) * (orbitDistanceScaled.y - width));
-		// And actual 
+		// And actual
 
 		glm::vec3 outerPositionActual = glm::vec3(cos(angleStep * i) * (orbitDistanceActual.x / 100000 + actualWidth), 0, sin(angleStep * i) * (orbitDistanceActual.y / 100000 + actualWidth));
 		glm::vec3 innerPositionActual = glm::vec3(cos(angleStep * i) * (orbitDistanceActual.x / 100000 - actualWidth), 0, sin(angleStep * i) * (orbitDistanceActual.y / 100000 - actualWidth));
@@ -23,12 +23,12 @@ bool OrbitPath::Initialize(const Arguments& args, const std::string& texturePath
 		// Add a vertex/index for the outer point (Scaled)
 		Vertices.emplace_back(outerPositionScaled, glm::vec3(1), glm::vec2(0, uvStep * i));
 		actualVertices.emplace_back(outerPositionActual, glm::vec3(1), glm::vec2(0, uvStep * i));
-		Indices.push_back(i * 2 + 1);		
+		Indices.push_back(i * 2 + 1);
 
 		// Add a vertex/index for the inner point (Scaled)
 		Vertices.emplace_back(innerPositionScaled, glm::vec3(1), glm::vec2(1, uvStep * i));
 		actualVertices.emplace_back(innerPositionActual, glm::vec3(1), glm::vec2(1, uvStep * i));
-		Indices.push_back(i * 2);		
+		Indices.push_back(i * 2);
 	}
 
 	// Upload the vertecies and indices to the GPU

@@ -7,7 +7,7 @@
 class OrbitPath: public Object {
 public:
 	OrbitPath() { glGenBuffers(1, &actualVB); }
-	bool Initialize(const Arguments& args, const std::string& texturePath, glm::vec2 orbitDistanceScaled, glm::vec2 orbitDistanceActual, glm::vec3 orbitalTiltNormal, int depth);
+	bool InitializeGraphics(const Arguments& args, const std::string& texturePath, glm::vec2 orbitDistanceScaled, glm::vec2 orbitDistanceActual, glm::vec3 orbitalTiltNormal, int depth);
 	void Update(unsigned int dt) override;
 	void Render(GLint modelMatrix) override;
 
