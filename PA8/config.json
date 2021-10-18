@@ -1,0 +1,253 @@
+{
+    "Vertex Shader File Path": "vert.glsl",
+    "Fragment Shader File Path": "frag.glsl",
+    "Model File Path": "sphere.obj",
+
+    "Scene":
+    {
+        "Name:": "Sun",
+        "Mean Radius (km)": 696347.06,
+        "Texture Path": "textures/2k_sun.jpg",
+        "Sidereal Rotation Period (d)": 25.379995,
+        "Children": [
+            {
+                "Name": "Mercury",
+                "Mean Radius (km)": 2439.7,
+                "Mean Orbit Radius (km)": 57909227.0,
+                "Orbit Period (d)": 88,
+                "Orbit Initial Offset": 0,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.1220426, 0.9925249, 0],
+                "Sidereal Rotation Period (d)": 58.6462,
+                "Axial Tilt Normal": [-0.0005235988, 0.9999999, 0],
+                "Texture Path": "textures/2k_mercury.jpg"
+            },
+            {
+                "Name": "Venus",
+                "Mean Radius (km)": 6051.80,
+                "Mean Orbit Radius (km)": 108209475.0,
+                "Orbit Period (d)": -224.7,
+                "Orbit Initial Offset": 180,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.05913215, 0.9982502, 0],
+                "Sidereal Rotation Period (d)": -243.0226,
+                "Axial Tilt Normal": [-0.04606039, 0.9989387, 0],
+                "Texture Path": "textures/2k_venus_surface.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Earth",
+                "Mean Radius (km)": 6371.0,
+                "Mean Orbit Radius (km)": 149598262.0,
+                "Orbit Period (d)": 365.256,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [0, 1, 0],
+                "Sidereal Rotation Period (d)": 0.99726968,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_earth_daymap.jpg",
+                "Children": [
+                    {
+                        "Name": "Luna",
+                        "Mean Radius (km)": 1737.44778,
+                        "Mean Orbit Radius (km)": 384400.0,
+                        "Orbit Period (d)": -27.32,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 0,
+                        "Orbital Tilt Normal": [-0.08976348, 0.9959631, 0],
+                        "Sidereal Rotation Period (d)": 27.321661,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/2k_moon.jpg"
+                    }
+                ]
+            },
+            {
+                "Name": "Mars",
+                "Mean Radius (km)": 3389.5,
+                "Mean Orbit Radius (km)": 227943824.0,
+                "Orbit Period (d)": 387,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                "Sidereal Rotation Period (d)": 1.02595675,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_mars.jpg",
+                "Children": []
+            },
+            {
+                "Name": "Jupiter",
+                "Mean Radius (km)": 69911.0,
+                "Mean Orbit Radius (km)": 778340821.0,
+                "Orbit Period (d)": 4332.59,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                "Sidereal Rotation Period (d)": 0.41354,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_jupiter.jpg",
+                "Ring": {
+                    "Texture Path": "textures/jupiter_ring.png",
+                    "Resolution": 128,
+                    "Inner Radius (km)": 89400,
+                    "Outer Radius (km)": 280000,
+                    "Tilt": [0, 1, 0]
+                  },
+                "Children": [
+                    {
+                        "Name": "Europa",
+                        "Mean Radius (km)": 1560.8,
+                        "Mean Orbit Radius (km)": 670900.0,
+                        "Orbit Period (d)": 3.551181,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 1.791,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 0.41354,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/europa.jpg",
+                        "Children": []
+                    },
+                    {
+                        "Name": "Ganymede",
+                        "Mean Radius (km)": 2634.0,
+                        "Mean Orbit Radius (km)": 1070400.0,
+                        "Orbit Period (d)": 7.125,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 2.214,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 0.41354,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/2k_moon.jpg",
+                      
+                        "Children": []
+                    },
+                    {
+                        "Name": "Io",
+                        "Mean Radius (km)": 1821.6,
+                        "Mean Orbit Radius (km)": 421700.0,
+                        "Orbit Period (d)": 1.769137786,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 0,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 0.41354,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/io.png",
+                        "Children": []
+                    },
+                    {
+                        "Name": "Callisto",
+                        "Mean Radius (km)": 2410.3,
+                        "Mean Orbit Radius (km)": 1897000.0,
+                        "Orbit Period (d)": 16.6890184,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 2.017,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 16.6890184,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/callisto.jpg",
+                        "Children": []
+                    }
+                ]
+            },
+            {
+                "Name": "Saturn",
+                "Mean Radius (km)": 58232.0,
+                "Mean Orbit Radius (km)": 1426666422.0,
+                "Orbit Period (d)": 10759.22,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.04344502, 0.9990558, 0],
+                "Sidereal Rotation Period (d)": 0.44002,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_saturn.jpg",
+                "Ring": {
+                    "Texture Path": "textures/2k_saturn_ring_alpha.png",
+                    "Resolution": 128,
+                    "Inner Radius (km)": 66900,
+                    "Outer Radius (km)": 480000,
+                    "Tilt": [0, 1, 0]
+                },
+                "Children": [
+                    {
+                        "Name": "Enceladus",
+                        "Mean Radius (km)": 252.1,
+                        "Mean Orbit Radius (km)": [236918.0,239156.0],
+                        "Orbit Period (d)": 20.54,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 0,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 0.41354,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/enceladus.jpg",
+                        "Children": []
+                    },
+                    {
+                        "Name": "Titan",
+                        "Mean Radius (km)": 252.1,
+                        "Mean Orbit Radius (km)": [236918.0,239156.0],
+                        "Orbit Period (d)": 15.9854,
+                        "Orbit Initial Offset": 90,
+                        "Ecliptic Inclination": 0,
+                        "Orbital Tilt Normal": [-0.03228298, 0.9994788, 0],
+                        "Sidereal Rotation Period (d)": 0.41354,
+                        "Axial Tilt Normal": [0, 1, 0],
+                        "Texture Path": "textures/titan.jpg",
+                        "Children": []
+                    }
+                ]
+            },
+            {
+                "Name": "Uranus",
+                "Mean Radius (km)": 25362.0,
+                "Mean Orbit Radius (km)": 2870658186.0,
+                "Orbit Period (d)": -30688.5,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.01343863, 0.9999097, 0],
+                "Sidereal Rotation Period (d)": -0.71833,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_uranus.jpg",
+                "Ring": {
+                    "Texture Path": "textures/uranus_ring.png",
+                    "Resolution": 128,
+                    "Inner Radius (km)": 26840.0,
+                    "Outer Radius (km)": 103000.0,
+                    "Tilt": [0, 1, 0]
+                },
+                "Children": []
+            },
+            {
+                "Name": "Neptune",
+                "Mean Radius (km)": 24622.0,
+                "Mean Orbit Radius (km)": 4498396441.0,
+                "Orbit Period (d)": 60195,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.03088742, 0.9995229, 0],
+                "Sidereal Rotation Period (d)": 0.67125,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/2k_neptune.jpg",
+                "Ring": {
+                    "Texture Path": "textures/jupiter_ring.png",
+                    "Resolution": 128,
+                    "Inner Radius (km)": 40900.0,
+                    "Outer Radius (km)": 62932.0,
+                    "Tilt": [0, 1, 0]
+                },
+                "Children": []
+            },
+            {
+                "Name": "Pluto",
+                "Mean Radius (km)": 1188.30742,
+                "Mean Orbit Radius (km)": 5909100000.00,
+                "Orbit Period (d)": 90560,
+                "Orbit Initial Offset": 90,
+                "Ecliptic Inclination": 0,
+                "Orbital Tilt Normal": [-0.2947075, 0.9555875, 0],
+                "Sidereal Rotation Period (d)": -6.38718,
+                "Axial Tilt Normal": [0, 1, 0],
+                "Texture Path": "textures/plutomap2k.jpg",
+                "Children": []
+            }
+        ]
+    }
+}
