@@ -38,6 +38,13 @@ bool Engine::Initialize(const Arguments& args) {
 		return false;
 	}
 
+	// Start the physics
+	m_physics = new Physics(sceneRoot);
+	if(!m_physics->Initialize(this, args)) {
+		printf("The physics failed to initialize.\n");
+		return false;
+	}
+
 	// Start the graphics
 	m_graphics = new Graphics(sceneRoot);
 	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, this, args)) {
@@ -172,6 +179,8 @@ void Engine::Run() {
 				mouseWheelEvent(m_event.wheel);
 		}
 
+		// Update the physics simulation
+		m_physics->Update(m_DT);
 		// Update the scene tree
 		sceneRoot->Update(m_DT);
 		// Update and render the graphics
