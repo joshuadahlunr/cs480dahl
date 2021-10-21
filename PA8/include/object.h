@@ -1,8 +1,9 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef OBJECT_LOCAL_H
+#define OBJECT_LOCAL_H
 
 #include <vector>
 #include <SDL2/SDL.h>
+#include "physics.h"
 #include "graphics_headers.h"
 #include "arguments.h"
 
@@ -12,13 +13,17 @@ class Object {
 public:
 	Object();
 	~Object();
-	virtual bool InitializeGraphics(const Arguments& args);
+	virtual bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
+	virtual bool InitializePhysics(const Arguments& args, Physics& physics);
 	virtual void Update(unsigned int dt);
 	virtual void Render(GLint modelMatrix);
 
 	// Mouse and Keyboard event propagation
 	virtual void Keyboard(const SDL_KeyboardEvent& e);
 	virtual void MouseButton(const SDL_MouseButtonEvent& e);
+
+	// Physics functions
+	rp3d::RigidBody& getRigidBody() { return *rigidBody; }
 
 	// Scene tree management
 	Object* setParent(Object* p);
@@ -46,13 +51,16 @@ protected:
 	bool LoadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
 
 protected:
-	glm::mat4 model;
-	glm::mat4 childModel; // Model matrix that is used as the base of to this object's children's model matricies
+	glm::mat4 model = glm::mat4(1);
+	glm::mat4 childModel = glm::mat4(1); // Model matrix that is used as the base of to this object's children's model matricies
 	std::vector<Vertex> Vertices;
 	std::vector<unsigned int> Indices;
 	GLuint VB;
 	GLuint IB;
 	GLuint tex = -1;
+
+	// Physics rigidbody
+	rp3d::RigidBody* rigidBody = nullptr;
 
 	Object* parent;
 	std::vector<Object*> children;
@@ -65,7 +73,7 @@ public:
 	using Object::Object;
 
 	// Submesh initialization doesn't do anything
-	bool InitializeGraphics(const Arguments& args) override { return true; }
+	bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
 	// A submesh syncs it model matrix to its parent every frame
 	void Update(unsigned int dt) override { setModelRelativeToParent(glm::mat4(1)); }
 };

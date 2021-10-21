@@ -32,12 +32,14 @@ Object::~Object() {
 	// Clean up the lists of vertecies and indices
 	Vertices.clear();
 	Indices.clear();
+
+	// Destroy the rigid body (if it was initalized)
+	if(rigidBody)
+		Physics::getSingleton()->getWorld().destroyRigidBody(rigidBody);
 }
 
-bool Object::InitializeGraphics(const Arguments& args){
+bool Object::InitializeGraphics(const Arguments& args, std::string filepath, std::string texturePath){
 	bool success = true;
-	// Get the showcase path from the arguments
-	std::string filepath = args.getShowcaseModelPath();
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
 	std::string modelDirectory = args.getResourcePath() + "models/";
 	if(filepath.find(modelDirectory) == std::string::npos)
@@ -46,11 +48,28 @@ bool Object::InitializeGraphics(const Arguments& args){
 	// Load the model
 	success &= LoadModelFile(args, filepath);
 
+	// Load the texture (error texture if none provided)
+	success &= LoadTextureFile(args, args.getResourcePath() + "textures/" + texturePath, false);
+
+	// Ensure that the child model matrix is the same as the normal model matrix
+	childModel = model;
+
 	// Initialize the children
 	for(Object* child: children)
 		success &= child->InitializeGraphics(args);
 
 	return success;
+}
+
+bool Object::InitializePhysics(const Arguments& args, Physics& physics) {
+	// Copy the inital transform from the model matrix
+    rp3d::Transform transform;
+	transform.setFromOpenGL(glm::value_ptr(model));
+
+	// Create a rigid body with the same transform as the object
+	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(transform);
+
+	return true;
 }
 
 // Uploads the model data to the GPU
@@ -174,6 +193,10 @@ bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeR
 
 
 void Object::Update(unsigned int dt){
+	// Get Rigidbody updated position (if it exists)
+	if(rigidBody)
+		rigidBody->getTransform().getOpenGLMatrix(glm::value_ptr(model));
+
 	// Pass along to children
 	for(Object* child: children)
 		child->Update(dt);

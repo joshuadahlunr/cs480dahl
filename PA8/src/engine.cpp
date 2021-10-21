@@ -49,8 +49,10 @@ bool Engine::Initialize(const Arguments& args) {
 		return false;
 	}
 
-	// Create the celestials
-	// sceneRoot = CelestialFromJson(args, args.getConfig()["Scene"]);
+	// Create the scene tree
+	sceneRoot = new Object();
+	sceneRoot->InitializeGraphics(args, "cylinder.obj");
+	sceneRoot->InitializePhysics(args, *m_physics);
 
 	// Set the time
 	m_currentTimeMillis = GetCurrentTimeMillis();
