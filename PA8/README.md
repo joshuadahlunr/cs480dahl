@@ -1,4 +1,4 @@
-# PA8: Solar System
+# PA8: React Physics
 
 ## Team
 

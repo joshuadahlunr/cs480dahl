@@ -24,8 +24,7 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << "\t-c <file> - Sets the config file (relative to the resource directory)\n\t\t[default=config.json]" << std::endl;
 			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Vertex Shader File Path\"]" << std::endl;
 			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Fragment Shader File Path\"]" << std::endl;
-			std::cout << "\t-m <file> - Sets the obj model (relative to the resource/models" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Model File Path\"]" << std::endl;
-
+			
 			std::cout << "Optional" << std::endl;
 			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
 
@@ -64,18 +63,6 @@ Arguments::Arguments(int argc, char **argv){
 			else {
 				i++;
 				fragmentFilePath = argv[i];
-			}
-		}
-
-		// If the argument starts with -m
-		else if(arg.substr(0, 2) == "-m"){
-			// Check if the rest of the argument contains the file
-			if(file.find(".obj") != std::string::npos)
-				showcaseModelPath = file;
-			// And if it doesn't, the next argument does
-			else {
-				i++;
-				showcaseModelPath = argv[i];
 			}
 		}
 
@@ -125,14 +112,12 @@ Arguments::Arguments(int argc, char **argv){
 		vertexFilePath = config["Vertex Shader File Path"];
 	if(fragmentFilePath.empty() && config.contains("Fragment Shader File Path"))
 		fragmentFilePath = config["Fragment Shader File Path"];
-	if(showcaseModelPath.empty() && config.contains("Model File Path"))
-		showcaseModelPath = config["Model File Path"];
 
 	// If we can't continue provide an error message
-	canContinue &= !vertexFilePath.empty() && !fragmentFilePath.empty() && !showcaseModelPath.empty();
+	canContinue &= !vertexFilePath.empty() && !fragmentFilePath.empty();
 	if(!canContinue){
-		std::cerr << "To run the program you must specify the vertex shader, fragment shader, model, and config file to load:" << std::endl;
-		std::cerr << argv[0] << " -v <file> -f <file> -m <file> -c <file>" << std::endl;
+		std::cerr << "To run the program you must specify the vertex shader, fragment shader, and config file to load:" << std::endl;
+		std::cerr << argv[0] << " -v <file> -f <file> -c <file>" << std::endl;
 		std::cerr << std::endl << std::string(60, '-') << std::endl;
 		std::cerr << "For more infromation display the help menu:" << std::endl;
 		std::cerr << argv[0] << " -h" << std::endl;

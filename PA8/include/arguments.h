@@ -13,7 +13,6 @@ private:
 
 	std::string vertexFilePath;
 	std::string fragmentFilePath;
-	std::string showcaseModelPath;
 
 	json config;
 
@@ -28,7 +27,6 @@ public:
 
 	std::string getVertexFilePath() const { return vertexFilePath; }
 	std::string getFragmentFilePath() const { return fragmentFilePath; }
-	std::string getShowcaseModelPath() const { return showcaseModelPath; }
 
 	json getConfig() const { return config; }
 

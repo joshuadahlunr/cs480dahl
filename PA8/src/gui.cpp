@@ -5,7 +5,6 @@
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
 #include "window.h"
-#include "celestial.h"
 
 // Provide a backing for the globalTimeScale global variable
 float globalTimeScale = 1;
@@ -66,19 +65,9 @@ void GUI::Render(){
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
+	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-		if(ImGui::BeginMenu("Simulation Controls")) {
-			float speed = globalTimeScale;
-			if(ImGui::SliderFloat("Simulation Time Scale", &speed, 0.001, 10))
-				globalTimeScale = speed;
-
-			if (ImGui::MenuItem((globalShouldScale ? "Use Actual Data" : "Use Scaled Data")))
-				globalShouldScale = !globalShouldScale;
-
-			ImGui::EndMenu();
-		}
-
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();

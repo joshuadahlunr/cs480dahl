@@ -2,7 +2,6 @@
 #include "engine.h"
 #include "camera.h"
 
-#include "celestial.h"
 #include "skybox.h"
 #include <fstream>
 

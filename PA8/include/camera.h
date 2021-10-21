@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "celestial.h"
+#include "graphics_headers.h"
 #include <SDL2/SDL.h>
 
 class Engine;
