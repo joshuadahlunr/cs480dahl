@@ -54,6 +54,12 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot->InitializeGraphics(args, "cylinder.obj");
 	sceneRoot->InitializePhysics(args, *m_physics);
 
+	// Create the box with walls
+	Object* board = new Object();
+	sceneRoot->addChild(board);
+	board->InitializeGraphics(args, "fourwallboard.obj");
+	board->InitializePhysics(args, *m_physics);
+
 	// Set the time
 	m_currentTimeMillis = GetCurrentTimeMillis();
 
