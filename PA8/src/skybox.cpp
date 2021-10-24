@@ -95,7 +95,7 @@ bool Skybox::Initialize(const Arguments& args, Camera* camera){
 	}
 
 	// Load the cube map
-	success &= LoadCubeTexture(args, args.getResourcePath() + "textures/skybox");
+	success &= LoadCubeTexture(args, args.getResourcePath() + "textures/skyboxs/clouds");
 
 	return success;
 }
