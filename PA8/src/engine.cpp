@@ -51,14 +51,33 @@ bool Engine::Initialize(const Arguments& args) {
 
 	// Create the scene tree
 	sceneRoot = new Object();
-	sceneRoot->InitializeGraphics(args, "cylinder.obj");
-	sceneRoot->InitializePhysics(args, *m_physics);
 
-	// Create the box with walls
+	// Create a cylinder
+	Object* cylinder = new Object();
+	sceneRoot->addChild(cylinder);
+	cylinder->InitializeGraphics(args, "cylinder.obj");
+	cylinder->setPosition(glm::vec3(0,5,0));
+	cylinder->InitializePhysics(args, *m_physics);
+
+	// Create a sphere
+	Object* sphere = new Object();
+	sceneRoot->addChild(sphere);
+	sphere->InitializeGraphics(args, "unitsphere.obj");
+	sphere->setPosition(glm::vec3(4,5,0));
+	sphere->InitializePhysics(args, *m_physics);
+
+	// Create a cube
+	Object* cube = new Object();
+	sceneRoot->addChild(cube);
+	cube->InitializeGraphics(args, "cube.obj");
+	cube->setPosition(glm::vec3(-4,5,0));
+	cube->InitializePhysics(args, *m_physics);
+
+	// Create the board with walls
 	Object* board = new Object();
 	sceneRoot->addChild(board);
 	board->InitializeGraphics(args, "fourwallboard.obj");
-	board->InitializePhysics(args, *m_physics);
+	//board->InitializePhysics(args, *m_physics); // TODO make static convex mesh physics object
 
 	// Set the time
 	m_currentTimeMillis = GetCurrentTimeMillis();

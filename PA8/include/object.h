@@ -34,11 +34,12 @@ public:
 	// Sets model matrix
 	glm::mat4 GetModel() { return model; }
 	glm::mat4 GetChildBaseModel() { return childModel;  }
-	glm::vec3 GetPosition() { return glm::vec3(model[3][0], model[3][1], model[3][2]); }
+	glm::vec3 getPosition() { return glm::vec3(model[3][0], model[3][1], model[3][2]); }
 	void setModel(glm::mat4 _model) { childModel = model = _model; }
 	void setChildModel(glm::mat4 _model) { childModel = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);
 	void setChildModelRelativeToParent(glm::mat4 _model);
+	void setPosition(glm::vec3 _pos) { model[3][0] = _pos[0]; model[3][1] = _pos[1]; model[3][2] = _pos[2]; }
 
 	// The depth in the scene tree of this object
 	uint sceneDepth = 0;
