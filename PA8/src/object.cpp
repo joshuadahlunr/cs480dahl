@@ -112,11 +112,13 @@ void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d:
 void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/) {
 
 	std::vector<float> positions;
-	for(int i: Indices) {
-		positions.push_back(Vertices[i].vertex.x);
-		positions.push_back(Vertices[i].vertex.y);
-		positions.push_back(Vertices[i].vertex.z);
+	for(Vertex& vert: Vertices) {
+		positions.push_back(vert.vertex.x);
+		positions.push_back(vert.vertex.y);
+		positions.push_back(vert.vertex.z);
 	}
+
+	std::cout << Vertices.size() << std::endl;
 
 	rp3d::CollisionShape* shape;
 
@@ -214,6 +216,10 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			obj = new Submesh(); // Submesh's model matrix are linked to their parent
 			obj->setParent(this);
 		}
+
+		// Remove a previous model
+		obj->Vertices.clear();
+		obj->Indices.clear();
 
 		// Extract this mesh from the scene
 		const aiMesh* mesh = scene->mMeshes[meshIndex];
