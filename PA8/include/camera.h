@@ -13,8 +13,8 @@ public:
 	~Camera();
 	bool Initialize(int w, int h);
 	void Update(unsigned int dt);
-	glm::mat4 GetProjection();
-	glm::mat4 GetView();
+	glm::mat4 GetProjection() { return projection; }
+	glm::mat4 GetView() { return view; }
 
 	// The camera updates some matricies when the window is resized.
 	static int windowResizeEventListener(void* data, SDL_Event* event);

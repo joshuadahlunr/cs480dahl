@@ -4,3 +4,6 @@
 [submodule "PA8/thirdparty/reactphysics3d"]
 	path = PA8/thirdparty/reactphysics3d
 	url = https://github.com/DanielChappuis/reactphysics3d.git
+[submodule "PA8/thirdparty/quickhull"]
+	path = PA8/thirdparty/quickhull
+	url = https://github.com/akuukka/quickhull.git

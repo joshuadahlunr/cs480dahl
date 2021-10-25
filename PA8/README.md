@@ -1,5 +1,9 @@
 # PA8: React Physics
 
+## Extra Credit
+
+- Loaded a triangle mesh into React (Bullet) instead of using primitive objects.
+
 ## Team
 
 Our team is composed of the following members:  

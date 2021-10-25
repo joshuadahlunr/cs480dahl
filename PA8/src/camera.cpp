@@ -125,5 +125,4 @@ void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
 }
 
 
-glm::mat4 Camera::GetProjection() { return projection; }
-glm::mat4 Camera::GetView() { return view; }
+

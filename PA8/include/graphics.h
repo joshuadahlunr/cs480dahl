@@ -28,6 +28,7 @@ public:
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }
+	Camera* getCamera() const { return m_camera; }
 
 private:
 	std::string ErrorString(GLenum error);

@@ -14,7 +14,7 @@ public:
 	Object();
 	~Object();
 	virtual bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
-	virtual bool InitializePhysics(const Arguments& args, Physics& physics);
+	virtual bool InitializePhysics(const Arguments& args, Physics& physics, bool _static);
 	virtual void Update(unsigned int dt);
 	virtual void Render(GLint modelMatrix);
 
@@ -23,7 +23,15 @@ public:
 	virtual void MouseButton(const SDL_MouseButtonEvent& e);
 
 	// Physics functions
+	void setPhysicsTransform(rp3d::Transform t) { if(rigidBody) rigidBody->setTransform(t); }
+	rp3d::Transform getPhysicsTransform(); // Gets the transform stored in the physics simulation (synced with graphics in update)
+	rp3d::Transform getGraphicsTransform(); // Gets the transformed displayed in the graphics visualization (synced with physics in update)
 	rp3d::RigidBody& getRigidBody() { return *rigidBody; }
+	rp3d::Collider& getCollider() { return *collider; }
+ 	void addCapsuleCollider(float radius, float height, rp3d::Transform transform = rp3d::Transform());
+	void addBoxCollider(glm::vec3 halfExtents, rp3d::Transform transform = rp3d::Transform());
+	void addSphereCollider(float radius, rp3d::Transform transform = rp3d::Transform());
+	void addMeshCollider(bool makeConvex = true, rp3d::Transform transform = rp3d::Transform());
 
 	// Scene tree management
 	Object* setParent(Object* p);
@@ -62,6 +70,7 @@ protected:
 
 	// Physics rigidbody
 	rp3d::RigidBody* rigidBody = nullptr;
+	rp3d::Collider* collider = nullptr;
 
 	Object* parent;
 	std::vector<Object*> children;
