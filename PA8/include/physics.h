@@ -5,6 +5,8 @@
 #include <reactphysics3d/reactphysics3d.h>
 #include "graphics_headers.h"
 
+// Uncomment to enable physics debug rendering
+#define PHYSICS_DEBUG
 
 // Forward declarations
 class Engine;
@@ -23,7 +25,9 @@ public:
 	~Physics();
 	bool Initialize(Engine* engine, const Arguments& args);
 	void Update(unsigned int dt);
-	// void Render(Camera* camera);
+#ifdef PHYSICS_DEBUG
+	void Render(Camera* camera);
+#endif
 
 	// Get the factory object
 	rp3d::PhysicsCommon& getFactory() { return factory; }
@@ -42,9 +46,11 @@ protected:
 	// Scene's world
 	rp3d::PhysicsWorld* world;
 
-	// Debug output
-	// GLuint debugLineBuffer;
-	// Shader* debugShader;
+#ifdef PHYSICS_DEBUG
+	// Debug rendering variables
+	GLuint debugLineBuffer;
+	Shader* debugShader;
+#endif
 };
 
 #endif /* PHYSICS_H */

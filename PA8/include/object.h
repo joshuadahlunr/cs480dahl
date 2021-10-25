@@ -28,7 +28,9 @@ public:
 	rp3d::Transform getGraphicsTransform(); // Gets the transformed displayed in the graphics visualization (synced with physics in update)
 	rp3d::RigidBody& getRigidBody() { return *rigidBody; }
 	rp3d::Collider& getCollider() { return *collider; }
- 	void addCapsuleCollider(float radius, float height, rp3d::Transform transform = rp3d::Transform());
+
+	// Physics Collider adding functions
+	void addCapsuleCollider(float radius, float height, rp3d::Transform transform = rp3d::Transform());
 	void addBoxCollider(glm::vec3 halfExtents, rp3d::Transform transform = rp3d::Transform());
 	void addSphereCollider(float radius, rp3d::Transform transform = rp3d::Transform());
 	void addMeshCollider(bool makeConvex = true, rp3d::Transform transform = rp3d::Transform());

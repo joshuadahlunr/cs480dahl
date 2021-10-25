@@ -65,15 +65,12 @@ bool Object::InitializeGraphics(const Arguments& args, std::string filepath, std
 }
 
 bool Object::InitializePhysics(const Arguments& args, Physics& physics, bool _static) {
-	// Copy the inital transform from the model matrix
-    rp3d::Transform transform = getGraphicsTransform();
+	// Create a physics rigid body with the inital transform from the model matrix
+	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(getGraphicsTransform());
 
-	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(transform);
-
-	if(_static)
-		rigidBody->setType(rp3d::BodyType::STATIC);
-	else 
-		rigidBody->setType(rp3d::BodyType::DYNAMIC);
+	// Set wether the object is static or dynamic
+	if(_static) rigidBody->setType(rp3d::BodyType::STATIC);
+	else rigidBody->setType(rp3d::BodyType::DYNAMIC);
 
 	return true;
 }
@@ -89,26 +86,26 @@ rp3d::Transform Object::getGraphicsTransform() {
 }
 
 void Object::addCapsuleCollider(float radius, float height, rp3d::Transform transform /*= rp3d::Transform()*/) {
-	// Specify the mesh
+	// Specify the shape
 	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createCapsuleShape(radius, height);
-	
-	// Add the collider to the rigid/static body 
+
+	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
 
 void Object::addBoxCollider(glm::vec3 halfExtents, rp3d::Transform transform /*= rp3d::Transform()*/) {
-	// Specify the mesh
+	// Specify the shape
 	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createBoxShape(*((rp3d::Vector3*)&halfExtents));
-	
-	// Add the collider to the rigid/static body 
+
+	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
 
 void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d::Transform()*/) {
-	// Specify the mesh
-	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createSphereShape(radius); 
-	
-	// Add the collider to the rigid/static body 
+	// Specify the shape
+	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createSphereShape(radius);
+
+	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
 
@@ -149,37 +146,39 @@ void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transfo
 		faces.resize(indices.size() / 3);
 		for (int i = 0; i < faces.size(); i++) {
 
-			// First vertex of the face in the indices array 
-			faces[i].indexBase = i * 3; 
-		
-			// Number of vertices in the face 
-			faces[i].nbVertices = 3; 
-		} 
-		
-		// Create the polygon vertex array 
+			// First vertex of the face in the indices array
+			faces[i].indexBase = i * 3;
+
+			// Number of vertices in the face
+			faces[i].nbVertices = 3;
+		}
+
+		// Create the polygon vertex array
 		// TODO: Need to delete pointer?
-		rp3d::PolygonVertexArray* polygonVertexArray = new rp3d::PolygonVertexArray(positions.size(), &positions[0], 3 * sizeof(float), &indices[0], 3 * sizeof(int), faces.size(), &faces[0], rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE); 
+		rp3d::PolygonVertexArray* polygonVertexArray = new rp3d::PolygonVertexArray(positions.size(), &positions[0], 3 * sizeof(float), &indices[0], 3 * sizeof(int), faces.size(), &faces[0], rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 		// Get polygon data
 
-		// Create the polyhedron mesh 
-		rp3d::PolyhedronMesh* polyhedronMesh = Physics::getSingleton()->getFactory().createPolyhedronMesh(polygonVertexArray); 
+		// Create the polyhedron mesh
+		rp3d::PolyhedronMesh* polyhedronMesh = Physics::getSingleton()->getFactory().createPolyhedronMesh(polygonVertexArray);
 
 		// Create the convex mesh collision shape
 		shape = Physics::getSingleton()->getFactory().createConvexMeshShape(polyhedronMesh);
 	} else {
+		std::cout << positions.size() << std::endl;
+
 		// TODO: Need to delete pointer?
 		rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(positions.size(), &positions[0], 3 * sizeof(float), Indices.size() / 3, &Indices[0], 3 * sizeof(int), rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 
-		rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh(); 
-		
-		// Add the triangle vertex array to the triangle mesh 
-		triangleMesh->addSubpart(triangleArray); 
-		
-		// Create the concave mesh shape 
+		rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
+
+		// Add the triangle vertex array to the triangle mesh
+		triangleMesh->addSubpart(triangleArray);
+
+		// Create the concave mesh shape
 		shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
 	}
 
-	// Add the collider to the rigid/static body 
+	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
 

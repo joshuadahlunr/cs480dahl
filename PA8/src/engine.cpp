@@ -119,7 +119,7 @@ void Engine::Run() {
 		while(SDL_PollEvent(&m_event) != 0) {
 			auto shouldProcess = gui->ProcessEvent(m_event);
 
-			bool w_down = false, a_down = false, s_down = false, d_down = false;
+			// bool w_down = false, a_down = false, s_down = false, d_down = false;
 
 			// Quit Events
 			if(m_event.type == SDL_QUIT)
@@ -131,40 +131,8 @@ void Engine::Run() {
 				// Escape is quit
 				if(m_event.key.keysym.sym == SDLK_ESCAPE)
 					m_running = false;
-				else {
-					// Cube Controls
-					if(m_event.key.keysym.sym == SDLK_w)
-						w_down = (m_event.type == SDL_KEYDOWN) ? true : false;
-					if(m_event.key.keysym.sym == SDLK_a)
-						a_down = (m_event.type == SDL_KEYDOWN) ? true : false;
-					if(m_event.key.keysym.sym == SDLK_s)
-						s_down = (m_event.type == SDL_KEYDOWN) ? true : false;
-					if(m_event.key.keysym.sym == SDLK_d)
-						d_down = (m_event.type == SDL_KEYDOWN) ? true : false;
-
+				else 
 					keyboardEvent(m_event.key);
-				}
-					
-					
-				rp3d::Vector3 delta(0.0,0.0,0.0);
-				if(w_down)
-					delta = rp3d::Vector3(0.0, 0.0, 20.0 * m_DT / 1000.0); 
-					
-				if(s_down)
-					delta = rp3d::Vector3(0.0, 0.0, -20.0 * m_DT / 1000.0); 
-					
-				if(a_down)
-					delta = rp3d::Vector3(20.0 * m_DT / 1000.0, 0.0, 0); 
-					
-				if(d_down)
-					delta = rp3d::Vector3(-20.0 * m_DT / 1000.0, 0.0, 0); 
-
-				
-
-				rp3d::Transform t = controlledObject->getPhysicsTransform();
-				t.setPosition(t.getPosition() + delta);
-				//controlledObject->.applyForceToCenterOfMass(force);
-				controlledObject->setPhysicsTransform(t);
 			}
 			// Mouse Motion events
 			else if(shouldProcess.mouse && m_event.type == SDL_MOUSEMOTION)
@@ -176,6 +144,19 @@ void Engine::Run() {
 			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEWHEEL))
 				mouseWheelEvent(m_event.wheel);
 		}
+
+		const Uint8* keyState = SDL_GetKeyboardState(NULL);
+
+		rp3d::Vector3 delta(0.0,0.0,0.0);
+		if(keyState[SDL_SCANCODE_W]) delta += rp3d::Vector3(0.0, 0.0, 10.0 * m_DT / 1000.0);
+		if(keyState[SDL_SCANCODE_S]) delta += rp3d::Vector3(0.0, 0.0, -10.0 * m_DT / 1000.0);
+		if(keyState[SDL_SCANCODE_A]) delta += rp3d::Vector3(10.0 * m_DT / 1000.0, 0.0, 0);
+		if(keyState[SDL_SCANCODE_D]) delta += rp3d::Vector3(-10.0 * m_DT / 1000.0, 0.0, 0);
+
+		rp3d::Transform t = controlledObject->getPhysicsTransform();
+		t.setPosition(t.getPosition() + delta);
+		//controlledObject->.applyForceToCenterOfMass(force);
+		controlledObject->setPhysicsTransform(t);
 
 		// Update the physics simulation (at a constant rate of 60 times per second)
 		physicsAccumulator += m_DT;
@@ -189,9 +170,11 @@ void Engine::Run() {
 		// Update and render the graphics
 		m_graphics->Update(m_DT);
 		m_graphics->Render();
-		
-		// // Physic debug display
-		//m_physics->Render(m_graphics->getCamera());
+
+		// Physic debug display
+#ifdef PHYSICS_DEBUG
+		m_physics->Render(m_graphics->getCamera());
+#endif
 
 		// Swap to the Window
 		m_window->Swap();

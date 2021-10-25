@@ -113,9 +113,33 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("KeyBoard");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("Tab");
+					ImGui::Text("W");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Change Focus Celestial");
+					ImGui::Text("Move the cube foward.");
+
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("S");
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Move the cube backward.");
+
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("A");
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Move the cube left.");
+
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("D");
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Move the cube right.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
