@@ -23,22 +23,20 @@ The command to run the program (assuming that we compiled in a build directory o
 * -c <file> - Sets the configuration file (relative to the resource directory)
 * -v <file> - Sets the vertex shader (relative to the resource/shaders directory)
 * -f <file> - Sets the fragment shader (relative to the resource/shaders directory)
-* -m <file> - Sets the obj model (relative to the resource/models directory)
 ### Optional
 * --resource-path <path> - Sets the resource directory, the directory where all of the program's resources can be found. [default=../]
 
 
 ## Operation
-You can navigate the solar system by holding the right mouse button and dragging, or scrolling the mouse wheel to zoom in or out. The tab key can be pressed to cycle which celestial object the camera is focused on.
-
-The Simulation control menu at the top of the program has options for controlling the speed of the simulation. It also has a toggle to switch between an actual view of the solar system and a scaled logarithmic view which makes it easier to see the various planets and moons.
-If you need a reminder about this information it is available in the help menu at the top of the program.
+You can use WASD to move the cube around. Holding right click will let you rotate the camera. Try to keep the ball from flying off into space.
 
 
 # Dependencies, Building, and Running
 
 ## Dependency Instructions
 For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
+
+A CMAKE version of at least 3.8 is required to build the project.
 
 ## Dear ImGui and ReactPhysics3D
 The program relies on the Dear ImGui library. If git is being used this library is included as a submodule and may be downloaded by running:
@@ -48,7 +46,7 @@ git submodule update
 ```
 
 If git is not being used the two libraries will need to be download from: https://github.com/ocornut/imgui  and: https://github.com/DanielChappuis/reactphysics3d respectively.
-The the code zip for both must then be extracted into `PA8/thirdparty` (The dearimgui symbolic link must be overwritten).
+The the code zip for both must then be extracted into `PA8/thirdparty` (The dearimgui symbolic-link must be overwritten).
 
 ## Assimp Model Loading
 
@@ -57,7 +55,7 @@ The program also relies on the Assimp library for model loading. See the assimp 
 [Assimp build install](https://github.com/assimp/assimp/blob/master/Build.md)
 
 ## CMake Instructions
-The building of the project is done using CMake, installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).
+The building of the project is done using CMake (at least version 3.8), installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).
 
 ```bash
 mkdir build
