@@ -1,0 +1,79 @@
+PROJECT(PA9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
+#SET(CMAKE_BUILD_TYPE Debug)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMakeModules")
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(SDL2 REQUIRED)
+FIND_PACKAGE(GLEW REQUIRED)
+FIND_PACKAGE(GLM REQUIRED)
+FIND_PACKAGE(Assimp REQUIRED)
+SET(CXX17_FLAGS -std=c++17)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX17_FLAGS}")
+SET(TARGET_LIBRARIES "${OPENGL_LIBRARY} ${SDL2_LIBRARY}")
+
+IF(UNIX)
+	ADD_DEFINITIONS(-DUNIX)
+ENDIF(UNIX)
+
+IF(NOT APPLE)
+	IF(GLEW_FOUND)
+			INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
+			LINK_LIBRARIES(${GLEW_LIBRARIES})
+	ENDIF(GLEW_FOUND)
+ENDIF(NOT APPLE)
+
+# Thirdparty
+add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/reactphysics3d")
+
+SET(THIRDPARTY_BASE "${PROJECT_SOURCE_DIR}/thirdparty/")
+
+SET(IMGUI_BASE "${THIRDPARTY_BASE}/dearimgui")
+SET(IMGUI_INCLUDE_DIRS
+	"${IMGUI_BASE}"
+	"${IMGUI_BASE}/backends"
+)
+FILE(GLOB THIRDPARTY_SOURCES
+	"${IMGUI_BASE}/*.cpp"
+	"${IMGUI_BASE}/backends/imgui_impl_opengl3.cpp"
+	"${IMGUI_BASE}/backends/imgui_impl_sdl.cpp"
+	"${THIRDPARTY_BASE}/quickhull/QuickHull.cpp"
+)
+
+
+INCLUDE_DIRECTORIES(
+	"${PROJECT_SOURCE_DIR}/include"
+	"${PROJECT_SOURCE_DIR}/thirdparty"
+	"${PROJECT_SOURCE_DIR}/thirdparty/reactphysics3d/include"
+	${SDL2_INCLUDE_DIR}
+	${GLM_INCLUDE_DIRS}
+	${IMGUI_INCLUDE_DIRS}
+	${assimp_INCLUDE_DIRS}
+)
+
+
+# Set Includes
+SET(INCLUDES ${PROJECT_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${INCLUDES})
+
+# Set sources
+FILE(GLOB_RECURSE SOURCES "src/*.cpp")
+LIST(APPEND SOURCES ${THIRDPARTY_SOURCES})
+ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCES})
+
+add_custom_target("${PROJECT_NAME}_SUCCESSFUL" ALL
+								  DEPENDS ${PROJECT_NAME}
+									COMMAND ${CMAKE_COMMAND} -E echo ""
+									COMMAND ${CMAKE_COMMAND} -E echo "====================="
+									COMMAND ${CMAKE_COMMAND} -E echo "	Compile complete!"
+									COMMAND ${CMAKE_COMMAND} -E echo "====================="
+									COMMAND ${CMAKE_COMMAND} -E echo ""
+									COMMAND ${CMAKE_COMMAND} -E echo "Binaries location: ${CMAKE_CURRENT_BINARY_DIR}"
+									COMMAND ${CMAKE_COMMAND} -E echo ""
+									COMMAND ${CMAKE_COMMAND} -E echo "To run the app:"
+									COMMAND ${CMAKE_COMMAND} -E echo "./PA9 -c config.json"
+									COMMAND ${CMAKE_COMMAND} -E echo ""
+								 )
+
+target_link_libraries(${PROJECT_NAME} reactphysics3d)
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} ${assimp_LIBRARIES})
