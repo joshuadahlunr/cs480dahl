@@ -16,12 +16,23 @@ uniform mat4 modelMatrix;
 // We output color and textures coordinates
 smooth out vec3 color;
 smooth out vec2 uv;
+// output values that will be interpolatated per-fragment
+out vec3 fN;
+out vec3 fE;
+out vec3 fL;
 
-void main(void) {
-  // Make the position we loaded homogeneous and apply MVP
-  vec4 v = vec4(v_position, 1.0);
-  gl_Position = (projectionMatrix * viewMatrix * modelMatrix) * v;
-  // Output the color and texture coordinates
-  color = v_color;
-  uv = v_uv;
+
+void main()
+{
+    fN = vNormal;
+    fE = vPosition.xyz;
+    fL = lightPosition.xyz;
+
+    if( LightPosition.w != 0.0 ) {
+	    fL = lightPosition.xyz - vPosition.xyz;
+    }
+
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
+    color = v_color;
+    uv = v_uv;
 }

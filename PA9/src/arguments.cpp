@@ -42,27 +42,51 @@ Arguments::Arguments(int argc, char **argv){
 			std::cerr << std::endl << std::endl;
 		}
 
-		// If the argument starts with "-v"
-		else if(arg.substr(0, 2) == "-v"){
+		// If the argument starts with "-vv"
+		else if(arg.substr(0, 3) == "-vv"){
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
-				vertexFilePath = file;
+				perVertexVertexFilePath = file;
 			// And if it doesn't, the next argument does
 			else {
 				i++;
-				vertexFilePath = argv[i];
+				perVertexVertexFilePath = argv[i];
+			}
+		}
+
+		// If the argument starts with "-vf"
+		else if(arg.substr(0, 3) == "-vf"){
+			// Check if the rest of the argument contains the file
+			if(file.find(".glsl") != std::string::npos)
+				perVertexFragmentFilePath = file;
+			// And if it doesn't, the next argument does
+			else {
+				i++;
+				perVertexFragmentFilePath = argv[i];
+			}
+		}
+
+		// If the argument starts with "-v"
+		else if(arg.substr(0, 3) == "-fv"){
+			// Check if the rest of the argument contains the file
+			if(file.find(".glsl") != std::string::npos)
+				perFragmentVertexFilePath = file;
+			// And if it doesn't, the next argument does
+			else {
+				i++;
+				perFragmentVertexFilePath = argv[i];
 			}
 		}
 
 		// If the argument starts with "-f"
-		else if(arg.substr(0, 2) == "-f"){
+		else if(arg.substr(0, 3) == "-ff"){
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
-				fragmentFilePath = file;
+				perFragmentFragmentFilePath = file;
 			// And if it doesn't, the next argument does
 			else {
 				i++;
-				fragmentFilePath = argv[i];
+				perFragmentFragmentFilePath = argv[i];
 			}
 		}
 
@@ -108,16 +132,20 @@ Arguments::Arguments(int argc, char **argv){
 	}
 
 	// Attempt to load the file paths from the config file if they weren't specified on the command line
-	if(vertexFilePath.empty() && config.contains("Vertex Shader File Path"))
-		vertexFilePath = config["Vertex Shader File Path"];
-	if(fragmentFilePath.empty() && config.contains("Fragment Shader File Path"))
-		fragmentFilePath = config["Fragment Shader File Path"];
+	if(perVertexVertexFilePath.empty() && config.contains("Per Vertex Vertex Shader File Path"))
+		perVertexVertexFilePath = config["Per Vertex Vertex Shader File Path"];
+	if(perVertexFragmentFilePath.empty() && config.contains("Per Vertex Fragment Shader File Path"))
+		perVertexFragmentFilePath = config["Per Vertex Fragment Shader File Path"];
+	if(perFragmentVertexFilePath.empty() && config.contains("Per Fragment Vertex Shader File Path"))
+		perFragmentVertexFilePath = config["Per Fragment Vertex Shader File Path"];
+	if(perFragmentFragmentFilePath.empty() && config.contains("Per Fragment Fragment Shader File Path"))
+		perFragmentFragmentFilePath = config["Per Fragment Fragment Shader File Path"];
 
 	// If we can't continue provide an error message
-	canContinue &= !vertexFilePath.empty() && !fragmentFilePath.empty();
+	canContinue &= !perVertexVertexFilePath.empty() && !perVertexFragmentFilePath.empty() && !perFragmentVertexFilePath.empty() && !perFragmentFragmentFilePath.empty();
 	if(!canContinue){
-		std::cerr << "To run the program you must specify the vertex shader, fragment shader, and config file to load:" << std::endl;
-		std::cerr << argv[0] << " -v <file> -f <file> -c <file>" << std::endl;
+		std::cerr << "To run the program you must specify the vertex shader, fragment shader, (both per fragment and per vertex) and config file to load:" << std::endl;
+		std::cerr << argv[0] << " -vv <file> -vf <file> -fv <file> -ff <file> -c <file>" << std::endl;
 		std::cerr << std::endl << std::string(60, '-') << std::endl;
 		std::cerr << "For more infromation display the help menu:" << std::endl;
 		std::cerr << argv[0] << " -h" << std::endl;

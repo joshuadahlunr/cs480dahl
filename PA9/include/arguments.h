@@ -11,8 +11,10 @@ private:
 	std::string resourcePath = "../";
 	std::string configFilePath = "config.json";
 
-	std::string vertexFilePath;
-	std::string fragmentFilePath;
+	std::string perFragmentVertexFilePath;
+	std::string perFragmentFragmentFilePath;
+	std::string perVertexVertexFilePath;
+	std::string perVertexFragmentFilePath;
 
 	json config;
 
@@ -25,8 +27,10 @@ public:
 	std::string getResourcePath() const { return resourcePath; }
 	std::string getConfigFilePath() const { return configFilePath; }
 
-	std::string getVertexFilePath() const { return vertexFilePath; }
-	std::string getFragmentFilePath() const { return fragmentFilePath; }
+	std::string getPerFragmentVertexFilePath() const { return perFragmentVertexFilePath; }
+	std::string getPerFragmentFragmentFilePath() const { return perFragmentFragmentFilePath; }
+	std::string getPerVertexVertexFilePath() const { return perVertexVertexFilePath; }
+	std::string getPerVertexFragmentFilePath() const { return perVertexFragmentFilePath; }
 
 	json getConfig() const { return config; }
 

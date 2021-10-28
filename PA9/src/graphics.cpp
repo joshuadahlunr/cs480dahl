@@ -47,48 +47,52 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	engine->mouseWheelEvent += [&](auto event) { m_camera->MouseWheel(event); };
 
 	// Set up the shaders
-	m_shader = new Shader();
-	if(!m_shader->Initialize()) {
+	perVertShader = new Shader();
+	if(!perVertShader->Initialize()) {
 		printf("Shader Failed to Initialize\n");
 		return false;
 	}
 
 	// Add the vertex shader
-	if(!m_shader->AddShader(GL_VERTEX_SHADER, args.getVertexFilePath(), args)) {
+	if(!perVertShader->AddShader(GL_VERTEX_SHADER, args.getPerVertexVertexFilePath(), args)) {
 		printf("Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
 	// Add the fragment shader
-	if(!m_shader->AddShader(GL_FRAGMENT_SHADER, args.getFragmentFilePath(), args)) {
+	if(!perVertShader->AddShader(GL_FRAGMENT_SHADER, args.getPerVertexFragmentFilePath(), args)) {
 		printf("Fragment Shader failed to Initialize\n");
 		return false;
 	}
 
-	// Connect the program
-	if(!m_shader->Finalize()) {
+	// Link the program
+	if(!perVertShader->Finalize()) {
 		printf("Program failed to Finalize\n");
 		return false;
 	}
 
-	// Locate the projection matrix in the shader
-	m_projectionMatrix = m_shader->GetUniformLocation("projectionMatrix");
-	if (m_projectionMatrix == INVALID_UNIFORM_LOCATION) {
-		printf("m_projectionMatrix not found\n");
+	// Set up the shaders
+	perFragShader = new Shader();
+	if(!perFragShader->Initialize()) {
+		printf("Shader Failed to Initialize\n");
 		return false;
 	}
 
-	// Locate the view matrix in the shader
-	m_viewMatrix = m_shader->GetUniformLocation("viewMatrix");
-	if (m_viewMatrix == INVALID_UNIFORM_LOCATION) {
-		printf("m_viewMatrix not found\n");
+	// Add the vertex shader
+	if(!perFragShader->AddShader(GL_VERTEX_SHADER, args.getPerFragmentVertexFilePath(), args)) {
+		printf("Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
-	// Locate the model matrix in the shader
-	m_modelMatrix = m_shader->GetUniformLocation("modelMatrix");
-	if (m_modelMatrix == INVALID_UNIFORM_LOCATION) {
-		printf("m_modelMatrix not found\n");
+	// Add the fragment shader
+	if(!perFragShader->AddShader(GL_FRAGMENT_SHADER, args.getPerFragmentFragmentFilePath(), args)) {
+		printf("Fragment Shader failed to Initialize\n");
+		return false;
+	}
+
+	// Link the program
+	if(!perFragShader->Finalize()) {
+		printf("Program failed to Finalize\n");
 		return false;
 	}
 
@@ -126,15 +130,23 @@ void Graphics::Render() {
 	// Render the skybox first (thus everything else is drawn in front of it)
 	m_skybox->Render();
 
+	Shader* boundShader;
+
 	// Start the correct program
-	m_shader->Enable();
+	if(/*shouldUseFragShader*/true){
+		perFragShader->Enable();
+		boundShader = perFragShader;
+	} else {
+		perVertShader->Enable();
+		boundShader = perVertShader;
+	}
 
 	// Send in the projection and view to the shader
-	glUniformMatrix4fv(m_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
-	glUniformMatrix4fv(m_viewMatrix, 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
+	glUniformMatrix4fv(boundShader->GetUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
+	glUniformMatrix4fv(boundShader->GetUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
 	// Render the object
-	sceneRoot->Render(m_modelMatrix);
+	sceneRoot->Render(boundShader->GetUniformLocation("modelMatrix"));
 
 	// Render the GUI
 	m_gui->Render();

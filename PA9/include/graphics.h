@@ -36,7 +36,7 @@ private:
 	GUI* m_gui;
 
 	Camera *m_camera;
-	Shader *m_shader;
+	Shader* perFragShader, *perVertShader;
 	Skybox* m_skybox;
 
 	GLint m_projectionMatrix;
