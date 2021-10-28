@@ -67,20 +67,20 @@ void Physics::Render(Camera* camera) {
 	// Get the vertices for each debug triangle
 	std::vector<Vertex> lineVerts;
 	for(rp3d::DebugRenderer::DebugTriangle& tri: debugRenderer.getTriangles()){
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0));
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0), glm::vec3(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0), glm::vec3(0));
 
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0));
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0), glm::vec3(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0), glm::vec3(0));
 
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0));
-		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0), glm::vec3(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0), glm::vec3(0));
 	}
 
 	// Get the vertices for each debug line
 	for(rp3d::DebugRenderer::DebugLine& line: debugRenderer.getLines()){
-		lineVerts.emplace_back(*((glm::vec3*)(&line.point1)), fromUint(line.color1), glm::vec2(0));
-		lineVerts.emplace_back(*((glm::vec3*)(&line.point2)), fromUint(line.color2), glm::vec2(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&line.point1)), fromUint(line.color1), glm::vec2(0), glm::vec3(0));
+		lineVerts.emplace_back(*((glm::vec3*)(&line.point2)), fromUint(line.color2), glm::vec2(0), glm::vec3(0));
 	}
 
 	// Upload the debug verticies to the GPU
@@ -102,11 +102,13 @@ void Physics::Render(Camera* camera) {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	// Specify where in the vertex buffer we can find position, color, and UVs
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
 
 	// Draw the lines
 	glBindBuffer(GL_ARRAY_BUFFER, debugLineBuffer);
@@ -117,6 +119,7 @@ void Physics::Render(Camera* camera) {
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 
 	// Enable depth testing
 	glDepthMask(GL_TRUE);

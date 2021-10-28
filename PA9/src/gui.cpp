@@ -71,7 +71,7 @@ void GUI::Render(){
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
-			TextCenter("Solar System");
+			TextCenter("Pin Ball Game");
 			ImGui::NewLine();
 			TextCenter("A 2021 CS 480/680 Group Project");
 			TextCenter("- Joshua Dahl");

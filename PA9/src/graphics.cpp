@@ -55,13 +55,13 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 	// Add the vertex shader
 	if(!perVertShader->AddShader(GL_VERTEX_SHADER, args.getPerVertexVertexFilePath(), args)) {
-		printf("Vertex Shader failed to Initialize\n");
+		printf("Per Vertex, Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
 	// Add the fragment shader
 	if(!perVertShader->AddShader(GL_FRAGMENT_SHADER, args.getPerVertexFragmentFilePath(), args)) {
-		printf("Fragment Shader failed to Initialize\n");
+		printf("Per Vertex, Fragment Shader failed to Initialize\n");
 		return false;
 	}
 
@@ -80,13 +80,13 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 
 	// Add the vertex shader
 	if(!perFragShader->AddShader(GL_VERTEX_SHADER, args.getPerFragmentVertexFilePath(), args)) {
-		printf("Vertex Shader failed to Initialize\n");
+		printf("Per Fragment, Vertex Shader failed to Initialize\n");
 		return false;
 	}
 
 	// Add the fragment shader
 	if(!perFragShader->AddShader(GL_FRAGMENT_SHADER, args.getPerFragmentFragmentFilePath(), args)) {
-		printf("Fragment Shader failed to Initialize\n");
+		printf("Per Fragment, Fragment Shader failed to Initialize\n");
 		return false;
 	}
 
@@ -144,6 +144,10 @@ void Graphics::Render() {
 	// Send in the projection and view to the shader
 	glUniformMatrix4fv(boundShader->GetUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(boundShader->GetUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
+
+	Object* sphere = sceneRoot->getChildren()[1];
+	glm::vec4 lightPos = glm::vec4(sphere->getPosition(), 1) + glm::vec4(0, 5, 0, 0);
+	glUniform4fv(boundShader->GetUniformLocation("lightPosition"), 1, glm::value_ptr(lightPos));
 
 	// Render the object
 	sceneRoot->Render(boundShader->GetUniformLocation("modelMatrix"));

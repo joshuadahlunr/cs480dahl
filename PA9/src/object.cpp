@@ -122,52 +122,48 @@ void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transfo
 
 	rp3d::CollisionShape* shape;
 
-	if(makeConvex) {
-		// https://github.com/akuukka/quickhull
-		quickhull::QuickHull<float> qh;
-		auto hull = qh.getConvexHull(&positions[0], positions.size(), false, false);
+	// if(makeConvex) {
+	// 	// https://github.com/akuukka/quickhull
+	// 	quickhull::QuickHull<float> qh;
+	// 	auto hull = qh.getConvexHull(&positions[0], positions.size(), false, false);
 
-		positions.clear();
-		for(quickhull::Vector3<float> vec: hull.getVertexBuffer()){
-			positions.push_back(vec.x);
-			positions.push_back(vec.y);
-			positions.push_back(vec.z);
-		}
+	// 	positions.clear();
+	// 	for(quickhull::Vector3<float> vec: hull.getVertexBuffer()){
+	// 		positions.push_back(vec.x);
+	// 		positions.push_back(vec.y);
+	// 		positions.push_back(vec.z);
+	// 	}
 
-		std::cout << positions.size() << std::endl;
+	// 	std::vector<int> indices;
+	// 	for(size_t i: hull.getIndexBuffer())
+	// 		indices.push_back(i);
 
-		std::vector<int> indices;
-		for(size_t i: hull.getIndexBuffer())
-			indices.push_back(i);
+	// 	std::cout << indices.size() << std::endl;
 
-		std::cout << indices.size() << std::endl;
+	// 	assert(indices.size() % 3 == 0);
 
-		assert(indices.size() % 3 == 0);
+	// 	std::vector<rp3d::PolygonVertexArray::PolygonFace> faces;
+	// 	faces.resize(indices.size() / 3);
+	// 	for (int i = 0; i < faces.size(); i++) {
 
-		std::vector<rp3d::PolygonVertexArray::PolygonFace> faces;
-		faces.resize(indices.size() / 3);
-		for (int i = 0; i < faces.size(); i++) {
+	// 		// First vertex of the face in the indices array
+	// 		faces[i].indexBase = i * 3;
 
-			// First vertex of the face in the indices array
-			faces[i].indexBase = i * 3;
+	// 		// Number of vertices in the face
+	// 		faces[i].nbVertices = 3;
+	// 	}
 
-			// Number of vertices in the face
-			faces[i].nbVertices = 3;
-		}
+	// 	// Create the polygon vertex array
+	// 	// TODO: Need to delete pointer?
+	// 	rp3d::PolygonVertexArray* polygonVertexArray = new rp3d::PolygonVertexArray(positions.size(), &positions[0], 3 * sizeof(float), &indices[0], 3 * sizeof(int), faces.size(), &faces[0], rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
+	// 	// Get polygon data
 
-		// Create the polygon vertex array
-		// TODO: Need to delete pointer?
-		rp3d::PolygonVertexArray* polygonVertexArray = new rp3d::PolygonVertexArray(positions.size(), &positions[0], 3 * sizeof(float), &indices[0], 3 * sizeof(int), faces.size(), &faces[0], rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
-		// Get polygon data
+	// 	// Create the polyhedron mesh
+	// 	rp3d::PolyhedronMesh* polyhedronMesh = Physics::getSingleton()->getFactory().createPolyhedronMesh(polygonVertexArray);
 
-		// Create the polyhedron mesh
-		rp3d::PolyhedronMesh* polyhedronMesh = Physics::getSingleton()->getFactory().createPolyhedronMesh(polygonVertexArray);
-
-		// Create the convex mesh collision shape
-		shape = Physics::getSingleton()->getFactory().createConvexMeshShape(polyhedronMesh);
-	} else {
-		std::cout << positions.size() << std::endl;
-
+	// 	// Create the convex mesh collision shape
+	// 	shape = Physics::getSingleton()->getFactory().createConvexMeshShape(polyhedronMesh);
+	// } else {
 		// TODO: Need to delete pointer?
 		rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(positions.size(), &positions[0], 3 * sizeof(float), Indices.size() / 3, &Indices[0], 3 * sizeof(int), rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 
@@ -178,22 +174,13 @@ void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transfo
 
 		// Create the concave mesh shape
 		shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
-	}
+	// }
 
 	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
 
-// Uploads the model data to the GPU
-void Object::FinalizeModel() {
-	// Add the data to the vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
 
-	// Add the data to the face buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
-}
 
 bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation){
 	// Load the model
@@ -261,8 +248,17 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 				uv = glm::vec2(tex.x, tex.y);
 			}
 
+			// Extract the (first) texture coordinates if they exist
+			glm::vec3 normal(0, 0, 0); // 0,0,0 by default
+			if(mesh->HasNormals()){
+				auto tex = mesh->mNormals[vert];
+				normal = glm::vec3(tex.x, tex.y, tex.z);
+			}
+
+			std::cout << glm::to_string(normal) << std::endl;
+
 			// Add the vertex to the list of vertecies
-			obj->Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv);
+			obj->Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv, normal);
 		}
 
 		// For each face...
@@ -277,6 +273,17 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 	}
 
 	return true;
+}
+
+// Uploads the model data to the GPU
+void Object::FinalizeModel() {
+	// Add the data to the vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VB);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
+
+	// Add the data to the face buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
 }
 
 bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeRelative) {
@@ -326,6 +333,7 @@ void Object::Render(GLint modelMatrix) {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	// Specify that we are using the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -333,6 +341,7 @@ void Object::Render(GLint modelMatrix) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
 
 	//bind texture (if it exists)
 	if(tex != -1){
@@ -352,6 +361,7 @@ void Object::Render(GLint modelMatrix) {
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 
 	// Pass along to children.
 	for(Object* child: children)

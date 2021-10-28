@@ -1,6 +1,6 @@
 {
     "Per Vertex Vertex Shader File Path": "pervertshading.vert.glsl",
     "Per Vertex Fragment Shader File Path": "pervertshading.frag.glsl",
-    "Per Fragment Vertex Shader File Path": "vert.glsl",
+    "Per Fragment Vertex Shader File Path": "perfragshading.vert.glsl",
     "Per Fragment Fragment Shader File Path": "perfragshading.frag.glsl"
 }

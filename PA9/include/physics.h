@@ -6,7 +6,7 @@
 #include "graphics_headers.h"
 
 // Uncomment to enable physics debug rendering
-#define PHYSICS_DEBUG
+// #define PHYSICS_DEBUG
 
 // Forward declarations
 class Engine;

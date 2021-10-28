@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 	if(!args.getCanContinue()) return 1;
 
 	// Start an engine
-	Engine *engine = new Engine("React Physics", 1000, 1000);
+	Engine *engine = new Engine("Lighting", 1000, 1000);
 	if(!engine->Initialize(args)) {
 		printf("The engine failed to start.\n");
 		delete engine;

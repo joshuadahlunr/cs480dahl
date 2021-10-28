@@ -30,8 +30,9 @@ struct Vertex {
 	glm::vec3 vertex;
 	glm::vec3 color;
 	glm::vec2 uv;
+	glm::vec3 normal;
 
-	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 u): vertex(v), color(c), uv(u) {}
+	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 u, glm::vec3 n): vertex(v), color(c), uv(u), normal(n) {}
 };
 
 // Function which returns the matrix needed to rotate the <original> vector into the <target> vector
