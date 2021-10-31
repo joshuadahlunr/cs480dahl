@@ -66,7 +66,7 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot->addChild(sphere);
 	sphere->InitializeGraphics(args, "unitsphere.obj");
 	sphere->setPosition(glm::vec3(4,5,0));
-	sphere->InitializePhysics(args, *m_physics, false);
+	sphere->InitializePhysics(args, *m_physics, true);
 	sphere->addSphereCollider(1);
 	// Set inital values for the physics material
 	{

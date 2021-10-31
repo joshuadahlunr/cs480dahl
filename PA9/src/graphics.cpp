@@ -145,9 +145,34 @@ void Graphics::Render() {
 	glUniformMatrix4fv(boundShader->GetUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(boundShader->GetUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
+	// Specify the global ambeint lighting
+	GLuint globalAmbLoc;
+	glm::vec4 globalAmbient = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+	glUniform4fv(boundShader->GetUniformLocation("globalAmbient"), 1, glm::value_ptr(globalAmbient));
+
+	// Specify a light source
 	Object* sphere = sceneRoot->getChildren()[1];
-	glm::vec4 lightPos = glm::vec4(sphere->getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation("lightPosition"), 1, glm::value_ptr(lightPos));
+	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 lightDiffuse = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 lightPosition = glm::vec4(sphere->getPosition(), 1) + glm::vec4(0, 5, 0, 0);
+	glUniform4fv(boundShader->GetUniformLocation("light.ambient"), 1, glm::value_ptr(lightAmbient));
+	glUniform4fv(boundShader->GetUniformLocation("light.diffuse"), 1, glm::value_ptr(lightDiffuse));
+	glUniform4fv(boundShader->GetUniformLocation("light.specular"), 1, glm::value_ptr(lightSpecular));
+	glUniform4fv(boundShader->GetUniformLocation("light.position"), 1, glm::value_ptr(lightPosition));
+
+	// Set all objects lighting materials
+	glm::vec4 materialAmbient = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	glm::vec4 materialDiffuse = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 materialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	float materialShininess = 50.0f;
+	glUniform4fv(boundShader->GetUniformLocation("material.ambient"), 1, glm::value_ptr(materialAmbient));
+	glUniform4fv(boundShader->GetUniformLocation("material.diffuse"), 1, glm::value_ptr(materialDiffuse));
+	glUniform4fv(boundShader->GetUniformLocation("material.specular"), 1, glm::value_ptr(materialSpecular));
+	glUniform1f(boundShader->GetUniformLocation("material.shininess"), materialShininess);
+
+
+
 
 	// Render the object
 	sceneRoot->Render(boundShader->GetUniformLocation("modelMatrix"));
