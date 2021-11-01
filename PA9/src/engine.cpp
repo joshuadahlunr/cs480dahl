@@ -75,6 +75,8 @@ bool Engine::Initialize(const Arguments& args) {
 		material.setFrictionCoefficient(0);
 		material.setRollingResistance(.01);
 	}
+	controlledObject = sphere;
+
 
 	// Create a cube
 	Object* cube = new Object();
@@ -84,7 +86,6 @@ bool Engine::Initialize(const Arguments& args) {
 	cube->InitializePhysics(args, *m_physics, true);
 	cube->addBoxCollider(glm::vec3(1, 1, 1));
 	cube->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
-	controlledObject = cube;
 
 
 	// Create the board with walls
@@ -131,7 +132,11 @@ void Engine::Run() {
 				// Escape is quit
 				if(m_event.key.keysym.sym == SDLK_ESCAPE)
 					m_running = false;
-				else 
+				// Space toggles between fragment and vertex shader
+				else if(m_event.key.keysym.sym == SDLK_SPACE && m_event.type == SDL_KEYUP)
+					m_graphics->useFragShader = !m_graphics->useFragShader;
+				// Forward other events
+				else
 					keyboardEvent(m_event.key);
 			}
 			// Mouse Motion events
@@ -145,6 +150,7 @@ void Engine::Run() {
 				mouseWheelEvent(m_event.wheel);
 		}
 
+		// Temporary cube movement logic
 		const Uint8* keyState = SDL_GetKeyboardState(NULL);
 
 		rp3d::Vector3 delta(0.0,0.0,0.0);

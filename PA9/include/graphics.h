@@ -30,7 +30,17 @@ public:
 	GUI* getGUI() const { return m_gui; }
 	Camera* getCamera() const { return m_camera; }
 
-private:
+	bool useFragShader = true;
+
+	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightDirection = glm::vec3(0, -1, 0);
+	float lightCutoffAngleCosine = glm::cos(glm::radians(60.0));
+	float lightIntensity = 5;
+	float lightFalloff = 0.1f;
+
+protected:
 	std::string ErrorString(GLenum error);
 
 	GUI* m_gui;
@@ -42,6 +52,7 @@ private:
 	GLint m_projectionMatrix;
 	GLint m_viewMatrix;
 	GLint m_modelMatrix;
+
 
 	Object*& sceneRoot;
 };

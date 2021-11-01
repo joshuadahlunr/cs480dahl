@@ -5,6 +5,7 @@
 #include "imgui_impl_opengl3.h"
 #include "engine.h"
 #include "window.h"
+#include "graphics.h"
 
 // Provide a backing for the globalTimeScale global variable
 float globalTimeScale = 1;
@@ -68,6 +69,21 @@ void GUI::Render(){
 	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
+		if(ImGui::BeginMenu("Lighting Controls")) { 
+
+			ImGui::Text("Spotlight Settings");
+			float lightCutoffAngle = glm::degrees(glm::acos(graphics->lightCutoffAngleCosine));
+			ImGui::SliderFloat("Cutoff", &lightCutoffAngle, 0.0f, 180.0f);
+			graphics->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
+			ImGui::SliderFloat("Intensity", &graphics->lightIntensity, 0.0f, 5.0f);
+
+            ImGui::ColorEdit3("Ambient Color", glm::value_ptr(graphics->lightAmbient));
+			ImGui::ColorEdit3("Specular Color", glm::value_ptr(graphics->lightSpecular));
+            ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(graphics->lightDiffuse));
+
+			ImGui::EndMenu();
+		}
+
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
@@ -115,7 +131,7 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("W");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the cube foward.");
+					ImGui::Text("Move the sphere foward.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -123,7 +139,7 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("S");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the cube backward.");
+					ImGui::Text("Move the sphere backward.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -131,7 +147,7 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("A");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the cube left.");
+					ImGui::Text("Move the sphere left.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -139,7 +155,15 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("D");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the cube right.");
+					ImGui::Text("Move the sphere right.");
+
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text(" ");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("Space");
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Toggles between per-vertex and per-fragment lighting (on release)");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);

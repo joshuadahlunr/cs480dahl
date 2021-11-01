@@ -133,7 +133,7 @@ void Graphics::Render() {
 	Shader* boundShader;
 
 	// Start the correct program
-	if(/*shouldUseFragShader*/true){
+	if(useFragShader){
 		perFragShader->Enable();
 		boundShader = perFragShader;
 	} else {
@@ -152,18 +152,20 @@ void Graphics::Render() {
 
 	// Specify a light source
 	Object* sphere = sceneRoot->getChildren()[1];
-	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 lightDiffuse = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec4 lightPosition = glm::vec4(sphere->getPosition(), 1) + glm::vec4(0, 5, 0, 0);
 	glUniform4fv(boundShader->GetUniformLocation("light.ambient"), 1, glm::value_ptr(lightAmbient));
 	glUniform4fv(boundShader->GetUniformLocation("light.diffuse"), 1, glm::value_ptr(lightDiffuse));
 	glUniform4fv(boundShader->GetUniformLocation("light.specular"), 1, glm::value_ptr(lightSpecular));
 	glUniform4fv(boundShader->GetUniformLocation("light.position"), 1, glm::value_ptr(lightPosition));
+	glUniform3fv(boundShader->GetUniformLocation("light.direction"), 1, glm::value_ptr(lightDirection));
+	glUniform1f(boundShader->GetUniformLocation("light.cutoffAngleCosine"), lightCutoffAngleCosine);
+	glUniform1f(boundShader->GetUniformLocation("light.intensity"), lightIntensity);
+	glUniform1f(boundShader->GetUniformLocation("light.falloff"), lightFalloff);
+
 
 	// Set all objects lighting materials
-	glm::vec4 materialAmbient = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	glm::vec4 materialDiffuse = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 materialAmbient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	glm::vec4 materialDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	glm::vec4 materialSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	float materialShininess = 50.0f;
 	glUniform4fv(boundShader->GetUniformLocation("material.ambient"), 1, glm::value_ptr(materialAmbient));
