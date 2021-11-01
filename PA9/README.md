@@ -2,7 +2,7 @@
 
 ## Extra Credit
 
-- 
+- NA
 
 ## Team
 
@@ -28,7 +28,9 @@ The command to run the program (assuming that we compiled in a build directory o
 
 
 ## Operation
-You can use WASD to move the cube around. Holding right click will let you rotate the camera. Try to keep the ball from flying off into space.
+- WASD to move the sphere around. Holding right click will let you rotate the camera
+- Spacebar toggles between per fragment and per vertex shaders
+- GUI interface to control spotlight settings
 
 
 # Dependencies, Building, and Running
