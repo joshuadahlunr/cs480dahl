@@ -36,7 +36,7 @@ Object::~Object() {
 	Vertices.clear();
 	Indices.clear();
 
-	// Destroy the rigid body (if it was initalized)
+	// Destroy the rigid body (if it was initialized)
 	if(rigidBody)
 		Physics::getSingleton()->getWorld().destroyRigidBody(rigidBody);
 }
@@ -65,7 +65,7 @@ bool Object::InitializeGraphics(const Arguments& args, std::string filepath, std
 }
 
 bool Object::InitializePhysics(const Arguments& args, Physics& physics, bool _static) {
-	// Create a physics rigid body with the inital transform from the model matrix
+	// Create a physics rigid body with the initial transform from the model matrix
 	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(getGraphicsTransform());
 
 	// Set wether the object is static or dynamic

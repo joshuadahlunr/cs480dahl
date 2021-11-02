@@ -21,14 +21,17 @@ The command to run the program (assuming that we compiled in a build directory o
 ## Arguments
 * -h, -?, --help - Shows a help message
 * -c <file> - Sets the configuration file (relative to the resource directory)
-* -v <file> - Sets the vertex shader (relative to the resource/shaders directory)
-* -f <file> - Sets the fragment shader (relative to the resource/shaders directory)
+* -vv <file> - Sets the per vertex, vertex shader (relative to the resource/shaders directory)
+* -vf <file> - Sets the per vertex, fragment shader (relative to the resource/shaders directory)
+* -fv <file> - Sets the per fragment, vertex shader (relative to the resource/shaders directory)
+* -ff <file> - Sets the per fragment, fragment shader (relative to the resource/shaders directory)
 ### Optional
 * --resource-path <path> - Sets the resource directory, the directory where all of the program's resources can be found. [default=../]
 
 
 ## Operation
-- WASD to move the sphere around. Holding right click will let you rotate the camera
+- Holding right click will let you rotate the camera
+- WASD to move the sphere around.
 - Spacebar toggles between per fragment and per vertex shaders
 - GUI interface to control spotlight settings
 
@@ -36,19 +39,19 @@ The command to run the program (assuming that we compiled in a build directory o
 # Dependencies, Building, and Running
 
 ## Dependency Instructions
-For both of the operating systems to run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
+To run this project installation of these three programs are required [GLEW](http://glew.sourceforge.net/), [GLM](http://glm.g-truc.net/0.9.7/index.html), and [SDL2](https://wiki.libsdl.org/Tutorials).
 
 A CMAKE version of at least 3.8 is required to build the project.
 
 ## Dear ImGui and ReactPhysics3D
-The program relies on the Dear ImGui library. If git is being used this library is included as a submodule and may be downloaded by running:
+The program relies on the Dear ImGui library. If git is being used these libraries are included as submodules and may be downloaded by running:
 ```bash
 git submodule init
 git submodule update
 ```
 
 If git is not being used the two libraries will need to be download from: https://github.com/ocornut/imgui  and: https://github.com/DanielChappuis/reactphysics3d respectively.
-The the code zip for both must then be extracted into `PA9/thirdparty` (The dearimgui symbolic-link must be overwritten).
+The the code zip for both must then be extracted into `PA9/thirdparty` (The symbolic-links must be overwritten).
 
 ## Assimp Model Loading
 

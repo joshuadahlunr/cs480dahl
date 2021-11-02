@@ -131,7 +131,7 @@ void GUI::Render(){
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("W");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the sphere foward.");
+					ImGui::Text("Move the sphere forward.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);

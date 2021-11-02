@@ -83,7 +83,7 @@ void Physics::Render(Camera* camera) {
 		lineVerts.emplace_back(*((glm::vec3*)(&line.point2)), fromUint(line.color2), glm::vec2(0), glm::vec3(0));
 	}
 
-	// Upload the debug verticies to the GPU
+	// Upload the debug vertices to the GPU
 	glBindBuffer(GL_ARRAY_BUFFER, debugLineBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * lineVerts.size(), &lineVerts[0], GL_STATIC_DRAW);
 
@@ -112,7 +112,7 @@ void Physics::Render(Camera* camera) {
 
 	// Draw the lines
 	glBindBuffer(GL_ARRAY_BUFFER, debugLineBuffer);
-	glLineWidth(2.5); // Making sure they are wide enouph to be sean
+	glLineWidth(2.5); // Making sure they are wide enough to be sean
 	glDrawArrays(GL_LINES, 0, lineVerts.size());
 
 	// Disable the attributes
