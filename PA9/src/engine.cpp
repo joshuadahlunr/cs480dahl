@@ -66,7 +66,7 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot->addChild(sphere);
 	sphere->InitializeGraphics(args, "unitsphere.obj");
 	sphere->setPosition(glm::vec3(4,5,0));
-	sphere->InitializePhysics(args, *m_physics, true);
+	sphere->InitializePhysics(args, *m_physics, false);
 	sphere->addSphereCollider(1);
 	// Set initial values for the physics material
 	{
@@ -93,7 +93,7 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot->addChild(board);
 	board->InitializeGraphics(args, "fourwallboard.obj");
 	board->InitializePhysics(args, *m_physics, true); // TODO make static convex mesh physics object
-	board->addMeshCollider(false); // Concave mesh
+	board->addMeshCollider(true); // Concave mesh
 	// Set initial values for the physics material
 	{
 		rp3d::Material& material = board->getCollider().getMaterial();

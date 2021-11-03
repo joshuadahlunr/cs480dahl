@@ -66,6 +66,9 @@ protected:
 	glm::mat4 childModel = glm::mat4(1); // Model matrix that is used as the base of to this object's children's model matricies
 	std::vector<Vertex> Vertices;
 	std::vector<unsigned int> Indices;
+
+	CollisionMesh collisionMesh;
+
 	GLuint VB;
 	GLuint IB;
 	GLuint tex = -1;

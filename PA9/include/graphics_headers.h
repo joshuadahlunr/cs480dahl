@@ -2,6 +2,7 @@
 #define GRAPHICS_HEADERS_H
 
 #include <iostream>
+#include <vector>
 
 // Include OpenGL
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
@@ -33,6 +34,43 @@ struct Vertex {
 	glm::vec3 normal;
 
 	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 u, glm::vec3 n): vertex(v), color(c), uv(u), normal(n) {}
+};
+
+// Struct defining collision mesh data
+struct CollisionMesh {
+	float* vertexData;
+	int* indiceData;
+	int numVertices;
+
+	void clear() {
+		delete vertexData;
+		vertexData = nullptr;
+		delete indiceData;
+		indiceData = nullptr;
+	}
+
+	~CollisionMesh() {
+		clear();
+	}
+};
+
+// Struct defining collision mesh data
+struct ConvexCollisionMesh {
+	float* convexVertexData;
+	int* convexIndiceData;
+	int numConvexVertices;
+
+	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies) {
+
+	}
+
+	~ConvexCollisionMesh() {
+
+		delete convexVertexData;
+		convexVertexData = nullptr;
+		delete convexIndiceData;
+		convexIndiceData = nullptr;
+	}
 };
 
 // Function which returns the matrix needed to rotate the <original> vector into the <target> vector

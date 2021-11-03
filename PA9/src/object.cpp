@@ -35,6 +35,7 @@ Object::~Object() {
 	// Clean up the lists of vertecies and indices
 	Vertices.clear();
 	Indices.clear();
+	collisionMesh.clear();
 
 	// Destroy the rigid body (if it was initialized)
 	if(rigidBody)
@@ -110,17 +111,58 @@ void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d:
 }
 
 void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/) {
-
-	std::vector<float> positions;
-	for(Vertex& vert: Vertices) {
-		positions.push_back(vert.vertex.x);
-		positions.push_back(vert.vertex.y);
-		positions.push_back(vert.vertex.z);
-	}
-
-	std::cout << Vertices.size() << std::endl;
+	// Create new collision mesh
+	collisionMesh = CollisionMesh();
 
 	rp3d::CollisionShape* shape;
+
+	// Store memory for collision meshs because they need to exist for the life of the object
+	if (makeConvex) {
+		// store vertex positions temporarily
+		std::vector<quickhull::Vector3<float>> positions;
+		for(Vertex& vert: Vertices) {
+			positions.push_back(quickhull::Vector3<float>(vert.vertex.x, vert.vertex.y, vert.vertex.z));
+		}
+
+		// create hull concave with position data
+		quickhull::QuickHull<float> qh;
+		auto hull = qh.getConvexHull(&positions[0], positions.size(), false, false);
+
+		// store the concave mesh using the hull data
+		collisionMesh.numVertices = hull.getVertexBuffer().size();
+		std::cout << positions.size() << std::endl;
+
+
+		std::cout << collisionMesh.numVertices << std::endl;
+		std::cout << hull.getIndexBuffer().size() << std::endl;
+
+		collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
+		int i = 0;
+		for(quickhull::Vector3<float> vec: hull.getVertexBuffer()){
+			collisionMesh.vertexData[i] = vec.x;
+			collisionMesh.vertexData[i + 1] = vec.y;
+			collisionMesh.vertexData[i + 2] = vec.z;
+			i += 3;
+		}
+		collisionMesh.indiceData = new int[hull.getIndexBuffer().size()];
+		for (int i = 0; i < hull.getIndexBuffer().size(); i++) {
+			collisionMesh.indiceData[i] = hull.getIndexBuffer()[i];
+		}
+	} else { 
+		// store the concave mesh using the exact mesh data
+		collisionMesh.numVertices = Vertices.size();
+		collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
+		int i = 0;
+		for(Vertex& vert: Vertices) {
+			collisionMesh.vertexData[i] = vert.vertex.x;
+			collisionMesh.vertexData[i + 1] = vert.vertex.y;
+			collisionMesh.vertexData[i + 2] = vert.vertex.z;
+			i += 3;
+		}
+		collisionMesh.indiceData = new int[Indices.size()];
+		for(int i = 0; i < Indices.size(); ++i)
+			collisionMesh.indiceData[i] = Indices[i];
+	}
 
 	// if(makeConvex) {
 	// 	// https://github.com/akuukka/quickhull
@@ -165,7 +207,15 @@ void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transfo
 	// 	shape = Physics::getSingleton()->getFactory().createConvexMeshShape(polyhedronMesh);
 	// } else {
 		// TODO: Need to delete pointer?
-		rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(positions.size(), &positions[0], 3 * sizeof(float), Indices.size() / 3, &Indices[0], 3 * sizeof(int), rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
+		rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(
+			collisionMesh.numVertices * 3, // size of vertex data
+			collisionMesh.vertexData, // start of vertex data
+			3 * sizeof(float), // size of one vertex 
+			collisionMesh.numVertices / 3, // size of indice data
+			collisionMesh.indiceData, // start of indice data
+			3 * sizeof(int), // size of one triangle
+			rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, 
+			rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 
 		rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
 
@@ -260,7 +310,7 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			// Add the vertex to the list of vertecies
 			obj->Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv, normal);
 		}
-
+		
 		// For each face...
 		for(int face = 0; face < mesh->mNumFaces; face++)
 			// For each index in the face (3 in the triangles)
