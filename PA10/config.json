@@ -1,0 +1,6 @@
+{
+    "Per Vertex Vertex Shader File Path": "gouraud.vert.glsl",
+    "Per Vertex Fragment Shader File Path": "gouraud.frag.glsl",
+    "Per Fragment Vertex Shader File Path": "phong.vert.glsl",
+    "Per Fragment Fragment Shader File Path": "phong.frag.glsl"
+}
