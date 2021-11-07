@@ -9,6 +9,7 @@ using namespace std;
 #include "graphics_headers.h"
 #include "shader.h"
 #include "object.h"
+#include "light.h"
 #include "gui.h"
 #include "arguments.h"
 

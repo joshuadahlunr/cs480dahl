@@ -53,6 +53,20 @@ bool Engine::Initialize(const Arguments& args) {
 	// Create the scene tree
 	sceneRoot = new Object();
 
+	// Create global light
+	Object* light = new GlobalLight();
+	sceneRoot->addChild(light);
+
+	// Create a spotlight
+	light = new Spotlight();
+	sceneRoot->addChild(light);
+	light->setPosition(glm::vec3(-7,0.5,6));
+
+	// Create a pointLight
+	light = new PointLight();
+	sceneRoot->addChild(light);
+	light->setPosition(glm::vec3(7,0.5,6));
+
 	// Create a cylinder
 	// Object* cylinder = new Object();
 	// sceneRoot->addChild(cylinder);

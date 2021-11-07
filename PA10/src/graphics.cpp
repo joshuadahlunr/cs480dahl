@@ -145,24 +145,6 @@ void Graphics::Render() {
 	glUniformMatrix4fv(boundShader->GetUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetProjection()));
 	glUniformMatrix4fv(boundShader->GetUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(m_camera->GetView()));
 
-	// Specify the global ambeint lighting
-	GLuint globalAmbLoc;
-	glm::vec4 globalAmbient = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
-	glUniform4fv(boundShader->GetUniformLocation("globalAmbient"), 1, glm::value_ptr(globalAmbient));
-
-	// Specify a light source
-	Object* sphere = sceneRoot->getChildren()[1];
-	glm::vec4 lightPosition = glm::vec4(sphere->getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation("light.ambient"), 1, glm::value_ptr(lightAmbient));
-	glUniform4fv(boundShader->GetUniformLocation("light.diffuse"), 1, glm::value_ptr(lightDiffuse));
-	glUniform4fv(boundShader->GetUniformLocation("light.specular"), 1, glm::value_ptr(lightSpecular));
-	glUniform4fv(boundShader->GetUniformLocation("light.position"), 1, glm::value_ptr(lightPosition));
-	glUniform3fv(boundShader->GetUniformLocation("light.direction"), 1, glm::value_ptr(lightDirection));
-	glUniform1f(boundShader->GetUniformLocation("light.cutoffAngleCosine"), lightCutoffAngleCosine);
-	glUniform1f(boundShader->GetUniformLocation("light.intensity"), lightIntensity);
-	glUniform1f(boundShader->GetUniformLocation("light.falloff"), lightFalloff);
-
-
 	// Set all objects lighting materials
 	glm::vec4 materialAmbient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	glm::vec4 materialDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -173,11 +155,8 @@ void Graphics::Render() {
 	glUniform4fv(boundShader->GetUniformLocation("material.specular"), 1, glm::value_ptr(materialSpecular));
 	glUniform1f(boundShader->GetUniformLocation("material.shininess"), materialShininess);
 
-
-
-
 	// Render the object
-	sceneRoot->Render(boundShader->GetUniformLocation("modelMatrix"));
+	sceneRoot->Render(boundShader);
 
 	// Render the GUI
 	m_gui->Render();

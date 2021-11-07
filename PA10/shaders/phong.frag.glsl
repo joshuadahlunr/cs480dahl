@@ -1,6 +1,15 @@
 #version 330
 
 // structs
+struct GlobalLight
+{ 
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    vec4 position;
+    vec3 direction;
+};
+
 struct PointLight
 { 
     vec4 ambient;
@@ -29,10 +38,17 @@ struct Material
     float shininess;
 };
 
-// uniforms
-uniform vec4 globalAmbient;
+// defines
+#define MAX_POINTLIGHTS 20
+#define MAX_SPOTLIGHTS 10
 
-uniform SpotLight light;
+// uniforms
+uniform GlobalLight globallight;
+uniform int num_pointlights;
+uniform PointLight pointlights[MAX_POINTLIGHTS];
+uniform int num_spotlights;
+uniform SpotLight spotlights[MAX_SPOTLIGHTS];
+
 uniform Material material;
 
 uniform mat4 projectionMatrix;
@@ -44,9 +60,9 @@ in vec3 varyingN;
 in vec3 varyingL;
 in vec3 varyingP;
 in vec4 rawPosition;
+in mat4 mv_matrix;
 
 out vec4 fragColor;
-// structs and uniforms same as for Gouraud shading
 
 void main(void)
 {  
@@ -56,18 +72,15 @@ void main(void)
 
     vec3 R = normalize(reflect(-L, N));
 
-    float phi = dot(-normalize(light.direction), normalize((light.position - modelMatrix * rawPosition).xyz));
-    //float phi = dot(-normalize(light.direction), L);
-    float intensityFactor = pow(phi, light.intensity);
+    float phi = dot(-normalize(spotlights[0].direction), normalize((spotlights[0].position - modelMatrix * rawPosition).xyz));
+    //float phi = dot(-normalize(spotlights[0].direction), L);
+    float intensityFactor = pow(phi, spotlights[0].intensity);
 
-    vec3 ambient = ((globalAmbient * material.ambient) + (light.ambient * material.ambient)).xyz;
-    float spotlightFalloff = smoothstep(light.cutoffAngleCosine, light.cutoffAngleCosine + light.falloff, intensityFactor);
+    vec3 ambient = ((globallight.ambient * material.ambient) + (spotlights[0].ambient * material.ambient)).xyz;
+    float spotlightFalloff = smoothstep(spotlights[0].cutoffAngleCosine, spotlights[0].cutoffAngleCosine + spotlights[0].falloff, intensityFactor);
    
-    vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * spotlightFalloff;
-    vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
+    vec3 diffuse = spotlights[0].diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * spotlightFalloff;
+    vec3 specular = material.specular.xyz * spotlights[0].specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
 
     fragColor = vec4(ambient + diffuse + specular, 1);
-
-
-    //fragColor = vec4(1, 0, 0, 1);
 }

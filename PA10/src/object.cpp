@@ -1,4 +1,5 @@
 #include "object.h"
+#include "shader.h"
 
 #include <fstream>
 #include <sstream>
@@ -22,6 +23,24 @@ Object::Object() {
 	glGenBuffers(1, &IB);
 	// Mark that we don't have a parent
 	parent = nullptr;
+}
+
+int Spotlight::count = 0;
+
+Spotlight::Spotlight() : 
+	id(Spotlight::count++),
+	lightType("spotlights["),
+	uniformLocationAmbient((lightType + std::to_string(id) + "].ambient")),
+	uniformLocationDiffuse(lightType + std::to_string(id) + "].diffuse"),
+	uniformLocationSpecular(lightType + std::to_string(id) + "].specular"),
+	uniformLocationPosition(lightType + std::to_string(id) + "].position"),
+	uniformLocationDirection(lightType + std::to_string(id) + "].direction"),
+	uniformLocationCutoffAngleCosine(lightType + std::to_string(id) + "].cutoffAngleCosine"),
+	uniformLocationIntensity(lightType + std::to_string(id) + "].intensity"),
+	uniformLocationFalloff(lightType + std::to_string(id) + "].falloff"),
+	uniformLocationNumLights("num_spotlights")
+{
+	std::cout << uniformLocationDiffuse << std::endl;
 }
 
 Object::~Object() {
@@ -371,9 +390,9 @@ void Object::Update(unsigned int dt){
 		child->Update(dt);
 }
 
-void Object::Render(GLint modelMatrix) {
+void Object::Render(Shader* boundShader) {
 	// Set the model matrix
-	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(GetModel()));
+	glUniformMatrix4fv(boundShader->GetUniformLocation("modelMatrix"), 1, GL_FALSE, glm::value_ptr(GetModel()));
 
 	// Enable 3 vertex attributes
 	glEnableVertexAttribArray(0);
@@ -388,8 +407,6 @@ void Object::Render(GLint modelMatrix) {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
-
-	
 
 	//bind texture (if it exists)
 	if(tex != -1){
@@ -413,7 +430,24 @@ void Object::Render(GLint modelMatrix) {
 
 	// Pass along to children.
 	for(Object* child: children)
-		child->Render(modelMatrix);
+		child->Render(boundShader);
+}
+
+void Spotlight::Render(Shader* boundShader) {
+	glm::vec4 lightPosition = glm::vec4(getPosition(), 1) + glm::vec4(0, 5, 0, 0);
+	glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
+	glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
+	glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
+	glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
+	glUniform3fv(boundShader->GetUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
+	glUniform1f(boundShader->GetUniformLocation(uniformLocationCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
+	glUniform1f(boundShader->GetUniformLocation(uniformLocationIntensity.c_str()), lightIntensity);
+	glUniform1f(boundShader->GetUniformLocation(uniformLocationFalloff.c_str()), lightFalloff);
+
+	glUniform1i(boundShader->GetUniformLocation(uniformLocationNumLights.c_str()), count);
+
+	// Render base class
+	Object::Render(boundShader);
 }
 
 Object* Object::setParent(Object* p){

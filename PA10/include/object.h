@@ -16,7 +16,7 @@ public:
 	virtual bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
 	virtual bool InitializePhysics(const Arguments& args, Physics& physics, bool _static);
 	virtual void Update(unsigned int dt);
-	virtual void Render(GLint modelMatrix);
+	virtual void Render(Shader* boundShader);
 
 	// Mouse and Keyboard event propagation
 	virtual void Keyboard(const SDL_KeyboardEvent& e);
@@ -91,6 +91,37 @@ public:
 	bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
 	// A submesh syncs it model matrix to its parent every frame
 	void Update(unsigned int dt) override { setModelRelativeToParent(glm::mat4(1)); }
+};
+
+class Spotlight : public Object {
+public:
+	Spotlight();
+
+	void Render(Shader* boundShader);
+
+protected:
+private:
+	static int count;
+	const int id;
+
+	const std::string lightType;
+	const std::string uniformLocationAmbient;
+	const std::string uniformLocationDiffuse;
+	const std::string uniformLocationSpecular;
+	const std::string uniformLocationPosition;
+	const std::string uniformLocationDirection;
+	const std::string uniformLocationCutoffAngleCosine;
+	const std::string uniformLocationIntensity;
+	const std::string uniformLocationFalloff;
+	const std::string uniformLocationNumLights;
+
+	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightDirection = glm::vec3(0, -1, 0);
+	float lightCutoffAngleCosine = glm::cos(glm::radians(60.0));
+	float lightIntensity = 5;
+	float lightFalloff = 0.1f;
 };
 
 #endif /* OBJECT_H */
