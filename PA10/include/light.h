@@ -3,93 +3,83 @@
 
 #include "object.h"
 
-// Global light object for a single light source across the whole scene
-class GlobalLight : public Object {
+class Light : public Object {
 public:
-	GlobalLight();
-	
+	enum Type : unsigned int {
+		Disabled = 0,
+		Ambient = 1,
+		Directional = 2,
+		Point = 3,
+		Spot = 4
+	};
+public:
+	static size_t count;
+
+	Light(Type type, size_t id = 0) : type(type), id(id) {}
 	void Render(Shader* boundShader);
+
 	void setAmbient(glm::vec4 color) {lightAmbient = color;}
 	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
 	void setSpecular(glm::vec4 color) {lightSpecular = color;}
+	void setDirection(glm::vec3 direction) {lightDirection = direction;}
+	void setCutoffAngle(float angle) { setCutoffAngleCosine(glm::cos(angle)); }
+	void setCutoffAngleCosine(float cos) { lightCutoffAngleCosine = cos; }
+	void setIntensity(float intensity) { lightIntensity = intensity; }
+	void setFalloff(float falloff) { lightFalloff = falloff; }
 protected:
-private:
-	const std::string uniformLocationAmbient;
-	const std::string uniformLocationDiffuse;
-	const std::string uniformLocationSpecular;
-	const std::string uniformLocationPosition;
-	const std::string uniformLocationDirection;
+	int setupID() { std::cout << count << std::endl; return count++; }
 
-	glm::vec4 lightAmbient = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+protected:
+	const size_t id;
+
+	std::string uniformLocationLightType;
+	std::string uniformLocationAmbient;
+	std::string uniformLocationDiffuse;
+	std::string uniformLocationSpecular;
+	std::string uniformLocationPosition;
+	std::string uniformLocationDirection;
+	std::string uniformLocationLightCutoffAngleCosine;
+	std::string uniformLocationLightIntensity;
+	std::string uniformLocationLightFalloff;
+	// const std::string uniformLocationNumLights;
+
+	Type type = Type::Ambient;
+	glm::vec4 lightAmbient = glm::vec4(0, 0, 0, 1.0f);
 	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPosition = glm::vec3(0, 0, 0);
 	glm::vec3 lightDirection = glm::vec3(0, -1, 0);
+	float lightCutoffAngleCosine = 0.9659258263;
+    float lightIntensity = 1;
+    float lightFalloff = .1;
+};
+
+class AmbientLight: public Light {
+public:
+	AmbientLight(std::string lightVariable = "lights");
+};
+
+// Global light object for a single light source across the whole scene
+class DirectionalLight : public Light {
+public:
+	DirectionalLight(std::string lightVariable = "lights");
 };
 
 // Point light object for a light source casting in all directions
-class PointLight : public Object {
+class PointLight : public Light {
 public:
-	PointLight();
-	void Render(Shader* boundShader);
+	PointLight(std::string lightVariable = "lights");
 
-	void setAmbient(glm::vec4 color) {lightAmbient = color;}
-	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
-	void setSpecular(glm::vec4 color) {lightSpecular = color;}
-	void setDirection(glm::vec3 dir) {lightDirection = dir;}
-	void setRadius(float rad) {radius = rad;}
 protected:
-private:
 	static int count;
-	const int id;
-
-	const std::string lightType;
-	const std::string uniformLocationAmbient;
-	const std::string uniformLocationDiffuse;
-	const std::string uniformLocationSpecular;
-	const std::string uniformLocationPosition;
-	const std::string uniformLocationRadius;
-	const std::string uniformLocationNumLights;
-
-	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightDirection = glm::vec3(0, -1, 0);
-	float radius = 5;
 };
 
 // Spotlight object for a light source constrained to some 3d cone volume
-class SpotLight : public Object {
+class SpotLight : public Light {
 public:
-	SpotLight();
-	void Render(Shader* boundShader);
-	void setAmbient(glm::vec4 color) {lightAmbient = color;}
-	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
-	void setSpecular(glm::vec4 color) {lightSpecular = color;}
-	void setDirection(glm::vec3 dir) {lightDirection = dir;}
+	SpotLight(std::string lightVariable = "lights");
+
 protected:
-private:
 	static int count;
-	const int id;
-
-	const std::string lightType;
-	const std::string uniformLocationAmbient;
-	const std::string uniformLocationDiffuse;
-	const std::string uniformLocationSpecular;
-	const std::string uniformLocationPosition;
-	const std::string uniformLocationDirection;
-	const std::string uniformLocationCutoffAngleCosine;
-	const std::string uniformLocationIntensity;
-	const std::string uniformLocationFalloff;
-	const std::string uniformLocationNumLights;
-
-	glm::vec4 lightAmbient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightDirection = glm::vec3(0, -1, 0);
-	float lightCutoffAngleCosine = glm::cos(glm::radians(60.0));
-	float lightIntensity = 5;
-	float lightFalloff = 0.1f;
 };
 
 #endif /* LIGHT_H */

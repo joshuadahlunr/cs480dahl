@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <sstream>
-
+#include <vector>
 // Convex hull
 #include <quickhull/QuickHull.hpp>
 
@@ -23,24 +23,6 @@ Object::Object() {
 	glGenBuffers(1, &IB);
 	// Mark that we don't have a parent
 	parent = nullptr;
-}
-
-int Spotlight::count = 0;
-
-Spotlight::Spotlight() : 
-	id(Spotlight::count++),
-	lightType("spotlights["),
-	uniformLocationAmbient((lightType + std::to_string(id) + "].ambient")),
-	uniformLocationDiffuse(lightType + std::to_string(id) + "].diffuse"),
-	uniformLocationSpecular(lightType + std::to_string(id) + "].specular"),
-	uniformLocationPosition(lightType + std::to_string(id) + "].position"),
-	uniformLocationDirection(lightType + std::to_string(id) + "].direction"),
-	uniformLocationCutoffAngleCosine(lightType + std::to_string(id) + "].cutoffAngleCosine"),
-	uniformLocationIntensity(lightType + std::to_string(id) + "].intensity"),
-	uniformLocationFalloff(lightType + std::to_string(id) + "].falloff"),
-	uniformLocationNumLights("num_spotlights")
-{
-	std::cout << uniformLocationDiffuse << std::endl;
 }
 
 Object::~Object() {
@@ -129,10 +111,9 @@ void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d:
 	collider = rigidBody->addCollider(shape, transform);
 }
 
-void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/) {
-	// Create new collision mesh
+bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/, std::string path) {	
+	// Create new collision mesh and shape
 	collisionMesh = CollisionMesh();
-
 	rp3d::CollisionShape* shape;
 
 	// Store memory for collision meshs because they need to exist for the life of the object
@@ -166,88 +147,104 @@ void Object::addMeshCollider(bool makeConvex /*= true*/, rp3d::Transform transfo
 			collisionMesh.indiceData[i] = hull.getIndexBuffer()[i];
 		}
 	} else { 
-		// store the concave mesh using the exact mesh data
-		collisionMesh.numVertices = Vertices.size();
-		collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
-		int i = 0;
-		for(Vertex& vert: Vertices) {
-			collisionMesh.vertexData[i] = vert.vertex.x;
-			collisionMesh.vertexData[i + 1] = vert.vertex.y;
-			collisionMesh.vertexData[i + 2] = vert.vertex.z;
-			i += 3;
+		// if mesh collider specified
+		if (path != "") {
+			std::string modelDirectory = args.getResourcePath() + "models/";
+			if(path.find(modelDirectory) == std::string::npos)
+				path = modelDirectory + path;
+
+			// Load the model
+			Assimp::Importer importer;
+			const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+
+			// Error handling
+			if(scene == nullptr){
+				std::cerr << "Failed to import model `" << path << "`: ";
+				std::cerr << importer.GetErrorString() << std::endl;
+				return false;
+			}
+
+			// For each mesh...
+			for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++){
+
+				std::vector<glm::vec3> tempVertices = std::vector<glm::vec3>();
+				std::vector<int> tempIndices = std::vector<int>();
+
+				// Extract this mesh from the scene
+				const aiMesh* mesh = scene->mMeshes[meshIndex];
+
+				// For each vertex...
+				for(int vert = 0; vert < mesh->mNumVertices; vert++){
+
+					// Extract the position
+					auto _pos = mesh->mVertices[vert];
+
+					// Add the vertex to the list of vertecies
+					tempVertices.emplace_back(/*position*/ glm::vec3(_pos.x, _pos.y, _pos.z));
+				}
+				
+				// For each face...
+				for(int face = 0; face < mesh->mNumFaces; face++)
+					// For each index in the face (3 in the triangles)
+					for(int index = 0; index < 3; index++)
+						// Add the index to the list of indices
+						tempIndices.push_back(mesh->mFaces[face].mIndices[index]);
+
+				// store the concave mesh using the exact model data
+				collisionMesh.numVertices = tempVertices.size();
+				collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
+				int i = 0;
+				for(glm::vec3& vert: tempVertices) {
+					collisionMesh.vertexData[i] = vert.x;
+					collisionMesh.vertexData[i + 1] = vert.y;
+					collisionMesh.vertexData[i + 2] = vert.z;
+					i += 3;
+				}
+				collisionMesh.indiceData = new int[tempIndices.size()];
+				for(int i = 0; i < tempIndices.size(); ++i)
+					collisionMesh.indiceData[i] = tempIndices[i];
+
+				std::cout << tempVertices.size() << " " << tempIndices.size() << std::endl;
+			}
+		} else { // if not convex and mesh from file
+			// store the concave mesh using the exact model data
+			collisionMesh.numVertices = Vertices.size();
+			collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
+			int i = 0;
+			for(Vertex& vert: Vertices) {
+				collisionMesh.vertexData[i] = vert.vertex.x;
+				collisionMesh.vertexData[i + 1] = vert.vertex.y;
+				collisionMesh.vertexData[i + 2] = vert.vertex.z;
+				i += 3;
+			}
+			collisionMesh.indiceData = new int[Indices.size()];
+			for(int i = 0; i < Indices.size(); ++i)
+				collisionMesh.indiceData[i] = Indices[i];
 		}
-		collisionMesh.indiceData = new int[Indices.size()];
-		for(int i = 0; i < Indices.size(); ++i)
-			collisionMesh.indiceData[i] = Indices[i];
 	}
 
-	// if(makeConvex) {
-	// 	// https://github.com/akuukka/quickhull
-	// 	quickhull::QuickHull<float> qh;
-	// 	auto hull = qh.getConvexHull(&positions[0], positions.size(), false, false);
+	// Create triangle array
+	rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(
+		collisionMesh.numVertices * 3, // size of vertex data
+		collisionMesh.vertexData, // start of vertex data
+		3 * sizeof(float), // size of one vertex 
+		collisionMesh.numVertices / 3, // size of indice data
+		collisionMesh.indiceData, // start of indice data
+		3 * sizeof(int), // size of one triangle
+		rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, 
+		rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 
-	// 	positions.clear();
-	// 	for(quickhull::Vector3<float> vec: hull.getVertexBuffer()){
-	// 		positions.push_back(vec.x);
-	// 		positions.push_back(vec.y);
-	// 		positions.push_back(vec.z);
-	// 	}
+	rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
 
-	// 	std::vector<int> indices;
-	// 	for(size_t i: hull.getIndexBuffer())
-	// 		indices.push_back(i);
+	// Add the triangle vertex array to the triangle mesh
+	triangleMesh->addSubpart(triangleArray);
 
-	// 	std::cout << indices.size() << std::endl;
-
-	// 	assert(indices.size() % 3 == 0);
-
-	// 	std::vector<rp3d::PolygonVertexArray::PolygonFace> faces;
-	// 	faces.resize(indices.size() / 3);
-	// 	for (int i = 0; i < faces.size(); i++) {
-
-	// 		// First vertex of the face in the indices array
-	// 		faces[i].indexBase = i * 3;
-
-	// 		// Number of vertices in the face
-	// 		faces[i].nbVertices = 3;
-	// 	}
-
-	// 	// Create the polygon vertex array
-	// 	// TODO: Need to delete pointer?
-	// 	rp3d::PolygonVertexArray* polygonVertexArray = new rp3d::PolygonVertexArray(positions.size(), &positions[0], 3 * sizeof(float), &indices[0], 3 * sizeof(int), faces.size(), &faces[0], rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
-	// 	// Get polygon data
-
-	// 	// Create the polyhedron mesh
-	// 	rp3d::PolyhedronMesh* polyhedronMesh = Physics::getSingleton()->getFactory().createPolyhedronMesh(polygonVertexArray);
-
-	// 	// Create the convex mesh collision shape
-	// 	shape = Physics::getSingleton()->getFactory().createConvexMeshShape(polyhedronMesh);
-	// } else {
-		// TODO: Need to delete pointer?
-		rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(
-			collisionMesh.numVertices * 3, // size of vertex data
-			collisionMesh.vertexData, // start of vertex data
-			3 * sizeof(float), // size of one vertex 
-			collisionMesh.numVertices / 3, // size of indice data
-			collisionMesh.indiceData, // start of indice data
-			3 * sizeof(int), // size of one triangle
-			rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, 
-			rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
-
-		rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
-
-		// Add the triangle vertex array to the triangle mesh
-		triangleMesh->addSubpart(triangleArray);
-
-		// Create the concave mesh shape
-		shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
-	// }
+	// Create the concave mesh shape
+	shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
 
 	// Add the collider to the rigid/static body
 	collider = rigidBody->addCollider(shape, transform);
 }
-
-
 
 bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation){
 	// Load the model
@@ -431,23 +428,6 @@ void Object::Render(Shader* boundShader) {
 	// Pass along to children.
 	for(Object* child: children)
 		child->Render(boundShader);
-}
-
-void Spotlight::Render(Shader* boundShader) {
-	glm::vec4 lightPosition = glm::vec4(getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
-	glUniform3fv(boundShader->GetUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationIntensity.c_str()), lightIntensity);
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationFalloff.c_str()), lightFalloff);
-
-	glUniform1i(boundShader->GetUniformLocation(uniformLocationNumLights.c_str()), count);
-
-	// Render base class
-	Object::Render(boundShader);
 }
 
 Object* Object::setParent(Object* p){

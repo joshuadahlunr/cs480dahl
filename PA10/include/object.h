@@ -33,7 +33,7 @@ public:
 	void addCapsuleCollider(float radius, float height, rp3d::Transform transform = rp3d::Transform());
 	void addBoxCollider(glm::vec3 halfExtents, rp3d::Transform transform = rp3d::Transform());
 	void addSphereCollider(float radius, rp3d::Transform transform = rp3d::Transform());
-	void addMeshCollider(bool makeConvex = true, rp3d::Transform transform = rp3d::Transform());
+	bool addMeshCollider(const Arguments& args, bool makeConvex = true, rp3d::Transform transform = rp3d::Transform(), std::string path = "");
 
 	// Scene tree management
 	Object* setParent(Object* p);
@@ -49,7 +49,7 @@ public:
 	void setChildModel(glm::mat4 _model) { childModel = _model; }
 	void setModelRelativeToParent(glm::mat4 _model);
 	void setChildModelRelativeToParent(glm::mat4 _model);
-	void setPosition(glm::vec3 _pos) { model[3][0] = _pos[0]; model[3][1] = _pos[1]; model[3][2] = _pos[2]; }
+	void setPosition(glm::vec3 _pos) { model[3][0] = _pos[0]; model[3][1] = _pos[1]; model[3][2] = _pos[2]; childModel = model; }
 
 	// The depth in the scene tree of this object
 	uint sceneDepth = 0;

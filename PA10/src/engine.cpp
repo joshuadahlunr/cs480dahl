@@ -1,9 +1,11 @@
 #include "engine.h"
-
+#include "light.h"
 #include "window.h"
 #include "graphics.h"
 #include "physics.h"
 #include "camera.h"
+
+int Engine::score = 0;
 
 Engine::Engine(string name, int width, int height) {
 	m_WINDOW_NAME = name;
@@ -54,18 +56,30 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot = new Object();
 
 	// Create global light
-	Object* light = new GlobalLight();
+	// Object* light = new DirectionalLight();
+	// sceneRoot->addChild(light);
+
+	// Create an ambient light
+	Light* light = new AmbientLight();
 	sceneRoot->addChild(light);
+	light->setAmbient(glm::vec4(0.6392156863, 0.7254901961, 0.8980392157, 1));
 
 	// Create a spotlight
-	light = new Spotlight();
+	light = new SpotLight();
 	sceneRoot->addChild(light);
-	light->setPosition(glm::vec3(-7,0.5,6));
+	light->setPosition(glm::vec3(0,10,0));
+	light->setCutoffAngle(glm::radians(30.0));
 
-	// Create a pointLight
-	light = new PointLight();
+	// Create another spotlight
+	light = new SpotLight();
 	sceneRoot->addChild(light);
-	light->setPosition(glm::vec3(7,0.5,6));
+	light->setPosition(glm::vec3(0,10,-10));
+	light->setCutoffAngle(glm::radians(30.0));
+
+	// // Create a pointLight
+	// light = new PointLight();
+	// sceneRoot->addChild(light);
+	// light->setPosition(glm::vec3(7,0.5,6));
 
 	// Create a cylinder
 	// Object* cylinder = new Object();
@@ -95,9 +109,9 @@ bool Engine::Initialize(const Arguments& args) {
 	// Create the board with walls
 	Object* board = new Object();
 	sceneRoot->addChild(board);
-	board->InitializeGraphics(args, "fourwallboard.obj");
+	board->InitializeGraphics(args, "pinballV2.obj");
 	board->InitializePhysics(args, *m_physics, true); // TODO make static convex mesh physics object
-	board->addMeshCollider(false); // Concave mesh
+	board->addMeshCollider(args, false);  // rp3d::Transform(), "board.obj" // Concave custom mesh
 	// Set initial values for the physics material
 	{
 		rp3d::Material& material = board->getCollider().getMaterial();
@@ -105,7 +119,24 @@ bool Engine::Initialize(const Arguments& args) {
 		material.setFrictionCoefficient(0);
 	}
 
-	// Lambda which bounces a ball off an object
+	// Lambda which bounces a ball off bumpers and increase score
+	Physics::ContactEvent bounceBallWithPoints = [sphere, ballID = sphere->getCollider().getEntity().id](const rp3d::CollisionCallback::ContactPair& contact){
+
+		// Only bother if we are interacting with a ball
+		if(contact.getCollider1()->getEntity().id == ballID || contact.getCollider2()->getEntity().id == ballID){
+			// Get where we are contacting the ball
+			rp3d::Vector3 contactPoint;
+			if(contact.getCollider1()->getEntity().id == ballID)
+				contactPoint = contact.getContactPoint(0).getLocalPointOnCollider1();
+			else contactPoint = contact.getContactPoint(0).getLocalPointOnCollider2();
+
+			// Apply a bounce force to the ball
+			sphere->getRigidBody().applyForceAtLocalPosition(-contact.getContactPoint(0).getWorldNormal() * 1000.0, contactPoint);
+			Engine::score += 10;
+		}
+	};
+
+	// Lambda which bounces a ball off paddles
 	Physics::ContactEvent bounceBall = [sphere, ballID = sphere->getCollider().getEntity().id](const rp3d::CollisionCallback::ContactPair& contact){
 
 		// Only bother if we are interacting with a ball
@@ -127,7 +158,7 @@ bool Engine::Initialize(const Arguments& args) {
 	leftPaddle->InitializeGraphics(args, "paddle.obj");
 	leftPaddle->setPosition(glm::vec3(2, -2,-2));
 	leftPaddle->InitializePhysics(args, *m_physics, true); // TODO make static convex mesh physics object
-	leftPaddle->addMeshCollider(false); // Concave mesh
+	leftPaddle->addMeshCollider(args, false); // Concave mesh
 	//leftPaddle->addBoxCollider(glm::vec3(1, 1, .3), rp3d::Transform(rp3d::Vector3(1, 0, 0), rp3d::Quaternion::identity()));
 	leftPaddle->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	m_physics->addContactCallback(leftPaddle, bounceBall);
@@ -144,7 +175,7 @@ bool Engine::Initialize(const Arguments& args) {
 	rightPaddle->InitializeGraphics(args, "paddle.obj");
 	rightPaddle->setPosition(glm::vec3(-2, -2, -2));
 	rightPaddle->InitializePhysics(args, *m_physics, true); // TODO make static convex mesh physics object
-	rightPaddle->addMeshCollider(false);
+	rightPaddle->addMeshCollider(args, false);
 	//rightPaddle->addBoxCollider(glm::vec3(1, 1, .3), rp3d::Transform(rp3d::Vector3(1, 0, 0), rp3d::Quaternion::identity()));
 	rightPaddle->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	m_physics->addContactCallback(rightPaddle, bounceBall);
@@ -157,7 +188,7 @@ bool Engine::Initialize(const Arguments& args) {
 
 	// Object* rightPaddleCollider = new Object();
 	// rightPaddle->addChild(rightPaddleCollider);
-	// rightPaddleCollider->InitializeGraphics(args, "paddlecollider.obj");
+	// a->InitializeGraphics(args, "paddlecollider.obj");
 	// rightPaddleCollider->addMeshCollider(false);
 
 	// Set the time

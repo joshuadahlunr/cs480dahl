@@ -60,6 +60,16 @@ private:
 	Object *leftPaddle, *rightPaddle;
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;
 	float paddleSpeed = 720;
+
+	// Game logic stuff
+	static int score;
+	int ballsRemaining = 3;
+	std::string playerName;
+
+	// Leaderboard
+	int* scores; // list of scores
+	std::string* players; // list of players 
+	
 };
 
 #endif // ENGINE_H

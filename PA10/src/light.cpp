@@ -2,88 +2,57 @@
 #include "shader.h"
 
 // Set the static count so shaders on the GPU know how many to process
-int PointLight::count = 0;
-int SpotLight::count = 0;
+size_t Light::count = 0;
 
-GlobalLight::GlobalLight() : 
-	// Specify constant uniform location variable names
-	uniformLocationAmbient("globallight.ambient"),
-	uniformLocationDiffuse("globallight.diffuse"),
-	uniformLocationSpecular("globallight.specular"),
-	uniformLocationPosition("globallight.position"),
-	uniformLocationDirection("globallight.direction")
-{
-	std::cout << uniformLocationDiffuse << std::endl;
-}
+void Light:: Render(Shader* boundShader){
+	glm::vec4 lightPosition = glm::vec4(getPosition(), 1);
 
-void GlobalLight::Render(Shader* boundShader) {
-	// Specify constant uniform location variable names
-	glm::vec4 lightPosition = glm::vec4(getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
-	glUniform3fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
+	// Bind all of the variables in the shader
+	glUniform1ui(boundShader->GetUniformLocation(uniformLocationLightType.c_str()), (int) type);
+	if(!uniformLocationAmbient.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
+	if(!uniformLocationDiffuse.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
+	if(!uniformLocationSpecular.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
+	if(!uniformLocationPosition.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
+	if(!uniformLocationDirection.empty()) glUniform3fv(boundShader->GetUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
+	if(!uniformLocationLightCutoffAngleCosine.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
+	if(!uniformLocationLightIntensity.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightIntensity.c_str()), lightIntensity);
+	if(!uniformLocationLightFalloff.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightFalloff.c_str()), lightFalloff);
+
+	//std::cout << count << std::endl;
 
 	// Render base class
 	Object::Render(boundShader);
 }
 
-PointLight::PointLight() : 
-	// Specify constant uniform location variable names
-	id(PointLight::count++),
-	lightType("pointlights["),
-	uniformLocationAmbient(lightType + std::to_string(id) + "].ambient"),
-	uniformLocationDiffuse(lightType + std::to_string(id) + "].diffuse"),
-	uniformLocationSpecular(lightType + std::to_string(id) + "].specular"),
-	uniformLocationPosition(lightType + std::to_string(id) + "].position"),
-	uniformLocationNumLights("num_pointlights")
-{
-	std::cout << uniformLocationDiffuse << std::endl;
+AmbientLight::AmbientLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Ambient, setupID()) {
+	uniformLocationLightType = lightVariable + "[" + std::to_string(id) + "].type";
+	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
 }
 
-void PointLight::Render(Shader* boundShader) {
-	// Specify constant uniform location variable names
-	glm::vec4 lightPosition = glm::vec4(getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
-
-	glUniform1i(boundShader->GetUniformLocation(uniformLocationNumLights.c_str()), count);
-
-	// Render base class
-	Object::Render(boundShader);
+DirectionalLight::DirectionalLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Directional, setupID()) {
+	uniformLocationLightType = lightVariable + "[" + std::to_string(id) + "].type";
+	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
+	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
+	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
+	uniformLocationDirection = lightVariable + "[" + std::to_string(id) + "].direction";
 }
 
-SpotLight::SpotLight() : 
-	id(SpotLight::count++),
-	lightType("spotlights["),
-	uniformLocationAmbient(lightType + std::to_string(id) + "].ambient"),
-	uniformLocationDiffuse(lightType + std::to_string(id) + "].diffuse"),
-	uniformLocationSpecular(lightType + std::to_string(id) + "].specular"),
-	uniformLocationPosition(lightType + std::to_string(id) + "].position"),
-	uniformLocationDirection(lightType + std::to_string(id) + "].direction"),
-	uniformLocationCutoffAngleCosine(lightType + std::to_string(id) + "].cutoffAngleCosine"),
-	uniformLocationIntensity(lightType + std::to_string(id) + "].intensity"),
-	uniformLocationFalloff(lightType + std::to_string(id) + "].falloff"),
-	uniformLocationNumLights("num_spotlights")
-{
-	std::cout << uniformLocationDiffuse << std::endl;
+PointLight::PointLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Point, setupID()) {
+	uniformLocationLightType = lightVariable + "[" + std::to_string(id) + "].type";
+	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
+	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
+	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
+	uniformLocationPosition = lightVariable + "[" + std::to_string(id) + "].position";
 }
 
-void SpotLight::Render(Shader* boundShader) {
-	glm::vec4 lightPosition = glm::vec4(getPosition(), 1) + glm::vec4(0, 5, 0, 0);
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
-	glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
-	glUniform3fv(boundShader->GetUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationIntensity.c_str()), lightIntensity);
-	glUniform1f(boundShader->GetUniformLocation(uniformLocationFalloff.c_str()), lightFalloff);
-
-	glUniform1i(boundShader->GetUniformLocation(uniformLocationNumLights.c_str()), count);
-
-	// Render base class
-	Object::Render(boundShader);
+SpotLight::SpotLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Spot, setupID()) {
+	uniformLocationLightType = lightVariable + "[" + std::to_string(id) + "].type";
+	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
+	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
+	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
+	uniformLocationPosition = lightVariable + "[" + std::to_string(id) + "].position";
+	uniformLocationDirection = lightVariable + "[" + std::to_string(id) + "].direction";
+	uniformLocationLightCutoffAngleCosine = lightVariable + "[" + std::to_string(id) + "].cutoffAngleCosine";
+	uniformLocationLightIntensity = lightVariable + "[" + std::to_string(id) + "].intensity";
+	uniformLocationLightFalloff = lightVariable + "[" + std::to_string(id) + "].falloff";
 }

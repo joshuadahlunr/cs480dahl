@@ -155,6 +155,8 @@ void Graphics::Render() {
 	glUniform4fv(boundShader->GetUniformLocation("material.specular"), 1, glm::value_ptr(materialSpecular));
 	glUniform1f(boundShader->GetUniformLocation("material.shininess"), materialShininess);
 
+	glUniform1ui(boundShader->GetUniformLocation("num_lights"), Light::count);
+
 	// Render the object
 	sceneRoot->Render(boundShader);
 

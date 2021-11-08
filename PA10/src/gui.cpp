@@ -72,14 +72,14 @@ void GUI::Render(){
 		if(ImGui::BeginMenu("Lighting Controls")) { 
 
 			ImGui::Text("Spotlight Settings");
-			float lightCutoffAngle = glm::degrees(glm::acos(graphics->lightCutoffAngleCosine));
-			ImGui::SliderFloat("Cutoff", &lightCutoffAngle, 0.0f, 180.0f);
-			graphics->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
-			ImGui::SliderFloat("Intensity", &graphics->lightIntensity, 0.0f, 5.0f);
+			// float lightCutoffAngle = glm::degrees(glm::acos(graphics->lightCutoffAngleCosine));
+			// ImGui::SliderFloat("Cutoff", &lightCutoffAngle, 0.0f, 180.0f);
+			// graphics->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
+			// ImGui::SliderFloat("Intensity", &graphics->lightIntensity, 0.0f, 5.0f);
 
-            ImGui::ColorEdit3("Ambient Color", glm::value_ptr(graphics->lightAmbient));
-			ImGui::ColorEdit3("Specular Color", glm::value_ptr(graphics->lightSpecular));
-            ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(graphics->lightDiffuse));
+            // ImGui::ColorEdit3("Ambient Color", glm::value_ptr(graphics->lightAmbient));
+			// ImGui::ColorEdit3("Specular Color", glm::value_ptr(graphics->lightSpecular));
+            // ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(graphics->lightDiffuse));
 
 			ImGui::EndMenu();
 		}

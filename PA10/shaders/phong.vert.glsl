@@ -7,25 +7,15 @@ layout (location = 2) in vec2 v_uv;
 layout (location = 3) in vec3 v_normal;
 
 // structs
-struct GlobalLight
-{ 
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    vec4 position;
-    vec3 direction;
-};
+#define TYPE_DISABLED 0u
+#define TYPE_AMBIENT 1u
+#define TYPE_DIRECTIONAL 2u
+#define TYPE_POINT 3u
+#define TYPE_SPOT 4u
 
-struct PointLight
-{ 
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    vec4 position;
-};
-
-struct SpotLight
+struct Light
 {
+    uint type;
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
@@ -37,7 +27,7 @@ struct SpotLight
 };
 
 struct Material
-{ 
+{
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
@@ -45,15 +35,11 @@ struct Material
 };
 
 // defines
-#define MAX_POINTLIGHTS 20
-#define MAX_SPOTLIGHTS 10
+#define MAX_LIGHTS 20
 
 // uniforms
-uniform GlobalLight globallight;
-uniform int num_pointlights;
-uniform PointLight pointlights[MAX_POINTLIGHTS];
-uniform int num_spotlights;
-uniform SpotLight spotlights[MAX_SPOTLIGHTS];
+uniform Light lights[MAX_LIGHTS];
+uniform uint num_lights;
 
 uniform Material material;
 
@@ -65,28 +51,22 @@ uniform mat4 modelMatrix;
 out vec3 varyingColor;
 out vec2 varyingUV;
 out vec3 varyingP;
-out vec3 varyingL;
+//out vec3 varyingL;
 out vec3 varyingN;
-out mat4 mv_matrix;
 out vec4 rawPosition;
+flat out mat4 mv_matrix;
 
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
-    return vec3(0,0,0);
-}
-
-void main(void)
-{  
-    mat4 mv_matrix = viewMatrix * modelMatrix;
+void main(void) {
+    mv_matrix = viewMatrix * modelMatrix;
     mat4 norm_matrix = transpose(inverse(mv_matrix));
 
-    // output vertex position, light direction, and normal to the rasterizer for interpolation
+    // output vertex position and normal to the rasterizer for interpolation
     varyingP = (mv_matrix * vec4(v_position,1.0)).xyz;
-    //varyingL = light.position.xyz - varyingP;
-    varyingL = (mv_matrix * spotlights[0].position).xyz - varyingP;
     varyingN = (norm_matrix * vec4(v_normal,1.0)).xyz;
-
-    varyingUV = v_uv;
 
     gl_Position = projectionMatrix * mv_matrix * vec4(v_position,1.0);
     rawPosition = vec4(v_position, 1);
+
+	varyingColor = v_color;
+	varyingUV = v_uv;
 }
