@@ -50,6 +50,7 @@ public:
 	void setModelRelativeToParent(glm::mat4 _model);
 	void setChildModelRelativeToParent(glm::mat4 _model);
 	void setPosition(glm::vec3 _pos) { model[3][0] = _pos[0]; model[3][1] = _pos[1]; model[3][2] = _pos[2]; childModel = model; }
+	void rotate(float rads, glm::vec3 axis) { model = glm::rotate(model, rads, axis); }
 
 	// The depth in the scene tree of this object
 	uint sceneDepth = 0;

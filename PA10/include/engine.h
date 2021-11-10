@@ -58,6 +58,7 @@ private:
 
 	Object* sceneRoot;
 	Object *leftPaddle, *rightPaddle;
+	Object *ball;
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;
 	float paddleSpeed = 720;
 

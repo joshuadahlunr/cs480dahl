@@ -116,6 +116,8 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	collisionMesh = CollisionMesh();
 	rp3d::CollisionShape* shape;
 
+	std::cout << "Adding Mesh Collider: " << path << std::endl;
+
 	// Store memory for collision meshs because they need to exist for the life of the object
 	if (makeConvex) {
 		// store vertex positions temporarily
@@ -152,7 +154,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 			std::string modelDirectory = args.getResourcePath() + "models/";
 			if(path.find(modelDirectory) == std::string::npos)
 				path = modelDirectory + path;
-
+			std::cout << path << std::endl;
 			// Load the model
 			Assimp::Importer importer;
 			const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
