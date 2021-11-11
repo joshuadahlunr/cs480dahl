@@ -36,6 +36,7 @@ uniform Light lights[MAX_LIGHTS];
 uniform uint num_lights;
 
 uniform Material material;
+uniform sampler2D sampler;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -55,7 +56,7 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 	if(light.type == TYPE_DISABLED)
 		return vec3(0);
 
-	vec3 ambient = (light.ambient * material.ambient).xyz;
+	vec3 ambient = (light.ambient * material.ambient * texture2D(sampler, varyingUV)).xyz;
 	vec3 L = vec3(0);
     float spotlightFalloff = 1;
 
