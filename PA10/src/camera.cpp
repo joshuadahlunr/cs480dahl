@@ -12,14 +12,14 @@ Camera::~Camera() {
 
 bool Camera::Initialize(int w, int h) {
 	// Init the starting eye and focus pos details
-	eyePos = glm::vec3(0.0, 0.0, -20.0);
+	eyePos = glm::vec3(0.0, 25, -25.0);
 	focusPos = glm::vec3(0.0, 0.0, 0.0);
 
 	// Determine the distance, starting pos in sphere and camera orbit angles based on eyePos and focusPos
 	glm::vec3 diffVec = eyePos - focusPos;
 	distanceFromFocusPos = glm::length(diffVec);
 	posInSphere = glm::normalize(diffVec);
-	cameraOrbitAngles = glm::vec2(180.0, 90.0); // if start eye and focus change this will have to change
+	cameraOrbitAngles = glm::vec2(180.0, 45.0); // if start eye and focus change this will have to change
 
 	// Set some value for movement scale when scrolling
 	zoomScale = 0.25;
