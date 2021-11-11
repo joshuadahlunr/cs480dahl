@@ -20,6 +20,7 @@ public:
 	void Render(Shader* boundShader) override;
 	void Update(unsigned int dt) override;
 
+	// Light color setting
 	void setAmbient(glm::vec4 color) {lightAmbient = color;}
 	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
 	void setSpecular(glm::vec4 color) {lightSpecular = color;}
@@ -29,8 +30,13 @@ public:
 	void setIntensity(float intensity) { lightIntensity = intensity; }
 	void setFalloff(float falloff) { lightFalloff = falloff; }
 	void setPosition(glm::vec3 pos) { position = pos; }
+
+	// Enabled/disabled
+	virtual void setEnabled(bool enable) {}
+	void enable() { setEnabled(true); }
+	void disable() { setEnabled(false); }
 protected:
-	int setupID() { std::cout << count << std::endl; return count++; }
+	int setupID() { return count++; }
 
 protected:
 	const size_t id;
@@ -46,8 +52,9 @@ protected:
 	std::string uniformLocationLightFalloff;
 	// const std::string uniformLocationNumLights;
 
+	Type type = Type::Disabled;
+
 public:
-	const Type type = Type::Ambient;
 	glm::vec4 lightAmbient = glm::vec4(0, 0, 0, 1.0f);
 	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -62,12 +69,16 @@ public:
 class AmbientLight: public Light {
 public:
 	AmbientLight(std::string lightVariable = "lights");
+
+	void setEnabled(bool enable) override { type = enable ? Type::Ambient : Type::Disabled; }
 };
 
 // Global light object for a single light source across the whole scene
 class DirectionalLight : public Light {
 public:
 	DirectionalLight(std::string lightVariable = "lights");
+
+	void setEnabled(bool enable) override { type = enable ? Type::Directional : Type::Disabled; }
 };
 
 // Point light object for a light source casting in all directions
@@ -75,8 +86,7 @@ class PointLight : public Light {
 public:
 	PointLight(std::string lightVariable = "lights");
 
-protected:
-	static int count;
+	void setEnabled(bool enable) override { type = enable ? Type::Point : Type::Disabled; }
 };
 
 // Spotlight object for a light source constrained to some 3d cone volume
@@ -84,8 +94,7 @@ class SpotLight : public Light {
 public:
 	SpotLight(std::string lightVariable = "lights");
 
-protected:
-	static int count;
+	void setEnabled(bool enable) override { type = enable ? Type::Spot : Type::Disabled; }
 };
 
 #endif /* LIGHT_H */

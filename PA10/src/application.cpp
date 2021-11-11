@@ -4,15 +4,15 @@
 #include "graphics.h"
 #include "physics.h"
 #include "camera.h"
+#include "threadTimer.h"
 
 bool Application::Initialize(const Arguments& args){
 	bool ret = Engine::Initialize(args);
 
-	// Create an ambient light
-
 	lights = std::vector<Light*>();
 	lights.reserve(3);
 
+	// Create an ambient light
 	lights.push_back(new AmbientLight());
 	std::cout << getSceneRoot() << std::endl;
 	getSceneRoot()->addChild(lights[0]);
@@ -41,8 +41,7 @@ bool Application::Initialize(const Arguments& args){
 
 
 	// Lambda which bounces a ball off bumpers and increase score
-	Physics::ContactEvent bounceBallWithPoints = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact){
-
+	auto bounceBallWithPoints = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact, Light* lightup = nullptr){
 		// Only bother if we are interacting with a ball
 		if(contact.getCollider1()->getEntity().id == ballID || contact.getCollider2()->getEntity().id == ballID){
 			// Get where we are contacting the ball
@@ -55,13 +54,19 @@ bool Application::Initialize(const Arguments& args){
 			ball->getRigidBody().applyForceAtLocalPosition(-contact.getContactPoint(0).getWorldNormal() * 1000.0, contactPoint);
 			score += 10;
 
+			// Enable our light and start a timer to turn it off
+			if(lightup){
+				lightup->enable();
+				threadTimer t;
+				t.setTimeout([lightup](){ lightup->disable(); }, std::chrono::milliseconds(250));
+			}
+
 			std::cout << "score: " << score << std::endl;
 		}
 	};
 
 	// Lambda which bounces a ball off paddles
 	Physics::ContactEvent bounceBall = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact){
-
 		// Only bother if we are interacting with a ball
 		if(contact.getCollider1()->getEntity().id == ballID || contact.getCollider2()->getEntity().id == ballID){
 			// Get where we are contacting the ball
@@ -210,55 +215,62 @@ bool Application::Initialize(const Arguments& args){
 	dividerWall->InitializePhysics(args, *getPhysics(), true);
 	dividerWall->addBoxCollider(glm::vec3(.25, 2, 11.25));
 
+	Light* bumperLight = new PointLight();
+	getSceneRoot()->addChild(bumperLight);
+	bumperLight->setPosition(glm::vec3(0, 5, 0));
+	bumperLight->setDiffuse(glm::vec4(1, 0, 0, 1));
+	bumperLight->setSpecular(glm::vec4(1, 0, 0, 1));
+	bumperLight->setCutoffAngle(glm::radians(40.0));
+	bumperLight->disable();
+
 	Object* leftBumper = new Object();
 	getSceneRoot()->addChild(leftBumper);
 	leftBumper->setPosition(glm::vec3(6.5, 1, -1));
 	leftBumper->InitializePhysics(args, *getPhysics(), true);
 	leftBumper->addCapsuleCollider(0.625, 2);
-	getPhysics()->addContactCallback(leftBumper, bounceBallWithPoints);
-
+	getPhysics()->addContactCallback(leftBumper, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* rightBumper = new Object();
 	getSceneRoot()->addChild(rightBumper);
 	rightBumper->setPosition(glm::vec3(-4.5, 1, -1));
 	rightBumper->InitializePhysics(args, *getPhysics(), true);
 	rightBumper->addCapsuleCollider(0.625, 2);
-	getPhysics()->addContactCallback(rightBumper, bounceBallWithPoints);
+	getPhysics()->addContactCallback(rightBumper, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topBumper_1 = new Object();
 	getSceneRoot()->addChild(topBumper_1);
 	topBumper_1->setPosition(glm::vec3(-4.5, 1, 5));
 	topBumper_1->InitializePhysics(args, *getPhysics(), true);
 	topBumper_1->addCapsuleCollider(0.5, 2);
-	getPhysics()->addContactCallback(topBumper_1, bounceBallWithPoints);
+	getPhysics()->addContactCallback(topBumper_1, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topBumper_2 = new Object();
 	getSceneRoot()->addChild(topBumper_2);
 	topBumper_2->setPosition(glm::vec3(-5, 1, 7.084));
 	topBumper_2->InitializePhysics(args, *getPhysics(), true);
 	topBumper_2->addCapsuleCollider(0.5, 2);
-	getPhysics()->addContactCallback(topBumper_2, bounceBallWithPoints);
+	getPhysics()->addContactCallback(topBumper_2, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topBumper_3 = new Object();
 	getSceneRoot()->addChild(topBumper_3);
 	topBumper_3->setPosition(glm::vec3(-4.7, 1, 9.156));
 	topBumper_3->InitializePhysics(args, *getPhysics(), true);
 	topBumper_3->addCapsuleCollider(0.5, 2);
-	getPhysics()->addContactCallback(topBumper_3, bounceBallWithPoints);
+	getPhysics()->addContactCallback(topBumper_3, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topBumper_4 = new Object();
 	getSceneRoot()->addChild(topBumper_4);
 	topBumper_4->setPosition(glm::vec3(-3.598, 1, 10.91));
 	topBumper_4->InitializePhysics(args, *getPhysics(), true);
 	topBumper_4->addCapsuleCollider(0.5, 2);
-	getPhysics()->addContactCallback(topBumper_4, bounceBallWithPoints);
+	getPhysics()->addContactCallback(topBumper_4, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topBumper_5 = new Object();
 	getSceneRoot()->addChild(topBumper_5);
 	topBumper_5->setPosition(glm::vec3(-1.927, 1, 12.081));
 	topBumper_5->InitializePhysics(args, *getPhysics(), true);
 	topBumper_5->addCapsuleCollider(0.5, 2);
-	getPhysics()->addContactCallback(topBumper_5, bounceBallWithPoints);
+	getPhysics()->addContactCallback(topBumper_5, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallBumper_1 = new Object();
 	getSceneRoot()->addChild(wallBumper_1);
@@ -266,7 +278,7 @@ bool Application::Initialize(const Arguments& args){
 	wallBumper_1->rotate(glm::radians(-5.21), glm::vec3(0, 1, 0));
 	wallBumper_1->InitializePhysics(args, *getPhysics(), true);
 	wallBumper_1->addBoxCollider(glm::vec3(1, 2, 0.5));
-	getPhysics()->addContactCallback(wallBumper_1, bounceBallWithPoints);
+	getPhysics()->addContactCallback(wallBumper_1, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallBumper_2 = new Object();
 	getSceneRoot()->addChild(wallBumper_2);
@@ -274,7 +286,7 @@ bool Application::Initialize(const Arguments& args){
 	wallBumper_2->rotate(glm::radians(-19.4), glm::vec3(0, 1, 0));
 	wallBumper_2->InitializePhysics(args, *getPhysics(), true);
 	wallBumper_2->addBoxCollider(glm::vec3(1, 2, 1.1));
-	getPhysics()->addContactCallback(wallBumper_2, bounceBallWithPoints);
+	getPhysics()->addContactCallback(wallBumper_2, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallBumper_3 = new Object();
 	getSceneRoot()->addChild(wallBumper_3);
@@ -282,7 +294,7 @@ bool Application::Initialize(const Arguments& args){
 	wallBumper_3->rotate(glm::radians(-32.6), glm::vec3(0, 1, 0));
 	wallBumper_3->InitializePhysics(args, *getPhysics(), true);
 	wallBumper_3->addBoxCollider(glm::vec3(1, 2, 0.5));
-	getPhysics()->addContactCallback(wallBumper_3, bounceBallWithPoints);
+	getPhysics()->addContactCallback(wallBumper_3, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallBumper_4 = new Object();
 	getSceneRoot()->addChild(wallBumper_4);
@@ -290,7 +302,7 @@ bool Application::Initialize(const Arguments& args){
 	wallBumper_4->rotate(glm::radians(-45.3), glm::vec3(0, 1, 0));
 	wallBumper_4->InitializePhysics(args, *getPhysics(), true);
 	wallBumper_4->addBoxCollider(glm::vec3(1, 2, 1.1));
-	getPhysics()->addContactCallback(wallBumper_4, bounceBallWithPoints);
+	getPhysics()->addContactCallback(wallBumper_4, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallBumper_5 = new Object();
 	getSceneRoot()->addChild(wallBumper_5);
@@ -298,7 +310,7 @@ bool Application::Initialize(const Arguments& args){
 	wallBumper_5->rotate(glm::radians(-58.1), glm::vec3(0, 1, 0));
 	wallBumper_5->InitializePhysics(args, *getPhysics(), true);
 	wallBumper_5->addBoxCollider(glm::vec3(1, 2, 0.5));
-	getPhysics()->addContactCallback(wallBumper_5, bounceBallWithPoints);
+	getPhysics()->addContactCallback(wallBumper_5, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* wallGuard = new Object();
 	getSceneRoot()->addChild(wallGuard);
@@ -384,13 +396,13 @@ bool Application::Initialize(const Arguments& args){
 	getSceneRoot()->addChild(guardBumperLeft);
 	guardBumperLeft->InitializePhysics(args, *getPhysics(), true);
 	guardBumperLeft->addMeshCollider(args, false, rp3d::Transform(), "guardBumperLeft.obj");
-	getPhysics()->addContactCallback(guardBumperLeft, bounceBallWithPoints);
+	getPhysics()->addContactCallback(guardBumperLeft, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* guardBumperRight = new Object();
 	getSceneRoot()->addChild(guardBumperRight);
 	guardBumperRight->InitializePhysics(args, *getPhysics(), true);
 	guardBumperRight->addMeshCollider(args, false, rp3d::Transform(), "guardBumperRight.obj");
-	getPhysics()->addContactCallback(guardBumperRight, bounceBallWithPoints);
+	getPhysics()->addContactCallback(guardBumperRight, std::bind(bounceBallWithPoints, std::placeholders::_1, bumperLight));
 
 	Object* topArc = new Object();
 	getSceneRoot()->addChild(topArc);
