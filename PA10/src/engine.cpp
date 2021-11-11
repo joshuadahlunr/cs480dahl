@@ -113,6 +113,7 @@ bool Engine::Initialize(const Arguments& args) {
 	board->InitializeGraphics(args, "pinballV3.obj");
 	board->InitializePhysics(args, *m_physics, true); // TODO make static convex mesh physics object
 	board->addMeshCollider(args, false);  // rp3d::Transform(), "board.obj" // Concave custom mesh
+	board->LoadTextureFile(args, "../textures/base.png");
 	// Set initial values for the physics material
 	{
 		rp3d::Material& material = board->getCollider().getMaterial();
@@ -589,7 +590,7 @@ void Engine::Run() {
 	while(m_running) {
 		// Update the DT
 		m_DT = getDT();
-		std::cout << (1000 / (m_DT > 0 ? m_DT : 0.001)) << " fps" << std::endl;
+
 		// Process events
 		GUI* gui = m_graphics->getGUI();
 		while(SDL_PollEvent(&m_event) != 0) {
@@ -610,9 +611,9 @@ void Engine::Run() {
 				// Space toggles between fragment and vertex shader
 				else if(m_event.key.keysym.sym == SDLK_SPACE && m_event.type == SDL_KEYUP)
 					m_graphics->useFragShader = !m_graphics->useFragShader;
-				else if(m_event.key.keysym.sym == SDLK_DOWN && m_event.type == SDL_KEYUP)
+				else if((m_event.key.keysym.sym == SDLK_DOWN || m_event.key.keysym.sym == SDLK_s) && m_event.type == SDL_KEYUP)
 				{
-					ball->getRigidBody().applyForceAtLocalPosition(rp3d::Vector3(0, 0, 1) * 2000.0, rp3d::Vector3(0, 0, 0));
+					ball->getRigidBody().applyForceAtLocalPosition(rp3d::Vector3(0, 0, 1) * ballLaunchPower, rp3d::Vector3(0, 0, 0));
 				}
 				// Forward other events
 				else
@@ -658,6 +659,15 @@ void Engine::Run() {
 		t.setOrientation(rp3d::Quaternion::fromEulerAngles(0, glm::radians(rightPaddleAngle), 0));
 		rightPaddle->setPhysicsTransform(t);
 
+		// If S or down is pressed pull the plunger back
+		if(keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_DOWN])
+			ballLaunchPower += powerIncreaseSpeed * m_DT / 1000.0;
+		else
+			ballLaunchPower -= powerIncreaseSpeed * m_DT / 1000.0;
+
+		// Clamp the ball launch power
+		if(ballLaunchPower > 2000) ballLaunchPower = 2000;
+		if(ballLaunchPower < 0) ballLaunchPower = 0;
 
 		// Update the physics simulation (at a constant rate of 60 times per second)
 		if(m_DT > 0) m_physics->Update(m_DT);
@@ -667,6 +677,10 @@ void Engine::Run() {
 		// Update and render the graphics
 		m_graphics->Update(m_DT);
 		m_graphics->Render();
+
+		// Calculate FPS
+		//std::cout << (1000 / (m_DT > 0 ? m_DT : 0.001)) << " fps" << std::endl;
+
 
 		// Physic debug display
 #ifdef PHYSICS_DEBUG

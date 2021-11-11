@@ -62,6 +62,9 @@ private:
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;
 	float paddleSpeed = 720;
 
+	float ballLaunchPower = 0;
+	float powerIncreaseSpeed = 400;
+
 	// Game logic stuff
 	static int score;
 	int ballsRemaining = 3;

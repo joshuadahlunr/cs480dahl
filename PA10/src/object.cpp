@@ -407,6 +407,7 @@ void Object::Render(Shader* boundShader) {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
 
+
 	//bind texture (if it exists)
 	if(tex != -1){
 		glActiveTexture(GL_TEXTURE0);
