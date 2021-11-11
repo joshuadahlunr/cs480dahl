@@ -9,7 +9,7 @@ bool Application::Initialize(const Arguments& args){
 	bool ret = Engine::Initialize(args);
 
 	// Create an ambient light
-	
+
 	lights = std::vector<Light*>();
 	lights.reserve(3);
 
@@ -94,9 +94,9 @@ bool Application::Initialize(const Arguments& args){
 
 				score = 0;
 				ballsRemaining = 3;
-			} 
-			
-			resetBall();	
+			}
+
+			resetBall();
 		}
 	};
 
@@ -119,10 +119,9 @@ bool Application::Initialize(const Arguments& args){
 	Object* board = new Object();
 	getSceneRoot()->addChild(board);
 	board->InitializeGraphics(args, "pinballV4.obj");
-	board->InitializePhysics(args, *getPhysics(), true); 
-	// board->addMeshCollider(args, false);  
+	board->InitializePhysics(args, *getPhysics(), true);
+	// board->addMeshCollider(args, false);
 	board->LoadTextureFile(args, "../textures/base.png");
-	// Set initial values for the physics material
 
 
 	// Create left paddle
@@ -130,547 +129,284 @@ bool Application::Initialize(const Arguments& args){
 	getSceneRoot()->addChild(leftPaddle);
 	leftPaddle->InitializeGraphics(args, "paddle.obj");
 	leftPaddle->setPosition(glm::vec3(4.4, 0, -13.25));
-	leftPaddle->InitializePhysics(args, *getPhysics(), true); 
-	// leftPaddle->addMeshCollider(args, false, rp3d::Transform(), "paddleCollider.obj"); 
-	leftPaddle->addBoxCollider(glm::vec3(1.53, 1, 0.333), rp3d::Transform(rp3d::Vector3(1.125, 0, 0), rp3d::Quaternion::identity())); 
+	leftPaddle->InitializePhysics(args, *getPhysics(), true);
+	leftPaddle->addBoxCollider(glm::vec3(1.53, 1, 0.333), rp3d::Transform(rp3d::Vector3(1.125, 0, 0), rp3d::Quaternion::identity()));
 	leftPaddle->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	getPhysics()->addContactCallback(leftPaddle, bounceBall);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = leftPaddle->getCollider().getMaterial();
-		material.setBounciness(.2);
-	}
 
 	// Create right paddle
 	rightPaddle = new Object();
 	getSceneRoot()->addChild(rightPaddle);
 	rightPaddle->InitializeGraphics(args, "paddle.obj");
 	rightPaddle->setPosition(glm::vec3(-2.4, 0, -13.25));
-	rightPaddle->InitializePhysics(args, *getPhysics(), true); 
-	rightPaddle->addBoxCollider(glm::vec3(1.53, 1, 0.333), rp3d::Transform(rp3d::Vector3(1.125, 0, 0), rp3d::Quaternion::identity())); 
+	rightPaddle->InitializePhysics(args, *getPhysics(), true);
+	rightPaddle->addBoxCollider(glm::vec3(1.53, 1, 0.333), rp3d::Transform(rp3d::Vector3(1.125, 0, 0), rp3d::Quaternion::identity()));
 	rightPaddle->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	getPhysics()->addContactCallback(rightPaddle, bounceBall);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = rightPaddle->getCollider().getMaterial();
-		material.setBounciness(.2);
-	}
 
 	// Create left paddle
 	plunger = new Object();
 	getSceneRoot()->addChild(plunger);
 	plunger->InitializeGraphics(args, "plunger.obj");
 	plunger->setPosition(glm::vec3(-8.75, 0.75, -14.638));
-	plunger->InitializePhysics(args, *getPhysics(), true); 
-	plunger->addBoxCollider(glm::vec3(1, 1, 1.3875)); 
+	plunger->InitializePhysics(args, *getPhysics(), true);
+	plunger->addBoxCollider(glm::vec3(1, 1, 1.3875));
 	plunger->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	getPhysics()->addContactCallback(plunger, plungerPushReset);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = plunger->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(0);
-	}
+
 
 	//CREATE COLLIDERS FOR BOARD COLLISIONS
 	// Sorry not sorry :)
 
+
 	Object* floor = new Object();
 	getSceneRoot()->addChild(floor);
 	floor->setPosition(glm::vec3(0, -1, 0));
-	floor->InitializePhysics(args, *getPhysics(), true); 
-	floor->addBoxCollider(glm::vec3(11.5, 1, 19));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = floor->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(0);
-	}
+	floor->InitializePhysics(args, *getPhysics(), true);
+	floor->addBoxCollider(glm::vec3(11.5, 1, 19));
+
+	Object* roof = new Object();
+	getSceneRoot()->addChild(roof);
+	roof->setPosition(glm::vec3(0, 1, 0));
+	roof->InitializePhysics(args, *getPhysics(), true);
+	roof->addBoxCollider(glm::vec3(11.5, 1, 19));
 
 	Object* leftWall = new Object();
 	getSceneRoot()->addChild(leftWall);
 	leftWall->setPosition(glm::vec3(10.5, 1, -4));
-	leftWall->InitializePhysics(args, *getPhysics(), true); 
-	leftWall->addBoxCollider(glm::vec3(1, 2, 13.5));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = leftWall->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(.2);
-	}
+	leftWall->InitializePhysics(args, *getPhysics(), true);
+	leftWall->addBoxCollider(glm::vec3(1, 2, 13.5));
 
 	Object* rightWall = new Object();
 	getSceneRoot()->addChild(rightWall);
 	rightWall->setPosition(glm::vec3(-10.5, 1, -4));
-	rightWall->InitializePhysics(args, *getPhysics(), true); 
-	rightWall->addBoxCollider(glm::vec3(1, 2, 13.5));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = rightWall->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(0);
-	}
+	rightWall->InitializePhysics(args, *getPhysics(), true);
+	rightWall->addBoxCollider(glm::vec3(1, 2, 13.5));
 
 	Object* bottomWallLeft = new Object();
 	getSceneRoot()->addChild(bottomWallLeft);
 	bottomWallLeft->setPosition(glm::vec3(6.101, 1, -15.571));
 	bottomWallLeft->rotate(glm::radians(-20.0), glm::vec3(0, 1, 0));
-	bottomWallLeft->InitializePhysics(args, *getPhysics(), true); 
-	bottomWallLeft->addBoxCollider(glm::vec3(4, 2, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = bottomWallLeft->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(0);
-	}
+	bottomWallLeft->InitializePhysics(args, *getPhysics(), true);
+	bottomWallLeft->addBoxCollider(glm::vec3(4, 2, 1));
 
 	Object* bottomWallRight = new Object();
 	getSceneRoot()->addChild(bottomWallRight);
 	bottomWallRight->setPosition(glm::vec3(-4.101, 1, -15.571));
 	bottomWallRight->rotate(glm::radians(20.0), glm::vec3(0, 1, 0));
-	bottomWallRight->InitializePhysics(args, *getPhysics(), true); 
-	bottomWallRight->addBoxCollider(glm::vec3(4, 2, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = bottomWallRight->getCollider().getMaterial();
-		material.setBounciness(.2);
-		material.setFrictionCoefficient(0);
-	}
-
-	
+	bottomWallRight->InitializePhysics(args, *getPhysics(), true);
+	bottomWallRight->addBoxCollider(glm::vec3(4, 2, 1));
 
 	bottomWallCenter = new Object();
 	getSceneRoot()->addChild(bottomWallCenter);
 	bottomWallCenter->setPosition(glm::vec3(1, 1, -18));
-	bottomWallCenter->InitializePhysics(args, *getPhysics(), true); 
-	bottomWallCenter->addBoxCollider(glm::vec3(2, 1, 1));  
+	bottomWallCenter->InitializePhysics(args, *getPhysics(), true);
+	bottomWallCenter->addBoxCollider(glm::vec3(2, 1, 1));
 	getPhysics()->addContactCallback(bottomWallCenter, ballInDeadZone);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = bottomWallCenter->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
-
-	
 
 	Object* dividerWall = new Object();
 	getSceneRoot()->addChild(dividerWall);
 	dividerWall->setPosition(glm::vec3(-7.75, 1, -3.75));
-	dividerWall->InitializePhysics(args, *getPhysics(), true); 
-	dividerWall->addBoxCollider(glm::vec3(.25, 2, 11.25));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = dividerWall->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
-
-	// Object* plungerCollider = new Object();
-	// getSceneRoot()->addChild(plungerCollider);
-	// plungerCollider->setPosition(glm::vec3(-8.75, 0.75, -15.25));
-	// plungerCollider->InitializePhysics(args, *getPhysics(), true); 
-	// plungerCollider->addBoxCollider(glm::vec3(1, 1, 1));  
-	// // Set initial values for the physics material
-	// {
-	// 	rp3d::Material& material = plungerCollider->getCollider().getMaterial();
-	// 	material.setBounciness(0.2);
-	// 	material.setFrictionCoefficient(0);
-	// }
+	dividerWall->InitializePhysics(args, *getPhysics(), true);
+	dividerWall->addBoxCollider(glm::vec3(.25, 2, 11.25));
 
 	Object* leftBumper = new Object();
 	getSceneRoot()->addChild(leftBumper);
 	leftBumper->setPosition(glm::vec3(6.5, 1, -1));
-	leftBumper->InitializePhysics(args, *getPhysics(), true); 
-	leftBumper->addCapsuleCollider(0.625, 2);  
+	leftBumper->InitializePhysics(args, *getPhysics(), true);
+	leftBumper->addCapsuleCollider(0.625, 2);
 	getPhysics()->addContactCallback(leftBumper, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = leftBumper->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+
 
 	Object* rightBumper = new Object();
 	getSceneRoot()->addChild(rightBumper);
 	rightBumper->setPosition(glm::vec3(-4.5, 1, -1));
-	rightBumper->InitializePhysics(args, *getPhysics(), true); 
-	rightBumper->addCapsuleCollider(0.625, 2);  
+	rightBumper->InitializePhysics(args, *getPhysics(), true);
+	rightBumper->addCapsuleCollider(0.625, 2);
 	getPhysics()->addContactCallback(rightBumper, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = rightBumper->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topBumper_1 = new Object();
 	getSceneRoot()->addChild(topBumper_1);
 	topBumper_1->setPosition(glm::vec3(-4.5, 1, 5));
-	topBumper_1->InitializePhysics(args, *getPhysics(), true); 
-	topBumper_1->addCapsuleCollider(0.5, 2);  
+	topBumper_1->InitializePhysics(args, *getPhysics(), true);
+	topBumper_1->addCapsuleCollider(0.5, 2);
 	getPhysics()->addContactCallback(topBumper_1, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topBumper_1->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topBumper_2 = new Object();
 	getSceneRoot()->addChild(topBumper_2);
 	topBumper_2->setPosition(glm::vec3(-5, 1, 7.084));
-	topBumper_2->InitializePhysics(args, *getPhysics(), true); 
-	topBumper_2->addCapsuleCollider(0.5, 2);  
+	topBumper_2->InitializePhysics(args, *getPhysics(), true);
+	topBumper_2->addCapsuleCollider(0.5, 2);
 	getPhysics()->addContactCallback(topBumper_2, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topBumper_2->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topBumper_3 = new Object();
 	getSceneRoot()->addChild(topBumper_3);
 	topBumper_3->setPosition(glm::vec3(-4.7, 1, 9.156));
-	topBumper_3->InitializePhysics(args, *getPhysics(), true); 
-	topBumper_3->addCapsuleCollider(0.5, 2);  
+	topBumper_3->InitializePhysics(args, *getPhysics(), true);
+	topBumper_3->addCapsuleCollider(0.5, 2);
 	getPhysics()->addContactCallback(topBumper_3, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topBumper_3->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topBumper_4 = new Object();
 	getSceneRoot()->addChild(topBumper_4);
 	topBumper_4->setPosition(glm::vec3(-3.598, 1, 10.91));
-	topBumper_4->InitializePhysics(args, *getPhysics(), true); 
-	topBumper_4->addCapsuleCollider(0.5, 2);  
+	topBumper_4->InitializePhysics(args, *getPhysics(), true);
+	topBumper_4->addCapsuleCollider(0.5, 2);
 	getPhysics()->addContactCallback(topBumper_4, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topBumper_4->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topBumper_5 = new Object();
 	getSceneRoot()->addChild(topBumper_5);
 	topBumper_5->setPosition(glm::vec3(-1.927, 1, 12.081));
-	topBumper_5->InitializePhysics(args, *getPhysics(), true); 
-	topBumper_5->addCapsuleCollider(0.5, 2);  
+	topBumper_5->InitializePhysics(args, *getPhysics(), true);
+	topBumper_5->addCapsuleCollider(0.5, 2);
 	getPhysics()->addContactCallback(topBumper_5, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topBumper_5->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallBumper_1 = new Object();
 	getSceneRoot()->addChild(wallBumper_1);
 	wallBumper_1->setPosition(glm::vec3(8.6865, 1, 8.3663));
 	wallBumper_1->rotate(glm::radians(-5.21), glm::vec3(0, 1, 0));
-	wallBumper_1->InitializePhysics(args, *getPhysics(), true); 
-	wallBumper_1->addBoxCollider(glm::vec3(1, 2, 0.5));  
+	wallBumper_1->InitializePhysics(args, *getPhysics(), true);
+	wallBumper_1->addBoxCollider(glm::vec3(1, 2, 0.5));
 	getPhysics()->addContactCallback(wallBumper_1, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallBumper_1->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallBumper_2 = new Object();
 	getSceneRoot()->addChild(wallBumper_2);
 	wallBumper_2->setPosition(glm::vec3(8.1991, 1, 10.34));
 	wallBumper_2->rotate(glm::radians(-19.4), glm::vec3(0, 1, 0));
-	wallBumper_2->InitializePhysics(args, *getPhysics(), true); 
-	wallBumper_2->addBoxCollider(glm::vec3(1, 2, 1.1));  
+	wallBumper_2->InitializePhysics(args, *getPhysics(), true);
+	wallBumper_2->addBoxCollider(glm::vec3(1, 2, 1.1));
 	getPhysics()->addContactCallback(wallBumper_2, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallBumper_2->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallBumper_3 = new Object();
 	getSceneRoot()->addChild(wallBumper_3);
 	wallBumper_3->setPosition(glm::vec3(7.3927, 1, 12.183));
 	wallBumper_3->rotate(glm::radians(-32.6), glm::vec3(0, 1, 0));
-	wallBumper_3->InitializePhysics(args, *getPhysics(), true); 
-	wallBumper_3->addBoxCollider(glm::vec3(1, 2, 0.5));  
+	wallBumper_3->InitializePhysics(args, *getPhysics(), true);
+	wallBumper_3->addBoxCollider(glm::vec3(1, 2, 0.5));
 	getPhysics()->addContactCallback(wallBumper_3, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallBumper_3->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallBumper_4 = new Object();
 	getSceneRoot()->addChild(wallBumper_4);
 	wallBumper_4->setPosition(glm::vec3(6.0526, 1, 13.747));
 	wallBumper_4->rotate(glm::radians(-45.3), glm::vec3(0, 1, 0));
-	wallBumper_4->InitializePhysics(args, *getPhysics(), true); 
-	wallBumper_4->addBoxCollider(glm::vec3(1, 2, 1.1));  
+	wallBumper_4->InitializePhysics(args, *getPhysics(), true);
+	wallBumper_4->addBoxCollider(glm::vec3(1, 2, 1.1));
 	getPhysics()->addContactCallback(wallBumper_4, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallBumper_4->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallBumper_5 = new Object();
 	getSceneRoot()->addChild(wallBumper_5);
 	wallBumper_5->setPosition(glm::vec3(4.4989, 1, 15.002));
 	wallBumper_5->rotate(glm::radians(-58.1), glm::vec3(0, 1, 0));
-	wallBumper_5->InitializePhysics(args, *getPhysics(), true); 
-	wallBumper_5->addBoxCollider(glm::vec3(1, 2, 0.5));  
+	wallBumper_5->InitializePhysics(args, *getPhysics(), true);
+	wallBumper_5->addBoxCollider(glm::vec3(1, 2, 0.5));
 	getPhysics()->addContactCallback(wallBumper_5, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallBumper_4->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* wallGuard = new Object();
 	getSceneRoot()->addChild(wallGuard);
 	wallGuard->setPosition(glm::vec3(8.9938, 1, 8.5004));
-	wallGuard->InitializePhysics(args, *getPhysics(), true); 
-	wallGuard->addBoxCollider(glm::vec3(1, 2, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = wallGuard->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	wallGuard->InitializePhysics(args, *getPhysics(), true);
+	wallGuard->addBoxCollider(glm::vec3(1, 2, 1));
 
 	Object* guideRailLeft = new Object();
 	getSceneRoot()->addChild(guideRailLeft);
-	guideRailLeft->InitializePhysics(args, *getPhysics(), true); 
-	guideRailLeft->addMeshCollider(args, false, rp3d::Transform(), "guideRailLeft.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guideRailLeft->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	guideRailLeft->InitializePhysics(args, *getPhysics(), true);
+	guideRailLeft->addMeshCollider(args, false, rp3d::Transform(), "guideRailLeft.obj");
 
 	Object* guideRailRight = new Object();
 	getSceneRoot()->addChild(guideRailRight);
-	guideRailRight->InitializePhysics(args, *getPhysics(), true); 
-	guideRailRight->addMeshCollider(args, false, rp3d::Transform(), "guideRailRight.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guideRailRight->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	guideRailRight->InitializePhysics(args, *getPhysics(), true);
+	guideRailRight->addMeshCollider(args, false, rp3d::Transform(), "guideRailRight.obj");
 
 	Object* topWall = new Object();
 	getSceneRoot()->addChild(topWall);
-	topWall->InitializePhysics(args, *getPhysics(), true); 
-	topWall->addMeshCollider(args, false, rp3d::Transform(), "topWall.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topWall->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	topWall->InitializePhysics(args, *getPhysics(), true);
+	topWall->addMeshCollider(args, false, rp3d::Transform(), "topWall.obj");
 
 	Object* topWallReinforcement_1 = new Object();
 	getSceneRoot()->addChild(topWallReinforcement_1);
 	topWallReinforcement_1->setPosition(glm::vec3(0, 1, 18.1));
-	topWallReinforcement_1->InitializePhysics(args, *getPhysics(), true); 
-	topWallReinforcement_1->addBoxCollider(glm::vec3(1, 1, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topWallReinforcement_1->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	topWallReinforcement_1->InitializePhysics(args, *getPhysics(), true);
+	topWallReinforcement_1->addBoxCollider(glm::vec3(1, 1, 1));
 
 	Object* topWallReinforcement_2 = new Object();
 	getSceneRoot()->addChild(topWallReinforcement_1);
 	topWallReinforcement_2->setPosition(glm::vec3(1.6303, 1, 17.961));
 	topWallReinforcement_2->rotate(glm::radians(7.91), glm::vec3(0, 1, 0));
-	topWallReinforcement_2->InitializePhysics(args, *getPhysics(), true); 
-	topWallReinforcement_2->addBoxCollider(glm::vec3(1, 1, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topWallReinforcement_2->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	topWallReinforcement_2->InitializePhysics(args, *getPhysics(), true);
+	topWallReinforcement_2->addBoxCollider(glm::vec3(1, 1, 1));
 
 	Object* sCurveLeft = new Object();
 	getSceneRoot()->addChild(sCurveLeft);
-	sCurveLeft->InitializePhysics(args, *getPhysics(), true); 
-	sCurveLeft->addMeshCollider(args, false, rp3d::Transform(), "sCurveLeft.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveLeft->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveLeft->InitializePhysics(args, *getPhysics(), true);
+	sCurveLeft->addMeshCollider(args, false, rp3d::Transform(), "sCurveLeft.obj");
 
 	Object* sCurveLeftCylinderTop = new Object();
 	getSceneRoot()->addChild(sCurveLeftCylinderTop);
 	sCurveLeftCylinderTop->setPosition(glm::vec3(8.5, 1, 1.9741));
-	sCurveLeftCylinderTop->InitializePhysics(args, *getPhysics(), true); 
-	sCurveLeftCylinderTop->addCapsuleCollider(1, 2);  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveLeftCylinderTop->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveLeftCylinderTop->InitializePhysics(args, *getPhysics(), true);
+	sCurveLeftCylinderTop->addCapsuleCollider(1, 2);
 
 	Object* sCurveLeftCube = new Object();
 	getSceneRoot()->addChild(sCurveLeftCube);
 	sCurveLeftCube->setPosition(glm::vec3(9.0105, 1, 2.7422));
 	sCurveLeftCube->rotate(glm::radians(33.0), glm::vec3(0, 1, 0));
-	sCurveLeftCube->InitializePhysics(args, *getPhysics(), true); 
-	sCurveLeftCube->addBoxCollider(glm::vec3(1, 1, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveLeftCube->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveLeftCube->InitializePhysics(args, *getPhysics(), true);
+	sCurveLeftCube->addBoxCollider(glm::vec3(1, 1, 1));
 
 	Object* sCurveRight = new Object();
 	getSceneRoot()->addChild(sCurveRight);
-	sCurveRight->InitializePhysics(args, *getPhysics(), true); 
-	sCurveRight->addMeshCollider(args, false, rp3d::Transform(), "sCurveRight.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveRight->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveRight->InitializePhysics(args, *getPhysics(), true);
+	sCurveRight->addMeshCollider(args, false, rp3d::Transform(), "sCurveRight.obj");
 
 	Object* sCurveRightCylinderTop = new Object();
 	getSceneRoot()->addChild(sCurveRightCylinderTop);
 	sCurveRightCylinderTop->setPosition(glm::vec3(-6.5, 1, 1.9741));
-	sCurveRightCylinderTop->InitializePhysics(args, *getPhysics(), true); 
-	sCurveRightCylinderTop->addCapsuleCollider(1, 2);  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveRightCylinderTop->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveRightCylinderTop->InitializePhysics(args, *getPhysics(), true);
+	sCurveRightCylinderTop->addCapsuleCollider(1, 2);
 
 	Object* sCurveLRightCube = new Object();
 	getSceneRoot()->addChild(sCurveLRightCube);
 	sCurveLRightCube->setPosition(glm::vec3(-7.0105, 1, 2.7422));
 	sCurveLRightCube->rotate(glm::radians(-33.0), glm::vec3(0, 1, 0));
-	sCurveLRightCube->InitializePhysics(args, *getPhysics(), true); 
-	sCurveLRightCube->addBoxCollider(glm::vec3(1, 1, 1));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sCurveLRightCube->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sCurveLRightCube->InitializePhysics(args, *getPhysics(), true);
+	sCurveLRightCube->addBoxCollider(glm::vec3(.5, 1, 1));
 
 	Object* guardLeft = new Object();
 	getSceneRoot()->addChild(guardLeft);
-	guardLeft->InitializePhysics(args, *getPhysics(), true); 
-	guardLeft->addMeshCollider(args, false, rp3d::Transform(), "guardLeft.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guardLeft->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	guardLeft->InitializePhysics(args, *getPhysics(), true);
+	guardLeft->addMeshCollider(args, false, rp3d::Transform(), "guardLeft.obj");
 
 	Object* guardRight = new Object();
 	getSceneRoot()->addChild(guardRight);
-	guardRight->InitializePhysics(args, *getPhysics(), true); 
-	guardRight->addMeshCollider(args, false, rp3d::Transform(), "guardRight.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guardRight->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	guardRight->InitializePhysics(args, *getPhysics(), true);
+	guardRight->addMeshCollider(args, false, rp3d::Transform(), "guardRight.obj");
 
 	Object* guardBumperLeft = new Object();
 	getSceneRoot()->addChild(guardBumperLeft);
-	guardBumperLeft->InitializePhysics(args, *getPhysics(), true); 
-	guardBumperLeft->addMeshCollider(args, false, rp3d::Transform(), "guardBumperLeft.obj");  
+	guardBumperLeft->InitializePhysics(args, *getPhysics(), true);
+	guardBumperLeft->addMeshCollider(args, false, rp3d::Transform(), "guardBumperLeft.obj");
 	getPhysics()->addContactCallback(guardBumperLeft, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guardBumperLeft->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* guardBumperRight = new Object();
 	getSceneRoot()->addChild(guardBumperRight);
-	guardBumperRight->InitializePhysics(args, *getPhysics(), true); 
-	guardBumperRight->addMeshCollider(args, false, rp3d::Transform(), "guardBumperRight.obj");  
+	guardBumperRight->InitializePhysics(args, *getPhysics(), true);
+	guardBumperRight->addMeshCollider(args, false, rp3d::Transform(), "guardBumperRight.obj");
 	getPhysics()->addContactCallback(guardBumperRight, bounceBallWithPoints);
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = guardBumperRight->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 
 	Object* topArc = new Object();
 	getSceneRoot()->addChild(topArc);
-	topArc->InitializePhysics(args, *getPhysics(), true); 
-	topArc->addMeshCollider(args, false, rp3d::Transform(), "topArc.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = topArc->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	topArc->InitializePhysics(args, *getPhysics(), true);
+	topArc->addMeshCollider(args, false, rp3d::Transform(), "topArc.obj");
 
 	Object* sideCurves = new Object();
 	getSceneRoot()->addChild(sideCurves);
-	sideCurves->InitializePhysics(args, *getPhysics(), true); 
-	sideCurves->addMeshCollider(args, false, rp3d::Transform(), "sideCurves.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = sideCurves->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	sideCurves->InitializePhysics(args, *getPhysics(), true);
+	sideCurves->addMeshCollider(args, false, rp3d::Transform(), "sideCurves.obj");
 
 	Object* entryGuide = new Object();
 	getSceneRoot()->addChild(entryGuide);
-	entryGuide->InitializePhysics(args, *getPhysics(), true); 
-	entryGuide->addMeshCollider(args, false, rp3d::Transform(), "entryGuide.obj");  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = entryGuide->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
+	entryGuide->InitializePhysics(args, *getPhysics(), true);
+	entryGuide->addMeshCollider(args, false, rp3d::Transform(), "entryGuide.obj");
 
-	Object* roof = new Object();
-	getSceneRoot()->addChild(roof);
-	roof->setPosition(glm::vec3(0, 4, 0));
-	roof->InitializePhysics(args, *getPhysics(), true); 
-	roof->addBoxCollider(glm::vec3(11.5, 1, 19));  
-	// Set initial values for the physics material
-	{
-		rp3d::Material& material = roof->getCollider().getMaterial();
-		material.setBounciness(0.2);
-		material.setFrictionCoefficient(0);
-	}
 	// Object* rightPaddleCollider = new Object();
 	// rightPaddle->addChild(rightPaddleCollider);
 	// a->InitializeGraphics(args, "paddlecollider.obj");
@@ -746,7 +482,7 @@ void Application::Update(float dt){
 
 	// Set the plunger position
 	t = plunger->getPhysicsTransform();
-	t.setPosition(rp3d::Vector3(-8.75,0.75,-14.638 - ballLaunchPower/1200.0)); 
+	t.setPosition(rp3d::Vector3(-8.75,0.75,-14.638 - ballLaunchPower/1200.0));
 	plunger->setPhysicsTransform(t);
 
 	// Cap the balls velocity at 40
@@ -773,7 +509,7 @@ void Application::KeyboardCallback(const SDL_KeyboardEvent& event){
 
 void Application::resetBall() {
 	std::cout << ballsRemaining << " balls left" << std::endl;
-				
+
 	// Teleport the ball back to the plunger
 	rp3d::Transform t = ball->getPhysicsTransform();
 	t.setPosition(rp3d::Vector3(-8.75, 0.75, -12.5));
