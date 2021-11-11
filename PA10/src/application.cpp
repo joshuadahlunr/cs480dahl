@@ -487,9 +487,9 @@ void Application::Update(float dt){
 
 	// Cap the balls velocity at 40
 	rp3d::Vector3 velocity = ball->getRigidBody().getLinearVelocity();
-	if(velocity.lengthSquare() > (40 * 40)){
+	if(velocity.lengthSquare() > 30 * 30){
 		velocity.normalize();
-		ball->getRigidBody().setLinearVelocity(velocity * 40);
+		ball->getRigidBody().setLinearVelocity(velocity * 30);
 	}
 }
 
