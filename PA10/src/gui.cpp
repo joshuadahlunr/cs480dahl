@@ -96,25 +96,29 @@ void GUI::Render(){
 	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-		if(ImGui::BeginMenu("Lighting Controls")) { 
+		if(ImGui::BeginMenu("Lighting Controls")) {
 			ImGui::Text("Lighting Settings");
 
-			ImGui::ColorEdit3("Ambient Color", glm::value_ptr(app->lights[0]->lightAmbient));
+			Light* ambient = app->lights[0];
+			Light* ballSpotlight = app->lights[2];
+
+			ImGui::ColorEdit3("Ambient Color", glm::value_ptr(ambient->lightAmbient));
 
 			glm::vec3 specular(app->lights[1]->lightSpecular);
 			glm::vec3 diffuse(app->lights[1]->lightDiffuse);
 
 			ImGui::ColorEdit3("Specular Color", glm::value_ptr(specular));
 			ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(diffuse));
-			
+
 			for(Light* light : app->lights) {
 				light->lightSpecular = glm::vec4(specular, 1.0);
-				light->lightDiffuse = glm::vec4(diffuse, 1.0);			
+				light->lightDiffuse = glm::vec4(diffuse, 1.0);
 			}
-			// float lightCutoffAngle = glm::degrees(glm::acos(graphics->lightCutoffAngleCosine));
-			// ImGui::SliderFloat("Cutoff", &lightCutoffAngle, 0.0f, 180.0f);
-			// graphics->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
-			// ImGui::SliderFloat("Intensity", &graphics->lightIntensity, 0.0f, 5.0f);
+
+			float lightCutoffAngle = glm::degrees(glm::acos(ballSpotlight->lightCutoffAngleCosine));
+			ImGui::SliderFloat("BallSpotlight Cutoff Angle", &lightCutoffAngle, 0.0f, 180.0f);
+			ballSpotlight->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
+			ImGui::SliderFloat("BallSpotlight Intensity", &ballSpotlight->lightIntensity, 0.0f, 5.0f);
 
 
 
@@ -242,5 +246,5 @@ void GUI::Render(){
 
 	// ImGui::Render();
 	// glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
+	// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
