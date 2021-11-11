@@ -2,7 +2,8 @@
 
 ## Extra Credit
 
-- NA
+- All of the (Mandatory for us) Graduate Student Extra Credit.
+- Bumpers that bounce and light when hit
 
 ## Team
 
@@ -31,9 +32,11 @@ The command to run the program (assuming that we compiled in a build directory o
 
 ## Operation
 - Holding right click will let you rotate the camera
-- WASD to move the sphere around.
+- Press A and/or D to flip the paddles.
+- Hold S to charge the plunger and launch the ball.
+- Press R to reset the ball and lose a life.
 - Spacebar toggles between per fragment and per vertex shaders
-- GUI interface to control spotlight settings
+- GUI interface to control light settings
 
 
 # Dependencies, Building, and Running
@@ -51,7 +54,7 @@ git submodule update
 ```
 
 If git is not being used the two libraries will need to be download from: https://github.com/ocornut/imgui  and: https://github.com/DanielChappuis/reactphysics3d respectively.
-The the code zip for both must then be extracted into `PA10/thirdparty` (The symbolic-links must be overwritten).
+The code zip for both must then be extracted into `PA10/thirdparty` (The symbolic-links must be overwritten).
 
 ## Assimp Model Loading
 
