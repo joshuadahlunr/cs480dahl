@@ -8,6 +8,7 @@
 #include "imgui.h"
 
 // Forward declarations
+class Application;
 class Engine;
 class Graphics;
 typedef union SDL_Event SDL_Event;
@@ -27,12 +28,18 @@ public:
 	void Update(unsigned int dt);
 	void Render();
 
+	// bool setupFramebuffer();
+
 	// Function which processes mouse and keyboard events, returning if they should continue to be propigated
 	ShouldProcessEvents ProcessEvent(SDL_Event& event);
 private:
 	ImGuiIO& io;
 
+	Application* app;
 	Graphics* graphics;
+
+	GLuint framebuffer = 0;
+	GLuint renderedTexture = 0;
 };
 
 #endif /* GUI_H */

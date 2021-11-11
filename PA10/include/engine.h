@@ -14,6 +14,7 @@ class Graphics;
 class Physics;
 class Object;
 class Celestial;
+class Light;
 
 // Class which provides engine related internals
 class Engine {
@@ -21,14 +22,13 @@ public:
 	Engine(std::string name, int width, int height);
 	Engine(std::string name);
 	~Engine();
-	bool Initialize(const Arguments& args);
-	void Run();
-
-	// Recursively initializes a scene tree from the provided json data
-	Celestial* CelestialFromJson(const Arguments& args, json j, uint depth = 0);
+	virtual bool Initialize(const Arguments& args);
+	virtual void Run();
+	virtual void Update(float dt) {}
 
 	// Time functions
 	unsigned int getDT();
+	float getDTMilli() { return m_DT / 1000.0; }
 	long long GetCurrentTimeMillis();
 
 	// Keyboard and Mouse callbacks
@@ -40,6 +40,7 @@ public:
 	Window* getWindow() const { return m_window; }
 	Graphics* getGraphics() const { return m_graphics; }
 	Physics* getPhysics() const { return m_physics; }
+	Object* getSceneRoot() const { return sceneRoot; }
 
 private:
 	// Window related variables
@@ -54,26 +55,9 @@ private:
 	Physics* m_physics;
 	unsigned int m_DT;
 	long long m_currentTimeMillis;
-	bool m_running;
+	bool m_running;	
 
 	Object* sceneRoot;
-	Object *leftPaddle, *rightPaddle;
-	Object *ball;
-	float leftPaddleAngle = 0, rightPaddleAngle = 0;
-	float paddleSpeed = 720;
-
-	float ballLaunchPower = 0;
-	float powerIncreaseSpeed = 400;
-
-	// Game logic stuff
-	static int score;
-	int ballsRemaining = 3;
-	std::string playerName;
-
-	// Leaderboard
-	int* scores; // list of scores
-	std::string* players; // list of players 
-	
 };
 
 #endif // ENGINE_H

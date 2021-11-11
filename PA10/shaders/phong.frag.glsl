@@ -43,6 +43,7 @@ uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
 // ins
+in vec3 varyingColor;
 in vec2 varyingUV;
 in vec3 varyingN;
 in vec3 varyingP;
@@ -56,7 +57,7 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 	if(light.type == TYPE_DISABLED)
 		return vec3(0);
 
-	vec3 ambient = (light.ambient * material.ambient * texture2D(sampler, varyingUV)).xyz;
+	vec3 ambient = (light.ambient * material.ambient).xyz;
 	vec3 L = vec3(0);
     float spotlightFalloff = 1;
 
@@ -90,5 +91,7 @@ void main(void) {
     vec3 color = vec3(0);
     for(uint i = 0u; i < num_lights; i++)
        color += calculateLighting(lights[i], mv_matrix * rawPosition, N, V);
+
+    color *= texture2D(sampler, varyingUV).rgb;
     fragColor = vec4(color, 1);
 }

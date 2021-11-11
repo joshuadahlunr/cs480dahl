@@ -311,7 +311,7 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			glm::vec2 uv(0, 0); // 0,0 by default
 			if(mesh->HasTextureCoords(0)){
 				auto tex = mesh->mTextureCoords[0][vert];
-				uv = glm::vec2(tex.x, tex.y);
+				uv = glm::vec2(tex.x, -tex.y);
 			}
 
 			// Extract the (first) texture coordinates if they exist
@@ -381,8 +381,10 @@ bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeR
 
 void Object::Update(unsigned int dt){
 	// Get Rigidbody updated position (if it exists)
-	if(rigidBody)
+	if(rigidBody){
 		rigidBody->getTransform().getOpenGLMatrix(glm::value_ptr(model));
+		childModel = model;
+	}
 
 	// Pass along to children
 	for(Object* child: children)

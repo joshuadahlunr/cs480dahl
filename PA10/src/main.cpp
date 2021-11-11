@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "engine.h"
+#include "application.h"
 #include "arguments.h"
 
 
@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 	if(!args.getCanContinue()) return 1;
 
 	// Start an engine
-	Engine *engine = new Engine("Pinball Game", 1000, 1000);
+	Application *engine = new Application("Pinball Game", 1000, 1000);
 	if(!engine->Initialize(args)) {
 		printf("The engine failed to start.\n");
 		delete engine;

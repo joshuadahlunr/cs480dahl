@@ -15,8 +15,10 @@ public:
 public:
 	static size_t count;
 
+	Light() : Light(Type::Disabled) {}
 	Light(Type type, size_t id = 0) : type(type), id(id) {}
-	void Render(Shader* boundShader);
+	void Render(Shader* boundShader) override;
+	void Update(unsigned int dt) override;
 
 	void setAmbient(glm::vec4 color) {lightAmbient = color;}
 	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
@@ -26,6 +28,7 @@ public:
 	void setCutoffAngleCosine(float cos) { lightCutoffAngleCosine = cos; }
 	void setIntensity(float intensity) { lightIntensity = intensity; }
 	void setFalloff(float falloff) { lightFalloff = falloff; }
+	void setPosition(glm::vec3 pos) { position = pos; }
 protected:
 	int setupID() { std::cout << count << std::endl; return count++; }
 
@@ -43,7 +46,8 @@ protected:
 	std::string uniformLocationLightFalloff;
 	// const std::string uniformLocationNumLights;
 
-	Type type = Type::Ambient;
+public:
+	const Type type = Type::Ambient;
 	glm::vec4 lightAmbient = glm::vec4(0, 0, 0, 1.0f);
 	glm::vec4 lightDiffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	glm::vec4 lightSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -51,6 +55,8 @@ protected:
 	float lightCutoffAngleCosine = 0.9659258263;
     float lightIntensity = 1;
     float lightFalloff = .1;
+
+	glm::vec3 position;
 };
 
 class AmbientLight: public Light {

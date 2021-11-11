@@ -51,7 +51,6 @@ uniform mat4 modelMatrix;
 out vec3 varyingColor;
 out vec2 varyingUV;
 out vec3 varyingP;
-//out vec3 varyingL;
 out vec3 varyingN;
 out vec4 rawPosition;
 flat out mat4 mv_matrix;

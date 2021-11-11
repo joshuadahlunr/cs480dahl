@@ -42,6 +42,7 @@ uniform Light lights[MAX_LIGHTS];
 uniform uint num_lights;
 
 uniform Material material;
+uniform sampler2D sampler;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;

@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
-#include "engine.h"
+#include "application.h"
 #include "window.h"
 #include "graphics.h"
 
@@ -35,11 +35,38 @@ bool GUI::Initialize(Engine* engine, const char* glsl_version/* = "#version 330"
     if( !ImGui_ImplOpenGL3_Init(glsl_version) )
 		return false;
 
+	// Save the pointer to the application
+	app = reinterpret_cast<Application*>(engine);
 	// Save the pointer to the graphics
-	this->graphics = engine->getGraphics();
+	graphics = engine->getGraphics();
 
+	//return setupFramebuffer();
 	return true;
 }
+
+// bool GUI::setupFramebuffer() {
+// 	glGenFramebuffers(1, &framebuffprivateer);
+// 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+// 	glGenTextures(1, &renderedTexture);
+// 	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0,GL_RGB, GL_UNSIGNED_BYTE, 0); // Empty image
+
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+// 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+// 	GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+// 	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+// 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+// 		return false;
+
+// 	// Unbind the framebuffer
+// 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+// }
 
 GUI::ShouldProcessEvents GUI::ProcessEvent(SDL_Event& event){
 	// Pass events along to ImGUI
@@ -70,16 +97,26 @@ void GUI::Render(){
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
 		if(ImGui::BeginMenu("Lighting Controls")) { 
+			ImGui::Text("Lighting Settings");
 
-			ImGui::Text("Spotlight Settings");
+			ImGui::ColorEdit3("Ambient Color", glm::value_ptr(app->lights[0]->lightAmbient));
+
+			glm::vec3 specular(app->lights[1]->lightSpecular);
+			glm::vec3 diffuse(app->lights[1]->lightDiffuse);
+
+			ImGui::ColorEdit3("Specular Color", glm::value_ptr(specular));
+			ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(diffuse));
+			
+			for(Light* light : app->lights) {
+				light->lightSpecular = glm::vec4(specular, 1.0);
+				light->lightDiffuse = glm::vec4(diffuse, 1.0);			
+			}
 			// float lightCutoffAngle = glm::degrees(glm::acos(graphics->lightCutoffAngleCosine));
 			// ImGui::SliderFloat("Cutoff", &lightCutoffAngle, 0.0f, 180.0f);
 			// graphics->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
 			// ImGui::SliderFloat("Intensity", &graphics->lightIntensity, 0.0f, 5.0f);
 
-            // ImGui::ColorEdit3("Ambient Color", glm::value_ptr(graphics->lightAmbient));
-			// ImGui::ColorEdit3("Specular Color", glm::value_ptr(graphics->lightSpecular));
-            // ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(graphics->lightDiffuse));
+
 
 			ImGui::EndMenu();
 		}
@@ -127,35 +164,35 @@ void GUI::Render(){
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
-					ImGui::Text("KeyBoard");
+					ImGui::Text("");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("W");
+					ImGui::Text("A/Left Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the sphere forward.");
+					ImGui::Text("Flip left paddle.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("S");
+					ImGui::Text("D/Right Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the sphere backward.");
+					ImGui::Text("Flip right paddle.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("A");
+					ImGui::Text("S/Down Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the sphere left.");
+					ImGui::Text("Charge plunger.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("D");
+					ImGui::Text("R");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Move the sphere right.");
+					ImGui::Text("Reset the ball, lose a life.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -194,4 +231,16 @@ void GUI::Render(){
 	// Render the UI results
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+	// WorldSpace text
+	// ImGui_ImplOpenGL3_NewFrame();
+	// ImGui_ImplSDL2_NewFrame();
+	// ImGui::NewFrame();
+
+	// ImGui::Text("World Space");
+
+	// ImGui::Render();
+	// glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
 }
