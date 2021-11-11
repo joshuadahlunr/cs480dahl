@@ -527,4 +527,5 @@ void Application::resetBall() {
 	t.setPosition(rp3d::Vector3(-8.75, 0.75, -12.5));
 	ball->setPhysicsTransform(t);
 	ball->getRigidBody().setLinearVelocity(rp3d::Vector3(0, 0, 0)); // Remove the ball's velocity when we teleport it
+	ball->getRigidBody().setAngularVelocity(rp3d::Vector3(0, 0, 0));
 }
