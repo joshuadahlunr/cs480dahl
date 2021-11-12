@@ -2,6 +2,7 @@
 #include "light.h"
 #include "window.h"
 #include "graphics.h"
+#include "sound.h"
 #include "physics.h"
 #include "camera.h"
 #include "threadTimer.h"
@@ -69,6 +70,8 @@ bool Application::Initialize(const Arguments& args){
 			ball->getRigidBody().applyForceAtLocalPosition(-contact.getContactPoint(0).getWorldNormal() * 1000.0, contactPoint);
 			score += 10;
 
+			getSound()->Bounce();
+
 			// Enable our light and start a timer to turn it off
 			if(lightup){
 				lightup->enable();
@@ -105,11 +108,12 @@ bool Application::Initialize(const Arguments& args){
 			// Game over logic
 			if (--ballsRemaining <= 0) {
 				gameState = GameState::GameOver;
+				getSound()->gameRunning = false;
 				std::cout << "Game Over! You are out of balls!!" << std::endl;
 				std::cout << "Your final score was: " << score << std::endl;
 			}
 			std::cout << ballsRemaining << " balls left with score: " << score << std::endl;
-
+			getSound()->LoseBall();
 			resetBall();
 		}
 	};
@@ -542,6 +546,9 @@ void Application::KeyboardCallback(const SDL_KeyboardEvent& event){
 	else if((event.keysym.sym == SDLK_DOWN || event.keysym.sym == SDLK_s) && event.type == SDL_KEYUP && !hasLaunched){ // TODO: should only happen before launched
 		ball->getRigidBody().applyForceAtLocalPosition(rp3d::Vector3(0, 0, 1) * ballLaunchPower, rp3d::Vector3(0, 0, 0));
 		hasLaunched = true;
+		getSound()->SetCharging(false);
+	} else if((event.keysym.sym == SDLK_DOWN || event.keysym.sym == SDLK_s) && event.type == SDL_KEYDOWN && !hasLaunched){ // TODO: should only happen before launched
+		getSound()->SetCharging(true);
 	} else if(event.keysym.sym == SDLK_r && event.type == SDL_KEYUP)
 		resetBall();
 }

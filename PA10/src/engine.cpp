@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "physics.h"
 #include "camera.h"
+#include "sound.h"
 
 Engine::Engine(string name, int width, int height) {
 	m_WINDOW_NAME = name;
@@ -23,6 +24,7 @@ Engine::~Engine() {
 	delete m_window;
 	delete sceneRoot;
 	delete m_graphics;
+	delete m_sound;
 	m_window = nullptr;
 	sceneRoot = nullptr;
 	m_graphics = nullptr;
@@ -55,6 +57,8 @@ bool Engine::Initialize(const Arguments& args) {
 
 	// Set the time
 	m_currentTimeMillis = GetCurrentTimeMillis();
+
+	m_sound = new Sound();
 
 	// No errors
 	return true;

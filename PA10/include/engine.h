@@ -15,6 +15,7 @@ class Physics;
 class Object;
 class Celestial;
 class Light;
+class Sound;
 
 // Class which provides engine related internals
 class Engine {
@@ -40,6 +41,7 @@ public:
 	Window* getWindow() const { return m_window; }
 	Graphics* getGraphics() const { return m_graphics; }
 	Physics* getPhysics() const { return m_physics; }
+	Sound* getSound() const { return m_sound; }
 	Object* getSceneRoot() const { return sceneRoot; }
 
 private:
@@ -53,6 +55,7 @@ private:
 
 	Graphics* m_graphics;
 	Physics* m_physics;
+	Sound* m_sound;
 	unsigned int m_DT;
 	long long m_currentTimeMillis;
 	bool m_running;	
