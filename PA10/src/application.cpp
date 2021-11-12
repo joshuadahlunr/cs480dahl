@@ -52,7 +52,6 @@ bool Application::Initialize(const Arguments& args){
 		material.setRollingResistance(.01);
 	}
 
-
 	// Lambda which bounces a ball off bumpers and increase score
 	auto bounceBallWithPoints = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact, Light* lightup = nullptr){
 		// Only bother if we are interacting with a ball
@@ -132,7 +131,7 @@ bool Application::Initialize(const Arguments& args){
 	board->InitializeGraphics(args, "pinballV4.obj");
 	board->InitializePhysics(args, *getPhysics(), true);
 	// board->addMeshCollider(args, false);
-	board->LoadTextureFile(args, "../textures/base.png");
+	board->LoadTextureFile(args, "../textures/pinball-texture.png");
 
 
 	// Create left paddle
