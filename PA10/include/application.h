@@ -2,17 +2,31 @@
 #define APPLICATION_H
 
 #include "engine.h"
+#include "leaderboard.h"
+
+//class Leaderboard;
 
 // Class which provides engine related internals
 class Application: public Engine {
 public:
+	enum GameState : unsigned int {
+		Welcome = 0,
+		Playing = 1,
+		GameOver = 2
+	};
+
     using Engine::Engine;
+	~Application();
 
 	bool Initialize(const Arguments& args);
 	void Update(float dt) override;
+	void Reset();
 
-   
+	int getScore() {return score;}
+
+	Leaderboard* leaderboard;
 	std::vector<Light*> lights;
+	GameState gameState = GameState::Playing;
 
 private:
 	void KeyboardCallback(const SDL_KeyboardEvent& event);

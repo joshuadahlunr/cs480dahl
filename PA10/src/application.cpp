@@ -6,8 +6,20 @@
 #include "camera.h"
 #include "threadTimer.h"
 
+Application::~Application() {
+	// Save the leaderstats when shutting down
+	if (leaderboard) {
+		leaderboard->Save();
+		leaderboard = nullptr;
+	}
+}
+
 bool Application::Initialize(const Arguments& args){
 	bool ret = Engine::Initialize(args);
+
+	// Create a leaderboard
+	leaderboard = new Leaderboard();
+	leaderboard->Initialize(args, "leaderstats.csv");
 
 	lights = std::vector<Light*>();
 	lights.reserve(3);
@@ -60,8 +72,6 @@ bool Application::Initialize(const Arguments& args){
 				threadTimer t;
 				t.setTimeout([lightup](){ lightup->disable(); }, std::chrono::milliseconds(250));
 			}
-
-			std::cout << "score: " << score << std::endl;
 		}
 	};
 
@@ -89,16 +99,11 @@ bool Application::Initialize(const Arguments& args){
 
 		// Only bother if we are interacting with a ball
 		if(contact.getCollider1()->getEntity().id == ballID || contact.getCollider2()->getEntity().id == ballID){
-
 			// Game over logic
 			if (--ballsRemaining <= 0) {
+				gameState = GameState::GameOver;
 				std::cout << "Game Over! You are out of balls!!" << std::endl;
 				std::cout << "Your final score was: " << score << std::endl;
-
-				std::cout << std::endl << "Take another 3 balls for postery's sake" << std::endl;
-
-				score = 0;
-				ballsRemaining = 3;
 			}
 
 			resetBall();
@@ -440,10 +445,19 @@ void Application::Update(float dt){
     // Get what keys are pressed
 	const Uint8* keyState = SDL_GetKeyboardState(NULL);
 
-	// If A or Left is pressed flip the left paddle
-	leftPaddleMoving = keyState[SDL_SCANCODE_A] || keyState[SDL_SCANCODE_LEFT];
-	// If D or Right is pressed flip the right paddle
-	rightPaddleMoving = keyState[SDL_SCANCODE_D] || keyState[SDL_SCANCODE_RIGHT];
+	// Only read game input if playing
+	if (gameState == GameState::Playing) {
+		// If A or Left is pressed flip the left paddle
+		leftPaddleMoving = keyState[SDL_SCANCODE_A] || keyState[SDL_SCANCODE_LEFT];
+		// If D or Right is pressed flip the right paddle
+		rightPaddleMoving = keyState[SDL_SCANCODE_D] || keyState[SDL_SCANCODE_RIGHT];
+
+		// If S or down is pressed pull the plunger back
+		if(keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_DOWN])
+			ballLaunchPower += powerIncreaseSpeed * dt;
+		else
+			ballLaunchPower -= 17000 * dt;
+	}
 
 	// Update paddle angle if necessary
 	if(leftPaddleMoving)
@@ -482,12 +496,6 @@ void Application::Update(float dt){
 	t.setOrientation(rp3d::Quaternion::fromEulerAngles(0, glm::radians(rightPaddleAngle), 0));
 	rightPaddle->setPhysicsTransform(t);
 
-	// If S or down is pressed pull the plunger back
-	if(keyState[SDL_SCANCODE_S] || keyState[SDL_SCANCODE_DOWN])
-		ballLaunchPower += powerIncreaseSpeed * dt;
-	else
-		ballLaunchPower -= 17000 * dt;
-
 	// Clamp the ball launch power
 	if(ballLaunchPower > 2000) ballLaunchPower = 2000;
 	if(ballLaunchPower < 0) ballLaunchPower = 0;
@@ -505,6 +513,15 @@ void Application::Update(float dt){
 	}
 }
 
+void Application::Reset() {
+	// Reset the application to starting point
+	cout << "Resetting Game" << endl;
+	ballsRemaining = 3;
+	score = 0;
+	resetBall();
+	gameState = GameState::Playing;
+}
+
 void Application::KeyboardCallback(const SDL_KeyboardEvent& event){
     // Force
 	rp3d::Vector3 force(0.0,0.0,0.0);
@@ -520,7 +537,7 @@ void Application::KeyboardCallback(const SDL_KeyboardEvent& event){
 }
 
 void Application::resetBall() {
-	std::cout << ballsRemaining << " balls left" << std::endl;
+	std::cout << ballsRemaining << " balls left with score: " << score << std::endl;
 
 	// Teleport the ball back to the plunger
 	rp3d::Transform t = ball->getPhysicsTransform();

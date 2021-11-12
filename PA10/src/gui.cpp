@@ -96,8 +96,51 @@ void GUI::Render(){
 	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
+
+		// Leaderboard
+		if(ImGui::BeginMenu("Leaderboard")) {
+
+			ImGui::TextColored(ImVec4(.9,.9,1,1), "Leaderboard");
+			if (ImGui::BeginTable("", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::TableHeader("Player");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::TableHeader("Score");
+				for (std::pair<string, float> stat: app->leaderboard->leaderstats) {
+					ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+						ImGui::Text(stat.first.c_str());
+						ImGui::TableSetColumnIndex(1);
+						ImGui::Text(to_string(stat.second).c_str());
+				}
+
+				ImGui::EndTable();
+			}
+			ImGui::EndMenu();
+		}
+
+		// Game over window
+		if(app->gameState == Application::GameState::GameOver) {
+			ImGui::Begin("Round Ended");
+			TextCenter("Game Over!");
+
+			TextCenter("Your Score: " + to_string(app->getScore()));
+
+            ImGui::Text("Enter your name to save your score");
+ 			static char name[128] = "";
+			ImGui::Text("Name: "); ImGui::SameLine(); ImGui::InputText("", name, IM_ARRAYSIZE(name));
+			if (ImGui::Button("Confirm"))
+			{
+				app->leaderboard->UpdateScore(name, app->getScore());
+				app->Reset();
+			}
+            ImGui::End();
+		}
+
+		// Light Controls
 		if(ImGui::BeginMenu("Lighting Controls")) {
-			ImGui::Text("Lighting Settings");
+			ImGui::Text("ADS Lighting Settings");
 
 			Light* ambient = app->lights[0];
 			Light* ballSpotlight = app->lights[2];
@@ -120,11 +163,10 @@ void GUI::Render(){
 			ballSpotlight->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
 			ImGui::SliderFloat("BallSpotlight Intensity", &ballSpotlight->lightIntensity, 0.0f, 5.0f);
 
-
-
 			ImGui::EndMenu();
 		}
 
+		// Render help menu
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
