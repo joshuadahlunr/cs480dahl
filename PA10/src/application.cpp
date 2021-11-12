@@ -374,6 +374,12 @@ bool Application::Initialize(const Arguments& args){
 	sCurveLeftCylinderTop->InitializePhysics(args, *getPhysics(), true);
 	sCurveLeftCylinderTop->addCapsuleCollider(1, 2);
 
+	Object* sCurveLeftCylinderBottom = new Object();
+	getSceneRoot()->addChild(sCurveLeftCylinderBottom);
+	sCurveLeftCylinderBottom->setPosition(glm::vec3(9.5, 1, -5));
+	sCurveLeftCylinderBottom->InitializePhysics(args, *getPhysics(), true);
+	sCurveLeftCylinderBottom->addCapsuleCollider(2.4, 2);
+
 	Object* sCurveLeftCube = new Object();
 	getSceneRoot()->addChild(sCurveLeftCube);
 	sCurveLeftCube->setPosition(glm::vec3(9.0105, 1, 2.7422));
@@ -404,10 +410,22 @@ bool Application::Initialize(const Arguments& args){
 	guardLeft->InitializePhysics(args, *getPhysics(), true);
 	guardLeft->addMeshCollider(args, false, rp3d::Transform(), "guardLeft.obj");
 
+	Object* guardLeftCylinderBottom = new Object();
+	getSceneRoot()->addChild(guardLeftCylinderBottom);
+	guardLeftCylinderBottom->setPosition(glm::vec3(5.3, 1, -10.775));
+	guardLeftCylinderBottom->InitializePhysics(args, *getPhysics(), true);
+	guardLeftCylinderBottom->addCapsuleCollider(0.5, 2);
+
 	Object* guardRight = new Object();
 	getSceneRoot()->addChild(guardRight);
 	guardRight->InitializePhysics(args, *getPhysics(), true);
 	guardRight->addMeshCollider(args, false, rp3d::Transform(), "guardRight.obj");
+
+	Object* guardRightCylinderBottom = new Object();
+	getSceneRoot()->addChild(guardRightCylinderBottom);
+	guardRightCylinderBottom->setPosition(glm::vec3(-3.3, 1, -10.775));
+	guardRightCylinderBottom->InitializePhysics(args, *getPhysics(), true);
+	guardRightCylinderBottom->addCapsuleCollider(0.5, 2);
 
 	Object* guardBumperLeft = new Object();
 	getSceneRoot()->addChild(guardBumperLeft);
@@ -521,9 +539,9 @@ void Application::Update(float dt){
 
 	// Cap the balls velocity at 40
 	rp3d::Vector3 velocity = ball->getRigidBody().getLinearVelocity();
-	if(velocity.lengthSquare() > 30 * 30){
+	if(velocity.lengthSquare() > 24 * 24){
 		velocity.normalize();
-		ball->getRigidBody().setLinearVelocity(velocity * 30);
+		ball->getRigidBody().setLinearVelocity(velocity * 24);
 	}
 }
 
