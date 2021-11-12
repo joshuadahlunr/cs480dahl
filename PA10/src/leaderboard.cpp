@@ -1,6 +1,8 @@
 #include "leaderboard.h"
 #include "arguments.h"
 
+#include <vector>
+
 #include <sstream>
 
 Leaderboard::Leaderboard() {
@@ -58,10 +60,7 @@ void Leaderboard::UpdateScore(const string& userId, float score) {
         else
             leaderstats[userId] = score;
     }
-}
-
-void Leaderboard::GetTop10Scores() {
-
+    sort();
 }
 
 void Leaderboard::Save() {
@@ -71,4 +70,24 @@ void Leaderboard::Save() {
     }
     //file << "write this to file";
     file.close();
+}
+
+bool compare(pair<string, float>& a, pair<string, float>& b) {
+    return a.second < b.second;
+}
+
+void Leaderboard::sort()
+{
+    // Sort the leaderboard
+    vector<pair<string, float>> items;
+    for (auto& it : leaderstats) {
+        items.push_back(it);
+    }
+
+    std::sort(items.begin(), items.end(), compare);
+
+    leaderstats.clear();
+    for (auto& it : items) {
+        leaderstats.insert(it);
+    }
 }

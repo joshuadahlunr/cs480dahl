@@ -17,12 +17,13 @@ public:
 	bool Initialize(const Arguments& args, const string &filename);
 	bool AddPlayer(const string& userId);
 	void UpdateScore(const string& userId, float score);
-	void GetTop10Scores();
 	void Save();
 
 	map<string, float> leaderstats;
 
 private:
+
+	void sort();
 	string filepath;
 };
 
