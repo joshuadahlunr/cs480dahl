@@ -171,7 +171,7 @@ bool Application::Initialize(const Arguments& args){
 	rightPaddle->LoadTextureFile(args, "../textures/yellow.png");
 	plunger->LoadTextureFile(args, "../textures/red.png");
 	board->LoadTextureFile(args, "../textures/pinball-texture.png");
-
+	ball->LoadTextureFile(args, "../textures/grey.png");
 
 	//CREATE COLLIDERS FOR BOARD COLLISIONS
 	// Sorry not sorry :)
