@@ -26,7 +26,7 @@ bool Application::Initialize(const Arguments& args){
 
 	// Create an ambient light
 	lights.push_back(new AmbientLight());
-	std::cout << getSceneRoot() << std::endl;
+	//std::cout << getSceneRoot() << std::endl;
 	getSceneRoot()->addChild(lights[0]);
 	lights[0]->setAmbient(glm::vec4(0.6392156863, 0.7254901961, 0.8980392157, 1));
 
@@ -51,6 +51,9 @@ bool Application::Initialize(const Arguments& args){
 		material.setFrictionCoefficient(0);
 		material.setRollingResistance(.01);
 	}
+
+	threadTimer t;
+	t.setTimeout([this]() {resetBall(); }, std::chrono::milliseconds(500));
 
 	// Lambda which bounces a ball off bumpers and increase score
 	auto bounceBallWithPoints = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact, Light* lightup = nullptr){
@@ -105,6 +108,7 @@ bool Application::Initialize(const Arguments& args){
 				std::cout << "Game Over! You are out of balls!!" << std::endl;
 				std::cout << "Your final score was: " << score << std::endl;
 			}
+			std::cout << ballsRemaining << " balls left with score: " << score << std::endl;
 
 			resetBall();
 		}
@@ -131,7 +135,6 @@ bool Application::Initialize(const Arguments& args){
 	board->InitializeGraphics(args, "pinballV4.obj");
 	board->InitializePhysics(args, *getPhysics(), true);
 	// board->addMeshCollider(args, false);
-	board->LoadTextureFile(args, "../textures/pinball-texture.png");
 
 
 	// Create left paddle
@@ -163,6 +166,11 @@ bool Application::Initialize(const Arguments& args){
 	plunger->addBoxCollider(glm::vec3(1, 1, 1.3875));
 	plunger->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	getPhysics()->addContactCallback(plunger, plungerPushReset);
+
+	leftPaddle->LoadTextureFile(args, "../textures/yellow.png");
+	rightPaddle->LoadTextureFile(args, "../textures/yellow.png");
+	plunger->LoadTextureFile(args, "../textures/red.png");
+	board->LoadTextureFile(args, "../textures/pinball-texture.png");
 
 
 	//CREATE COLLIDERS FOR BOARD COLLISIONS
@@ -434,6 +442,8 @@ bool Application::Initialize(const Arguments& args){
         this->KeyboardCallback(event);
     };
 
+	resetBall();
+
 	// Welcome message
 	std::cout << std::endl << std::string(60, '-') << std::endl << "You have 3 balls... get as high of a score as you can! Good luck!" << std::endl;
 
@@ -537,7 +547,6 @@ void Application::KeyboardCallback(const SDL_KeyboardEvent& event){
 }
 
 void Application::resetBall() {
-	std::cout << ballsRemaining << " balls left with score: " << score << std::endl;
 
 	// Teleport the ball back to the plunger
 	rp3d::Transform t = ball->getPhysicsTransform();

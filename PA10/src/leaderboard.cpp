@@ -14,7 +14,7 @@ Leaderboard::~Leaderboard() {
 }
 
 bool Leaderboard::Initialize(const Arguments& args, const string &filename) {
-    std::cout << "Loading leaderleaderstats from " << filename << std::endl;
+    //std::cout << "Loading leaderleaderstats from " << filename << std::endl;
     //std::string leaderboardDirectory = args.getResourcePath() + "models/";
     filepath = filename;
     vector<string> tokens;

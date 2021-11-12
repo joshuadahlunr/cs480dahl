@@ -116,7 +116,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	collisionMesh = CollisionMesh();
 	rp3d::CollisionShape* shape;
 
-	std::cout << "Adding Mesh Collider: " << path << std::endl;
+	//std::cout << "Adding Mesh Collider: " << path << std::endl;
 
 	// Store memory for collision meshs because they need to exist for the life of the object
 	if (makeConvex) {
@@ -154,7 +154,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 			std::string modelDirectory = args.getResourcePath() + "models/";
 			if(path.find(modelDirectory) == std::string::npos)
 				path = modelDirectory + path;
-			std::cout << path << std::endl;
+			//std::cout << path << std::endl;
 			// Load the model
 			Assimp::Importer importer;
 			const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
@@ -206,7 +206,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 				for(int i = 0; i < tempIndices.size(); ++i)
 					collisionMesh.indiceData[i] = tempIndices[i];
 
-				std::cout << tempVertices.size() << " " << tempIndices.size() << std::endl;
+				//std::cout << tempVertices.size() << " " << tempIndices.size() << std::endl;
 			}
 		} else { // if not convex and mesh from file
 			// store the concave mesh using the exact model data
