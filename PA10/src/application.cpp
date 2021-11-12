@@ -40,8 +40,10 @@ bool Application::Initialize(const Arguments& args){
 	ball = new Object();
 	getSceneRoot()->addChild(ball);
 	ball->InitializeGraphics(args, "unitsphere.obj");
+	ball->LoadTextureFile(args, "../textures/pinball-texture.png");
 	ball->setPosition(glm::vec3(-8.75, 0.75, -12.5));
 	ball->InitializePhysics(args, *getPhysics(), false);
+	ball->setPhysicsTransform(ball->getGraphicsTransform());
 	ball->addSphereCollider(.5);
 	// Set initial values for the physics material
 	{
@@ -50,7 +52,6 @@ bool Application::Initialize(const Arguments& args){
 		material.setFrictionCoefficient(0);
 		material.setRollingResistance(.01);
 	}
-
 
 	// Lambda which bounces a ball off bumpers and increase score
 	auto bounceBallWithPoints = [ballID = ball->getCollider().getEntity().id, this](const rp3d::CollisionCallback::ContactPair& contact, Light* lightup = nullptr){
@@ -131,7 +132,7 @@ bool Application::Initialize(const Arguments& args){
 	board->InitializeGraphics(args, "pinballV4.obj");
 	board->InitializePhysics(args, *getPhysics(), true);
 	// board->addMeshCollider(args, false);
-	board->LoadTextureFile(args, "../textures/base.png");
+	board->LoadTextureFile(args, "../textures/pinball-texture.png");
 
 
 	// Create left paddle
@@ -158,11 +159,13 @@ bool Application::Initialize(const Arguments& args){
 	plunger = new Object();
 	getSceneRoot()->addChild(plunger);
 	plunger->InitializeGraphics(args, "plunger.obj");
+	plunger->LoadTextureFile(args, "../textures/pinball-texture.png");
 	plunger->setPosition(glm::vec3(-8.75, 0.75, -14.638));
 	plunger->InitializePhysics(args, *getPhysics(), true);
 	plunger->addBoxCollider(glm::vec3(1, 1, 1.3875));
 	plunger->getRigidBody().setType(rp3d::BodyType::KINEMATIC);
 	getPhysics()->addContactCallback(plunger, plungerPushReset);
+
 
 
 	//CREATE COLLIDERS FOR BOARD COLLISIONS
@@ -436,6 +439,7 @@ bool Application::Initialize(const Arguments& args){
 
 	// Welcome message
 	std::cout << std::endl << std::string(60, '-') << std::endl << "You have 3 balls... get as high of a score as you can! Good luck!" << std::endl;
+	resetBall();
 
 	return ret;
 }
