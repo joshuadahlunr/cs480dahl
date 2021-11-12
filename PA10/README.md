@@ -4,6 +4,8 @@
 
 - All of the (Mandatory for us) Graduate Student Extra Credit.
 - Bumpers that bounce and light when hit
+- Top Players Leaderboard
+- Skybox
 
 ## Team
 
