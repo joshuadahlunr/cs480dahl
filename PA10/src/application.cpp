@@ -502,7 +502,7 @@ void Application::Update(float dt){
 
 	// Set the plunger position
 	t = plunger->getPhysicsTransform();
-	t.setPosition(rp3d::Vector3(-8.75,0.75,-14.638 - ballLaunchPower/1200.0));
+	t.setPosition(rp3d::Vector3(-8.75,0.75,-14.638 - ballLaunchPower/1400.0));
 	plunger->setPhysicsTransform(t);
 
 	// Cap the balls velocity at 40
