@@ -255,6 +255,14 @@ void GUI::Render(){
 					ImGui::Text("Left Shift");
 					ImGui::TableSetColumnIndex(2);
 					ImGui::Text("Slow Zoom Speed");
+				
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text(" ");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("Tab");
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Focus on Ball");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);

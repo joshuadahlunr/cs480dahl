@@ -1,9 +1,10 @@
 #include "camera.h"
+#include "object.h"
 
-#include "engine.h"
+#include "application.h"
 #include <algorithm> // for clamp
 
-Camera::Camera(Engine* engine) : m_engine(engine) { }
+Camera::Camera(Application* engine) : m_app(engine) { }
 
 Camera::~Camera() {
 	// Unregister us as a listener to resize events
@@ -25,7 +26,7 @@ bool Camera::Initialize(int w, int h) {
 	zoomScale = 0.25;
 
 	// Set a minimum distance cap
-	minCap = 20.0;
+	minCap = 10.0;
 
 	//Init projection matrices
 	projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
@@ -39,6 +40,10 @@ bool Camera::Initialize(int w, int h) {
 }
 
 void Camera::Update(unsigned int dt) {
+	// Get the focus position
+	if (focusObj != nullptr)
+		focusPos = focusObj->getPosition();
+	
 	// Get the eye position relative to the focus position and at some point in rotation sphere
 	eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
@@ -70,6 +75,14 @@ void Camera::Keyboard(const SDL_KeyboardEvent& e){
 		if (e.keysym.sym == SDLK_LSHIFT) {
 			// When holding shift decrease zoom amount
 			zoomScale = 0.1;
+		} else if (e.keysym.sym == SDLK_TAB) {
+			// change focus
+			if (focusObj != nullptr) {
+				focusObj = nullptr;
+				focusPos = glm::vec3(0.0,0.0,0.0);
+			} else {
+				focusObj = m_app->ball;
+			}
 		}
 	} else if (e.type == SDL_KEYUP) {
 		if (e.keysym.sym == SDLK_LSHIFT) {

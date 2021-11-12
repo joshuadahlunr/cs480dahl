@@ -27,13 +27,13 @@ public:
 	Leaderboard* leaderboard;
 	std::vector<Light*> lights;
 	GameState gameState = GameState::Playing;
+	Object *ball;
 
 private:
 	void KeyboardCallback(const SDL_KeyboardEvent& event);
 	void resetBall();
 
 	Object *leftPaddle, *rightPaddle;
-	Object *ball;
     Object *plunger;
     Object *bottomWallCenter;
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;

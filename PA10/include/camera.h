@@ -4,12 +4,13 @@
 #include "graphics_headers.h"
 #include <SDL2/SDL.h>
 
-class Engine;
+class Application;
+class Object;
 
 // Class representing a camera
 class Camera {
 public:
-	Camera(Engine* engine);
+	Camera(Application* engine);
 	~Camera();
 	bool Initialize(int w, int h);
 	void Update(unsigned int dt);
@@ -25,7 +26,8 @@ public:
 	void MouseWheel(const SDL_MouseWheelEvent& e);
 
 private:
-	Engine* m_engine;
+	Application* m_app;
+	Object* focusObj = nullptr;
 
 	glm::mat4 projection;
 	glm::mat4 view;

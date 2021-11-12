@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "engine.h"
+#include "application.h"
 #include "camera.h"
 
 #include "skybox.h"
@@ -34,7 +34,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	glBindVertexArray(vao);
 
 	// Init Camera
-	m_camera = new Camera(engine);
+	m_camera = new Camera((Application*) engine);
 	if(!m_camera->Initialize(width, height)) {
 		printf("Camera Failed to Initialize\n");
 		return false;
