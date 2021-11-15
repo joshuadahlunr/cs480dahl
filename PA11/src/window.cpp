@@ -52,10 +52,17 @@ bool Window::Initialize(const string &name, int* width, int* height) {
 	}
 
 	// Use VSync
+#ifdef USE_VSYNC
 	if(SDL_GL_SetSwapInterval(1) < 0) {
 		printf("Unable to use VSync: %s\n", SDL_GetError());
 		return false;
 	}
+#else
+	if(SDL_GL_SetSwapInterval(0) > 0) {
+		printf("Unable to disable VSync: %s\n", SDL_GetError());
+		return false;
+	}
+#endif // USE_VSYNC
 
 	return true;
 }

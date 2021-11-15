@@ -278,6 +278,13 @@ void GUI::Render(){
 			ImGui::EndMenu();
 		}
 
+		std::stringstream fps;
+		fps << "FPS: " << std::setprecision(4) << app->getAverageFPS();
+		// Right justify the fps text
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::CalcTextSize(fps.str().c_str()).x - 10);
+		ImGui::Text(fps.str().c_str());
+
+
 		ImGui::EndMainMenuBar();
 	}
 
@@ -285,16 +292,4 @@ void GUI::Render(){
 	// Render the UI results
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-	// WorldSpace text
-	// ImGui_ImplOpenGL3_NewFrame();
-	// ImGui_ImplSDL2_NewFrame();
-	// ImGui::NewFrame();
-
-	// ImGui::Text("World Space");
-
-	// ImGui::Render();
-	// glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

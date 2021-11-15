@@ -102,6 +102,9 @@ void Engine::Run() {
 				mouseWheelEvent(m_event.wheel);
 		}
 
+		// Take a sample of the current FPS
+		fpsMeasurements.push_back(1000.0 / (m_DT > 0 ? m_DT : 0.001));
+
 		// Run application specific code
 		Update(getDTMilli());
 
@@ -118,9 +121,6 @@ void Engine::Run() {
 #ifdef PHYSICS_DEBUG
 		m_physics->Render(m_graphics->getCamera());
 #endif
-
-		// Calculate FPS
-		// std::cout << (1000 / (m_DT > 0 ? m_DT : 0.001)) << " fps" << std::endl;
 
 		// Swap to the Window
 		m_window->Swap();
@@ -144,4 +144,14 @@ long long Engine::GetCurrentTimeMillis() {
 	gettimeofday(&t, NULL);
 	// Convert it to milliseconds and return
 	return t.tv_sec * 1000 + t.tv_usec / 1000;
+}
+
+float Engine::getAverageFPS(){
+	// Sum all of the recently measure framerates
+	float accumulator = 0;
+	for(float f: fpsMeasurements)
+		accumulator += f;
+
+	// Return the sum divided by the number of measurements taken
+	return accumulator / fpsMeasurements.size();
 }

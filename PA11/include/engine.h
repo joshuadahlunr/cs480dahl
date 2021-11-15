@@ -7,6 +7,7 @@
 
 #include "arguments.h"
 #include "nytl/callback.hpp"
+#include "circular_buffer.hpp"
 
 // Forward declarations
 class Window;
@@ -31,6 +32,7 @@ public:
 	unsigned int getDT();
 	float getDTMilli() { return m_DT / 1000.0; }
 	long long GetCurrentTimeMillis();
+	float getAverageFPS();
 
 	// Keyboard and Mouse callbacks
 	nytl::Callback<void(const SDL_KeyboardEvent&)> keyboardEvent;
@@ -52,6 +54,7 @@ private:
 	int m_WINDOW_HEIGHT;
 	bool m_FULLSCREEN;
 	SDL_Event m_event;
+	circular_buffer<float> fpsMeasurements{60};
 
 	Graphics* m_graphics;
 	Physics* m_physics;

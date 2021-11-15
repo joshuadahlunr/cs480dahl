@@ -5,6 +5,9 @@
 #include <string>
 using namespace std;
 
+// Uncomment to enable VSYNC
+// #define USE_VSYNC
+
 // Class holding the window and OpenGL Context
 class Window {
 public:
