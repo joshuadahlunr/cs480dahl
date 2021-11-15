@@ -4,7 +4,7 @@
 // Set the static count so shaders on the GPU know how many to process
 size_t Light::count = 0;
 
-void Light::Update(unsigned int dt) {
+void Light::Update(float dt) {
 	setModel(glm::mat4(1));
 	Object::setPosition(getParent()->getPosition() + position);
 }

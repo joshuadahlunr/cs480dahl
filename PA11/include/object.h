@@ -15,7 +15,7 @@ public:
 	~Object();
 	virtual bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
 	virtual bool InitializePhysics(const Arguments& args, Physics& physics, bool _static);
-	virtual void Update(unsigned int dt);
+	virtual void Update(float dt);
 	virtual void Render(Shader* boundShader);
 
 	// Mouse and Keyboard event propagation
@@ -91,7 +91,7 @@ public:
 	// Submesh initialization doesn't do anything
 	bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
 	// A submesh syncs it model matrix to its parent every frame
-	void Update(unsigned int dt) override { setModelRelativeToParent(glm::mat4(1)); }
+	void Update(float dt) override { setModelRelativeToParent(glm::mat4(1)); }
 };
 
 #endif /* OBJECT_H */

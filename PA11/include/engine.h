@@ -1,6 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include <chrono>
 #include <sys/time.h>
 #include <assert.h>
 #include <SDL2/SDL.h>
@@ -29,9 +30,7 @@ public:
 	virtual void Update(float dt) {}
 
 	// Time functions
-	unsigned int getDT();
-	float getDTMilli() { return m_DT / 1000.0; }
-	long long GetCurrentTimeMillis();
+	float getDT();
 	float getAverageFPS();
 
 	// Keyboard and Mouse callbacks
@@ -59,9 +58,10 @@ private:
 	Graphics* m_graphics;
 	Physics* m_physics;
 	Sound* m_sound;
-	unsigned int m_DT;
-	long long m_currentTimeMillis;
-	bool m_running;	
+	float m_DT;
+	float physicsAccumulator = 0;
+	std::chrono::high_resolution_clock::time_point frameStartTime;
+	bool m_running;
 
 	Object* sceneRoot;
 };

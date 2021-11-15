@@ -39,11 +39,11 @@ bool Camera::Initialize(int w, int h) {
 	return true;
 }
 
-void Camera::Update(unsigned int dt) {
+void Camera::Update(float dt) {
 	// Get the focus position
 	if (focusObj != nullptr)
 		focusPos = focusObj->getPosition();
-	
+
 	// Get the eye position relative to the focus position and at some point in rotation sphere
 	eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
@@ -136,6 +136,3 @@ void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
 	if (distanceFromFocusPos < minCap)
 		distanceFromFocusPos = minCap;
 }
-
-
-

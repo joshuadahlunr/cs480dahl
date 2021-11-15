@@ -25,7 +25,7 @@ public:
 	GUI();
 	~GUI();
 	bool Initialize(Engine* engine, const char* glsl_version = "#version 330");
-	void Update(unsigned int dt);
+	void Update(float dt);
 	void Render();
 
 	// bool setupFramebuffer();

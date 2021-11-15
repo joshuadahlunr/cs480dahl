@@ -29,7 +29,7 @@ public:
 	Physics(Object*& sceneRoot);
 	~Physics();
 	bool Initialize(Engine* engine, const Arguments& args);
-	void Update(unsigned int dt);
+	void Update(float dt);
 #ifdef PHYSICS_DEBUG
 	void Render(Camera* camera);
 #endif

@@ -111,7 +111,7 @@ void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d:
 	collider = rigidBody->addCollider(shape, transform);
 }
 
-bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/, std::string path) {	
+bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/, std::string path) {
 	// Create new collision mesh and shape
 	collisionMesh = CollisionMesh();
 	rp3d::CollisionShape* shape;
@@ -148,7 +148,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 		for (int i = 0; i < hull.getIndexBuffer().size(); i++) {
 			collisionMesh.indiceData[i] = hull.getIndexBuffer()[i];
 		}
-	} else { 
+	} else {
 		// if mesh collider specified
 		if (path != "") {
 			std::string modelDirectory = args.getResourcePath() + "models/";
@@ -184,7 +184,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 					// Add the vertex to the list of vertecies
 					tempVertices.emplace_back(/*position*/ glm::vec3(_pos.x, _pos.y, _pos.z));
 				}
-				
+
 				// For each face...
 				for(int face = 0; face < mesh->mNumFaces; face++)
 					// For each index in the face (3 in the triangles)
@@ -229,11 +229,11 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	rp3d::TriangleVertexArray* triangleArray = new rp3d::TriangleVertexArray(
 		collisionMesh.numVertices * 3, // size of vertex data
 		collisionMesh.vertexData, // start of vertex data
-		3 * sizeof(float), // size of one vertex 
+		3 * sizeof(float), // size of one vertex
 		collisionMesh.numVertices / 3, // size of indice data
 		collisionMesh.indiceData, // start of indice data
 		3 * sizeof(int), // size of one triangle
-		rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, 
+		rp3d::TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE,
 		rp3d::TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
 
 	rp3d::TriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
@@ -324,7 +324,7 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			// Add the vertex to the list of vertecies
 			obj->Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv, normal);
 		}
-		
+
 		// For each face...
 		for(int face = 0; face < mesh->mNumFaces; face++)
 			// For each index in the face (3 in the triangles)
@@ -379,7 +379,7 @@ bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeR
 }
 
 
-void Object::Update(unsigned int dt){
+void Object::Update(float dt){
 	// Get Rigidbody updated position (if it exists)
 	if(rigidBody){
 		rigidBody->getTransform().getOpenGLMatrix(glm::value_ptr(model));

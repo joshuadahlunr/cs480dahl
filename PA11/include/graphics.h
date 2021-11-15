@@ -25,7 +25,7 @@ public:
 	Graphics(Object*& sceneRoot);
 	~Graphics();
 	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
-	void Update(unsigned int dt);
+	void Update(float dt);
 	void Render();
 
 	GUI* getGUI() const { return m_gui; }

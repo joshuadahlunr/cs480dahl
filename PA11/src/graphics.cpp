@@ -117,7 +117,7 @@ bool Graphics::Initialize(int width, int height, Engine* engine, const Arguments
 	return true;
 }
 
-void Graphics::Update(unsigned int dt) {
+void Graphics::Update(float dt) {
 	// Update the camera
 	m_camera->Update(dt);
 }

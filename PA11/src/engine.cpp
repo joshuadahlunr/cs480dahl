@@ -56,7 +56,7 @@ bool Engine::Initialize(const Arguments& args) {
 	sceneRoot = new Object();
 
 	// Set the time
-	m_currentTimeMillis = GetCurrentTimeMillis();
+	frameStartTime = std::chrono::high_resolution_clock::now();
 
 	m_sound = new Sound();
 
@@ -83,7 +83,7 @@ void Engine::Run() {
 				m_running = false;
 			// Key Events
 			else if (shouldProcess.keyboard && (m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP)){
-				
+
 				// Escape is quit
 				if(m_event.key.keysym.sym == SDLK_ESCAPE)
 					m_running = false;
@@ -103,13 +103,18 @@ void Engine::Run() {
 		}
 
 		// Take a sample of the current FPS
-		fpsMeasurements.push_back(1000.0 / (m_DT > 0 ? m_DT : 0.001));
+		fpsMeasurements.push_back(1.0 / m_DT);
 
 		// Run application specific code
-		Update(getDTMilli());
+		Update(m_DT);
 
 		// Update the physics simulation (at a constant rate of 60 times per second)
-		if(m_DT > 0) m_physics->Update(m_DT);
+		physicsAccumulator += m_DT;
+		if(physicsAccumulator > 1.0/60){
+			std::cout << physicsAccumulator << std::endl;
+			m_physics->Update(physicsAccumulator);
+			physicsAccumulator = 0;
+		}
 
 		// Update the scene tree
 		sceneRoot->Update(m_DT);
@@ -127,23 +132,13 @@ void Engine::Run() {
 	}
 }
 
-unsigned int Engine::getDT() {
-	// Get the current time
-	long long TimeNowMillis = GetCurrentTimeMillis();
-	assert(TimeNowMillis >= m_currentTimeMillis);
-	// Get the elapsed time
-	unsigned int DeltaTimeMillis = (unsigned int)(TimeNowMillis - m_currentTimeMillis);
-	// Mark the current time as the previous time
-	m_currentTimeMillis = TimeNowMillis;
-	return DeltaTimeMillis;
-}
+float Engine::getDT() {
+	auto now = std::chrono::high_resolution_clock::now();
+	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(now - frameStartTime).count();
+	frameStartTime = now;
 
-long long Engine::GetCurrentTimeMillis() {
-	// Get the current time
-	timeval t;
-	gettimeofday(&t, NULL);
-	// Convert it to milliseconds and return
-	return t.tv_sec * 1000 + t.tv_usec / 1000;
+	// Return elpased time in seconds
+	return microseconds * 0.000001;
 }
 
 float Engine::getAverageFPS(){

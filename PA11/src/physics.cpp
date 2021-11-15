@@ -42,9 +42,9 @@ bool Physics::Initialize(Engine* engine, const Arguments& args) {
 	return true;
 }
 
-void Physics::Update(unsigned int dt) {
+void Physics::Update(float dt) {
 	// Update the physics simulation
-	world->update(dt * 0.001);
+	world->update(dt);
 }
 
 void Physics::addContactCallback(Object* obj, ContactEvent e){ contactEvents[obj->getCollider().getEntity().id] = e; }
@@ -54,7 +54,7 @@ void Physics::onContact(const rp3d::CollisionCallback::CallbackData& callbackDat
 		if(callbackData.getContactPair(i).getNbContactPoints() > 0)
 			for(auto idEvent: contactEvents)
 				if(callbackData.getContactPair(i).getCollider1()->getEntity().id == idEvent.first || callbackData.getContactPair(i).getCollider2()->getEntity().id == idEvent.first)
-					idEvent.second(callbackData.getContactPair(i));		
+					idEvent.second(callbackData.getContactPair(i));
 }
 
 #ifdef PHYSICS_DEBUG

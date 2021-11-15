@@ -13,7 +13,7 @@ public:
 	Camera(Application* engine);
 	~Camera();
 	bool Initialize(int w, int h);
-	void Update(unsigned int dt);
+	void Update(float dt);
 	glm::mat4 GetProjection() { return projection; }
 	glm::mat4 GetView() { return view; }
 
