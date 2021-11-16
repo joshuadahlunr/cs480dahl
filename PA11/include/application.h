@@ -25,17 +25,17 @@ public:
 	int getScore() {return score;}
 
 	Leaderboard* leaderboard;
-	std::vector<Light*> lights;
+	std::vector<std::shared_ptr<Light>> lights;
 	GameState gameState = GameState::Playing;
-	Object *ball;
+	std::shared_ptr<Object> ball;
 
 private:
 	void keyboardCallback(const SDL_KeyboardEvent& event);
 	void resetBall();
 
-	Object *leftPaddle, *rightPaddle;
-	Object *plunger;
-	Object *bottomWallCenter;
+	std::shared_ptr<Object> leftPaddle, rightPaddle;
+	std::shared_ptr<Object> plunger;
+	std::shared_ptr<Object> bottomWallCenter;
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;
 	float paddleSpeed = 720;
 

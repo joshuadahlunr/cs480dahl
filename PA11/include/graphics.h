@@ -22,7 +22,7 @@ class Camera;
 // Class which provides the graphics engine
 class Graphics {
 public:
-	Graphics(Object*& sceneRoot);
+	Graphics(Object::ptr& sceneRoot);
 	~Graphics();
 	bool initialize(int width, int height, Engine* engine, const Arguments& args);
 	void update(float dt);
@@ -45,7 +45,7 @@ protected:
 	GLint viewMatrix;
 	GLint modelMatrix;
 
-	Object*& sceneRoot;
+	Object::ptr& sceneRoot;
 };
 
 #endif /* GRAPHICS_H */

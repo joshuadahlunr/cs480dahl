@@ -5,7 +5,7 @@
 #include "skybox.h"
 #include <fstream>
 
-Graphics::Graphics(Object*& sceneRoot) : sceneRoot(sceneRoot) { }
+Graphics::Graphics(Object::ptr& sceneRoot) : sceneRoot(sceneRoot) { }
 
 Graphics::~Graphics() { }
 

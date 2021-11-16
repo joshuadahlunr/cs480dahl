@@ -110,8 +110,8 @@ void GUI::render() {
 		if(ImGui::BeginMenu("Lighting Controls")) {
 			ImGui::Text("ADS Lighting Settings");
 
-			Light* ambient = app->lights[0];
-			Light* ballSpotlight = app->lights[2];
+			Light::ptr ambient = app->lights[0];
+			Light::ptr ballSpotlight = app->lights[2];
 
 			ImGui::ColorEdit3("Ambient Color", glm::value_ptr(ambient->lightAmbient));
 
@@ -121,7 +121,7 @@ void GUI::render() {
 			ImGui::ColorEdit3("Specular Color", glm::value_ptr(specular));
 			ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(diffuse));
 
-			for(Light* light : app->lights) {
+			for(Light::ptr light : app->lights) {
 				light->lightSpecular = glm::vec4(specular, 1.0);
 				light->lightDiffuse = glm::vec4(diffuse, 1.0);
 			}

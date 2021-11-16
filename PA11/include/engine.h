@@ -43,7 +43,7 @@ public:
 	Graphics* getGraphics() const { return graphics; }
 	Physics* getPhysics() const { return physics; }
 	Sound* getSound() const { return sound; }
-	Object* getSceneRoot() const { return sceneRoot; }
+	std::shared_ptr<Object> getSceneRoot() const { return sceneRoot; }
 
 private:
 	// Window related variables
@@ -57,14 +57,14 @@ private:
 	Graphics* graphics;
 	Physics* physics;
 	Sound* sound;
-	
+
 	float DT;
 	float physicsAccumulator = 0;
 	std::chrono::high_resolution_clock::time_point frameStartTime;
 	circular_buffer<float> fpsMeasurements{60};
 	bool running;
 
-	Object* sceneRoot;
+	std::shared_ptr<Object> sceneRoot;
 };
 
 #endif // ENGINE_H

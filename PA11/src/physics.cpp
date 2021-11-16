@@ -8,7 +8,7 @@
 Physics* Physics::singleton;
 Physics* Physics::getSingleton() { return singleton; }
 
-Physics::Physics(Object*& sceneRoot) : sceneRoot(sceneRoot) { }
+Physics::Physics(Object::ptr& sceneRoot) : sceneRoot(sceneRoot) { }
 Physics::~Physics() { }
 
 bool Physics::initialize(Engine* engine, const Arguments& args) {
@@ -47,7 +47,7 @@ void Physics::update(float dt) {
 	world->update(dt);
 }
 
-void Physics::addContactCallback(Object* obj, ContactEvent e) { contactEvents[obj->getCollider().getEntity().id] = e; }
+void Physics::addContactCallback(Object::ptr& obj, ContactEvent e) { contactEvents[obj->getCollider().getEntity().id] = e; }
 
 void Physics::onContact(const rp3d::CollisionCallback::CallbackData& callbackData) {
 	for(int i = 0; i < callbackData.getNbContactPairs(); i++)

@@ -26,7 +26,7 @@ public:
 	static Physics* getSingleton();
 
 public:
-	Physics(Object*& sceneRoot);
+	Physics(std::shared_ptr<Object>& sceneRoot);
 	~Physics();
 	bool initialize(Engine* engine, const Arguments& args);
 	void update(float dt);
@@ -41,14 +41,14 @@ public:
 	// Get the world
 	rp3d::PhysicsWorld& getWorld() { return *world; }
 
-	void addContactCallback(Object* obj, ContactEvent e);
+	void addContactCallback(std::shared_ptr<Object>& obj, ContactEvent e);
 
 protected:
 	// Singleton
 	static Physics* singleton;
 
 protected:
-	Object*& sceneRoot;
+	std::shared_ptr<Object>& sceneRoot;
 
 	// Factory object
 	rp3d::PhysicsCommon factory;

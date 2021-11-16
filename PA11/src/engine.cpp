@@ -22,11 +22,10 @@ Engine::Engine(std::string name) {
 
 Engine::~Engine() {
 	delete window;
-	delete sceneRoot;
+	sceneRoot.reset((Object*) nullptr);
 	delete graphics;
 	delete sound;
 	window = nullptr;
-	sceneRoot = nullptr;
 	graphics = nullptr;
 }
 
@@ -53,7 +52,7 @@ bool Engine::initialize(const Arguments& args) {
 	}
 
 	// Create the scene tree
-	sceneRoot = new Object();
+	sceneRoot = std::make_shared<Object>();
 
 	// Set the time
 	frameStartTime = std::chrono::high_resolution_clock::now();

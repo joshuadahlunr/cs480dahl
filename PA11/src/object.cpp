@@ -27,11 +27,11 @@ Object::Object() {
 
 Object::~Object() {
 	// Make sure all of the children are freed
-	for(Object* child: children) {
-		delete child;
-		child = nullptr;
-		parent = nullptr;
-	}
+	for(auto& child: children)
+		child.reset((Object*) nullptr);
+		
+	// Mark that we don't have a parent
+	parent = nullptr;
 
 	// Clean up the lists of vertecies and indices
 	vertices.clear();
@@ -60,7 +60,7 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 	childModel = model;
 
 	// initialize the children
-	for(Object* child: children)
+	for(auto& child: children)
 		success &= child->initializeGraphics(args);
 
 	return success;
@@ -263,11 +263,11 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 	// For each mesh...
 	for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++) {
 		// First mesh is put in this object, future meshes are added as sub-object
-		Object* obj;
-		if(meshIndex == 0) obj = this;
+		Object::ptr obj;
+		if(meshIndex == 0) obj = shared_from_this();
 		else{
-			obj = new Submesh(); // Submesh's model matrix are linked to their parent
-			obj->setParent(this);
+			obj = std::make_shared<Submesh>(); // Submesh's model matrix are linked to their parent
+			obj->setParent(shared_from_this());
 		}
 
 		// Remove a previous model
@@ -387,7 +387,7 @@ void Object::update(float dt) {
 	}
 
 	// Pass along to children
-	for(Object* child: children)
+	for(auto& child: children)
 		child->update(dt);
 }
 
@@ -431,18 +431,18 @@ void Object::render(Shader* boundShader) {
 	glDisableVertexAttribArray(3);
 
 	// Pass along to children.
-	for(Object* child: children)
+	for(auto& child: children)
 		child->render(boundShader);
 }
 
-Object* Object::setParent(Object* p) {
+Object::ptr Object::setParent(Object::ptr p) {
 	// If the parent is the same as what we are setting it to... do nothing
-	if(parent == p) return p;
+	if(parent == p.get()) return p;
 
 	// If this object already has a parent... remove it as a child of that parent
 	if(parent != nullptr)
 		for(int i = 0; i < parent->children.size(); i++)
-			if(parent->children[i] == this) { // TODO: Are pointer comparisons sufficient here?
+			if(parent->children[i].get() == this) { // TODO: Are pointer comparisons sufficient here?
 				parent->children.erase(parent->children.begin() + i);
 				break;
 			}
@@ -452,35 +452,35 @@ Object* Object::setParent(Object* p) {
 	else sceneDepth = 0;
 
 	// Mark the new parent as our parent
-	parent = p;
+	parent = p.get();
 	// Add ourselves as a child of that parent
-	p->addChild(this);
+	p->addChild(shared_from_this());
 	return p;
 }
 
-Object* Object::addChild(Object* child) {
+Object::ptr Object::addChild(Object::ptr child) {
 	// If the object is already a child... don't bother adding
-	for(Object* c: children)
+	for(auto& c: children)
 		if(c == child)
 			return child;
 
 	// Add the object as a child
 	children.push_back(child);
 	// Mark us as the object's parent
-	child->setParent(this);
+	child->setParent(shared_from_this());
 
 	return child;
 }
 
 void Object::keyboard(const SDL_KeyboardEvent& e) {
 	// Pass along to children
-	for(Object* child: children)
+	for(auto& child: children)
 		child->keyboard(e);
 }
 
 void Object::mouseButton(const SDL_MouseButtonEvent& e) {
 	// Pass along to children
-	for(Object* child: children)
+	for(auto& child: children)
 		child->mouseButton(e);
 }
 

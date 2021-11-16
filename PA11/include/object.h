@@ -2,6 +2,7 @@
 #define OBJECT_LOCAL_H
 
 #include <vector>
+#include <memory>
 #include <SDL2/SDL.h>
 #include "physics.h"
 #include "graphics_headers.h"
@@ -9,8 +10,10 @@
 
 // Base class for objects in the scene tree, provides basic mouse, keyboard, and
 // tick event propagation, along with managing the model, texture, and position in the scene tree of the object
-class Object {
+class Object : public std::enable_shared_from_this<Object> {
 public:
+	using ptr = std::shared_ptr<Object>;
+
 	Object();
 	~Object();
 	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
@@ -36,10 +39,10 @@ public:
 	bool addMeshCollider(const Arguments& args, bool makeConvex = true, rp3d::Transform transform = rp3d::Transform(), std::string path = "");
 
 	// Scene tree management
-	Object* setParent(Object* p);
-	Object* getParent() const { return parent; }
-	Object* addChild(Object* child);
-	const std::vector<Object*>& getChildren() const { return children; }
+	Object::ptr setParent(Object::ptr p);
+	Object::ptr getParent() const { return parent->shared_from_this(); }
+	Object::ptr addChild(Object::ptr child);
+	const std::vector<Object::ptr>& getChildren() const { return children; }
 
 	// Sets model matrix
 	glm::mat4 getModel() { return model; }
@@ -79,7 +82,7 @@ protected:
 	rp3d::Collider* collider = nullptr;
 
 	Object* parent;
-	std::vector<Object*> children;
+	std::vector<Object::ptr> children;
 };
 
 // Objects which do nothing when initialized and link their model matrix to their parent each frame

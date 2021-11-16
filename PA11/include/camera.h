@@ -3,6 +3,7 @@
 
 #include "graphics_headers.h"
 #include <SDL2/SDL.h>
+#include <memory>
 
 class Application;
 class Object;
@@ -27,7 +28,7 @@ public:
 
 private:
 	Application* app;
-	Object* focusObj = nullptr;
+	std::shared_ptr<Object> focusObj = nullptr;
 
 	glm::mat4 projection;
 	glm::mat4 view;

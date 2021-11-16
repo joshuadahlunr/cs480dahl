@@ -5,6 +5,8 @@
 
 class Light : public Object {
 public:
+	using ptr = std::shared_ptr<Light>;
+	
 	enum Type : unsigned int {
 		Disabled = 0,
 		Ambient = 1,

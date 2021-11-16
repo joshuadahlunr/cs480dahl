@@ -44,10 +44,10 @@ struct CollisionMesh {
 	int numVertices;
 
 	void clear() {
-		if(vertexData) delete vertexData;
+		if(vertexData) delete [] vertexData;
 		vertexData = nullptr;
 
-		if(indiceData) delete indiceData;
+		if(indiceData) delete [] indiceData;
 		indiceData = nullptr;
 	}
 
