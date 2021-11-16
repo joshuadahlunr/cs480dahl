@@ -42,6 +42,7 @@ public:
 	rp3d::PhysicsWorld& getWorld() { return *world; }
 
 	void addContactCallback(std::shared_ptr<Object>& obj, ContactEvent e);
+	void addContactCallback(std::shared_ptr<Object>&& obj, ContactEvent e) { addContactCallback(obj, e); }
 
 protected:
 	// Singleton

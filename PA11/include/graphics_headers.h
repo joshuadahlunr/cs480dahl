@@ -24,6 +24,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/norm.hpp>
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 
@@ -74,7 +75,7 @@ struct ConvexCollisionMesh {
 };
 
 // Function which returns the matrix needed to rotate the <original> std::vector into the <target> std::vector
-static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
+static glm::quat rotateTo(glm::vec3 original, glm::vec3 target){
 	glm::quat q;
 	glm::vec3 a = glm::cross(original, target);
 	q.x = a.x;
@@ -86,7 +87,15 @@ static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 	q.w = glm::sqrt((originalLength * originalLength) * (targetLength * targetLength) + glm::dot(original, target));
 
 	q = glm::normalize(q);
-	return glm::mat4_cast(q);
+	return q;
+}
+
+// Function which constructs an identity quaternion
+namespace glm { static glm::quat quat_identity(){ return glm::quat(1, 0, 0, 0); } }
+
+// Function which constructs a model matrix from a translation, rotation, and scale
+static glm::mat4 constructMat4(glm::vec3 translation, glm::quat rotation = glm::quat_identity(), glm::vec3 scale = glm::vec3(1)) {
+	return glm::translate(glm::mat4(1), translation) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1), scale);
 }
 
 #endif /* GRAPHICS_HEADERS_H */

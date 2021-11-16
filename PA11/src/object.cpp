@@ -29,7 +29,7 @@ Object::~Object() {
 	// Make sure all of the children are freed
 	for(auto& child: children)
 		child.reset((Object*) nullptr);
-		
+
 	// Mark that we don't have a parent
 	parent = nullptr;
 
@@ -68,7 +68,7 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 
 bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _static) {
 	// Create a physics rigid body with the initial transform from the model matrix
-	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(getGraphicsTransform());
+	rigidBody = Physics::getSingleton()->getWorld().createRigidBody( toReact(getModel()) );
 
 	// Set wether the object is static or dynamic
 	if(_static) rigidBody->setType(rp3d::BodyType::STATIC);
@@ -77,41 +77,31 @@ bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _st
 	return true;
 }
 
-rp3d::Transform Object::getPhysicsTransform() {
-	return rigidBody->getTransform();
-}
-
-rp3d::Transform Object::getGraphicsTransform() {
-	rp3d::Transform transform;
-	transform.setFromOpenGL(glm::value_ptr(model));
-	return transform;
-}
-
-void Object::addCapsuleCollider(float radius, float height, rp3d::Transform transform /*= rp3d::Transform()*/) {
+void Object::addCapsuleCollider(float radius, float height, glm::vec3 translation /*= glm::vec3(0)*/, glm::quat rotation /*= glm::quat_identity()*/) {
 	// Specify the shape
 	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createCapsuleShape(radius, height);
 
 	// Add the collider to the rigid/static body
-	collider = rigidBody->addCollider(shape, transform);
+	collider = rigidBody->addCollider(shape, toReact(translation, rotation));
 }
 
-void Object::addBoxCollider(glm::vec3 halfExtents, rp3d::Transform transform /*= rp3d::Transform()*/) {
+void Object::addBoxCollider(glm::vec3 halfExtents, glm::vec3 translation /*= glm::vec3(0)*/, glm::quat rotation /*= glm::quat_identity()*/) {
 	// Specify the shape
 	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createBoxShape(*((rp3d::Vector3*)&halfExtents));
 
 	// Add the collider to the rigid/static body
-	collider = rigidBody->addCollider(shape, transform);
+	collider = rigidBody->addCollider(shape, toReact(translation, rotation));
 }
 
-void Object::addSphereCollider(float radius, rp3d::Transform transform /*= rp3d::Transform()*/) {
+void Object::addSphereCollider(float radius, glm::vec3 translation /*= glm::vec3(0)*/, glm::quat rotation /*= glm::quat_identity()*/) {
 	// Specify the shape
 	rp3d::CollisionShape* shape = Physics::getSingleton()->getFactory().createSphereShape(radius);
 
 	// Add the collider to the rigid/static body
-	collider = rigidBody->addCollider(shape, transform);
+	collider = rigidBody->addCollider(shape, toReact(translation, rotation));
 }
 
-bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, rp3d::Transform transform /*= rp3d::Transform()*/, std::string path) {
+bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, std::string path /*= ""*/, glm::vec3 translation /*= glm::vec3(0)*/, glm::quat rotation /*= glm::quat_identity()*/) {
 	// Create new collision mesh and shape
 	collisionMesh = CollisionMesh();
 	rp3d::CollisionShape* shape;
@@ -245,7 +235,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
 
 	// Add the collider to the rigid/static body
-	collider = rigidBody->addCollider(shape, transform);
+	collider = rigidBody->addCollider(shape, toReact(translation, rotation));
 }
 
 bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation) {
@@ -350,6 +340,7 @@ void Object::finalizeModel() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 }
 
+// Function which loads a texture for this model and binds it
 bool Object::loadTextureFile(const Arguments& args, std::string path, bool makeRelative) {
 	// Make the extracted path relative
 	std::string modelDirectory = args.getResourcePath() + "models/";
@@ -380,11 +371,8 @@ bool Object::loadTextureFile(const Arguments& args, std::string path, bool makeR
 
 
 void Object::update(float dt) {
-	// Get Rigidbody updated position (if it exists)
-	if(rigidBody) {
-		rigidBody->getTransform().getOpenGLMatrix(glm::value_ptr(model));
-		childModel = model;
-	}
+	// Make sure the graphics position is updated to match the physics position
+	syncGraphicsWithPhysics();
 
 	// Pass along to children
 	for(auto& child: children)
@@ -448,8 +436,9 @@ Object::ptr Object::setParent(Object::ptr p) {
 			}
 
 	// Update the depth to be one more than the depth of the parent
-	if(p) sceneDepth = p->sceneDepth + 1;
-	else sceneDepth = 0;
+	uint* pSceneDepth = (uint*) &sceneDepth;
+	if(p) *pSceneDepth = p->sceneDepth + 1;
+	else *pSceneDepth = 0;
 
 	// Mark the new parent as our parent
 	parent = p.get();
@@ -484,12 +473,67 @@ void Object::mouseButton(const SDL_MouseButtonEvent& e) {
 		child->mouseButton(e);
 }
 
+void Object::setModel(glm::mat4 _model) {
+	childModel = model = _model;
+	syncPhysicsWithGraphics();
+}
+
 void Object::setModelRelativeToParent(glm::mat4 _model) {
 	// Multiply the new model by the parent's model (if we have a parent)
 	childModel = model = (parent ? parent->childModel : glm::mat4(1)) * _model;
+	// Sync the physics simulation
+	syncPhysicsWithGraphics();
 }
 
 void Object::setChildModelRelativeToParent(glm::mat4 _model) {
 	// Multiply the new model by the parent's model (if we have a parent)
 	childModel = (parent ? parent->childModel : glm::mat4(1)) * _model;
+}
+
+void Object::setPosition(glm::vec3 _pos, bool relativeToParent /*= false*/) {
+	// If the position should be realtive to parent multiply it by the parent's child base model
+	if(relativeToParent)
+		_pos = glm::vec3(getParent()->getChildBaseModel() * glm::vec4(_pos, 1));
+
+	model[3][0] = _pos[0]; model[3][1] = _pos[1]; model[3][2] = _pos[2];
+	setModel(model);
+}
+
+void Object::setRotation(glm::quat rot, bool relativeToParent /*= false*/){
+	glm::vec3 translate, scale;
+	glm::quat oldRot;
+	decomposeModelMatrix(translate, oldRot, scale);
+
+	if(relativeToParent)
+		rot = glm::quat_cast((getParent()->getChildBaseModel() * glm::mat4_cast(rot))); // TODO: need to use the inverse transpose of base model?
+
+	setModel(constructMat4(translate, rot, scale));
+}
+
+glm::quat Object::getRotation() {
+	glm::vec3 translate, scale;
+	glm::quat rotate;
+	decomposeModelMatrix(translate, rotate, scale);
+	return rotate;
+}
+
+// TODO: scale not working?
+void Object::setScale(glm::vec3 scale, bool relativeToParent /*= false*/){
+	glm::vec3 translate, oldScale;
+	glm::quat rot;
+
+	if(relativeToParent){
+		getParent()->decomposeChildBaseModelMatrix(translate, rot, oldScale);
+		scale = glm::vec3(glm::scale(glm::mat4(1), oldScale) * glm::vec4(scale, 0)); // TODO: need to use the inverse transpose of scale matrix?
+	}
+
+	decomposeModelMatrix(translate, rot, oldScale);
+	setModel(constructMat4(translate, rot, scale));
+}
+
+glm::vec3 Object::getScale(){
+	glm::vec3 translate, scale;
+	glm::quat rotate;
+	decomposeModelMatrix(translate, rotate, scale);
+	return scale;
 }
