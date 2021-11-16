@@ -25,9 +25,9 @@ public:
 	Engine(std::string name, int width, int height);
 	Engine(std::string name);
 	~Engine();
-	virtual bool Initialize(const Arguments& args);
-	virtual void Run();
-	virtual void Update(float dt) {}
+	virtual bool initialize(const Arguments& args);
+	virtual void run();
+	virtual void update(float dt) {}
 
 	// Time functions
 	float getDT();
@@ -39,29 +39,30 @@ public:
 	nytl::Callback<void(const SDL_MouseButtonEvent&)> mouseButtonEvent;
 	nytl::Callback<void(const SDL_MouseWheelEvent&)> mouseWheelEvent;
 
-	Window* getWindow() const { return m_window; }
-	Graphics* getGraphics() const { return m_graphics; }
-	Physics* getPhysics() const { return m_physics; }
-	Sound* getSound() const { return m_sound; }
+	Window* getWindow() const { return window; }
+	Graphics* getGraphics() const { return graphics; }
+	Physics* getPhysics() const { return physics; }
+	Sound* getSound() const { return sound; }
 	Object* getSceneRoot() const { return sceneRoot; }
 
 private:
 	// Window related variables
-	Window* m_window;
-	std::string m_WINDOW_NAME;
-	int m_WINDOW_WIDTH;
-	int m_WINDOW_HEIGHT;
-	bool m_FULLSCREEN;
-	SDL_Event m_event;
-	circular_buffer<float> fpsMeasurements{60};
+	Window* window;
+	std::string WINDOW_NAME;
+	int WINDOW_WIDTH;
+	int WINDOW_HEIGHT;
+	bool FULLSCREEN;
+	SDL_Event event;
 
-	Graphics* m_graphics;
-	Physics* m_physics;
-	Sound* m_sound;
-	float m_DT;
+	Graphics* graphics;
+	Physics* physics;
+	Sound* sound;
+	
+	float DT;
 	float physicsAccumulator = 0;
 	std::chrono::high_resolution_clock::time_point frameStartTime;
-	bool m_running;
+	circular_buffer<float> fpsMeasurements{60};
+	bool running;
 
 	Object* sceneRoot;
 };

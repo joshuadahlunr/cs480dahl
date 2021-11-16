@@ -3,25 +3,25 @@
 #include <fstream>
 
 Shader::Shader() {
-	m_shaderProg = 0;
+	shaderProg = 0;
 }
 
 Shader::~Shader() {
 	// Delete all of the compiled shader objects
-	for (std::vector<GLuint>::iterator it = m_shaderObjList.begin() ; it != m_shaderObjList.end() ; it++)
+	for (std::vector<GLuint>::iterator it = shaderObjList.begin() ; it != shaderObjList.end() ; it++)
 		glDeleteShader(*it);
 
 	// Delete the shader program
-	if (m_shaderProg != 0) {
-		glDeleteProgram(m_shaderProg);
-		m_shaderProg = 0;
+	if (shaderProg != 0) {
+		glDeleteProgram(shaderProg);
+		shaderProg = 0;
 	}
 }
 
-bool Shader::Initialize() {
-	m_shaderProg = glCreateProgram();
+bool Shader::initialize() {
+	shaderProg = glCreateProgram();
 
-	if (m_shaderProg == 0) {
+	if (shaderProg == 0) {
 		std::cerr << "Error creating shader program\n";
 		return false;
 	}
@@ -30,7 +30,7 @@ bool Shader::Initialize() {
 }
 
 // Use this method to add shaders to the program. When finished - call finalize()
-bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments& args) {
+bool Shader::addShader(GLenum ShaderType, std::string filePath, const Arguments& args) {
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
 	std::string shaderDirectory = args.getResourcePath() + "shaders/";
 	if(filePath.find(shaderDirectory) == std::string::npos)
@@ -52,7 +52,7 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 	}
 
 	// Save the shader object - will be deleted in the destructor
-	m_shaderObjList.push_back(ShaderObj);
+	shaderObjList.push_back(ShaderObj);
 
 	// Set the shader's source code and compile it
 	const GLchar* p[1];
@@ -72,50 +72,50 @@ bool Shader::AddShader(GLenum ShaderType, std::string filePath, const Arguments&
 	}
 
 	// Attach the shader to our compiled program
-	glAttachShader(m_shaderProg, ShaderObj);
+	glAttachShader(shaderProg, ShaderObj);
 	return true;
 }
 
 
 // After all the shaders have been added to the program call this function
 // to link and validate the program.
-bool Shader::Finalize() {
+bool Shader::finalize() {
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { 0 };
 
 	// Link the program
-	glLinkProgram(m_shaderProg);
+	glLinkProgram(shaderProg);
 	// Ensure program linking was successful
-	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &Success);
+	glGetProgramiv(shaderProg, GL_LINK_STATUS, &Success);
 	if (Success == 0) {
-		glGetProgramInfoLog(m_shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
+		glGetProgramInfoLog(shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
 		std::cerr << "Error linking shader program: " << ErrorLog << std::endl;
 		return false;
 	}
 
 	// Validate the linked program
-	glValidateProgram(m_shaderProg);
-	glGetProgramiv(m_shaderProg, GL_VALIDATE_STATUS, &Success);
+	glValidateProgram(shaderProg);
+	glGetProgramiv(shaderProg, GL_VALIDATE_STATUS, &Success);
 	if (!Success) {
-		glGetProgramInfoLog(m_shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
+		glGetProgramInfoLog(shaderProg, sizeof(ErrorLog), NULL, ErrorLog);
 		std::cerr << "Invalid shader program: " << ErrorLog << std::endl;
 		return false;
 	}
 
 	// Delete the intermediate shader objects that have been added to the program
-	for (std::vector<GLuint>::iterator it = m_shaderObjList.begin(); it != m_shaderObjList.end(); it++)
+	for (std::vector<GLuint>::iterator it = shaderObjList.begin(); it != shaderObjList.end(); it++)
 		glDeleteShader(*it);
 
-	m_shaderObjList.clear();
+	shaderObjList.clear();
 
 	return true;
 }
 
-void Shader::Enable() { glUseProgram(m_shaderProg); }
+void Shader::enable() { glUseProgram(shaderProg); }
 
-GLint Shader::GetUniformLocation(const char* pUniformName) {
+GLint Shader::getUniformLocation(const char* pUniformName) {
 	// Get the shader location
-	GLuint Location = glGetUniformLocation(m_shaderProg, pUniformName);
+	GLuint Location = glGetUniformLocation(shaderProg, pUniformName);
 
 	// Warn if the location was invalid
 	if (Location == INVALID_UNIFORM_LOCATION)

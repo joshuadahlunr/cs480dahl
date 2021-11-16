@@ -11,15 +11,15 @@ int main(int argc, char **argv) {
 
 	// Start an engine
 	Application *engine = new Application("Pinball Game", 1000, 1000);
-	if(!engine->Initialize(args)) {
+	if(!engine->initialize(args)) {
 		printf("The engine failed to start.\n");
 		delete engine;
 		engine = NULL;
 		return 2;
 	}
 
-	// Run it
-	engine->Run();
+	// run it
+	engine->run();
 
 	// Clean it up
 	delete engine;

@@ -12,15 +12,15 @@ class Shader {
 public:
 	Shader();
 	~Shader();
-	bool Initialize();
-	void Enable();
-	bool AddShader(GLenum ShaderType, std::string filePath, const Arguments& args);
-	bool Finalize();
-	GLint GetUniformLocation(const char* pUniformName);
+	bool initialize();
+	void enable();
+	bool addShader(GLenum ShaderType, std::string filePath, const Arguments& args);
+	bool finalize();
+	GLint getUniformLocation(const char* pUniformName);
 
 private:
-	GLuint m_shaderProg;
-	std::vector<GLuint> m_shaderObjList;
+	GLuint shaderProg;
+	std::vector<GLuint> shaderObjList;
 };
 
 #endif  /* SHADER_H */

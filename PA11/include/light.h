@@ -17,8 +17,8 @@ public:
 
 	Light() : Light(Type::Disabled) {}
 	Light(Type type, size_t id = 0) : type(type), id(id) {}
-	void Render(Shader* boundShader) override;
-	void Update(float dt) override;
+	void render(Shader* boundShader) override;
+	void update(float dt) override;
 
 	// Light color setting
 	void setAmbient(glm::vec4 color) {lightAmbient = color;}

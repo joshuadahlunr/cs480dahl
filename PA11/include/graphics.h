@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
+
 
 #include "graphics_headers.h"
 #include "shader.h"
@@ -24,27 +24,26 @@ class Graphics {
 public:
 	Graphics(Object*& sceneRoot);
 	~Graphics();
-	bool Initialize(int width, int height, Engine* engine, const Arguments& args);
-	void Update(float dt);
-	void Render();
+	bool initialize(int width, int height, Engine* engine, const Arguments& args);
+	void update(float dt);
+	void render();
 
-	GUI* getGUI() const { return m_gui; }
-	Camera* getCamera() const { return m_camera; }
+	GUI* getGUI() const { return gui; }
+	Camera* getCamera() const { return camera; }
 
 	bool useFragShader = true;
 protected:
-	std::string ErrorString(GLenum error);
+	std::string errorString(GLenum error);
 
-	GUI* m_gui;
+	GUI* gui;
 
-	Camera *m_camera;
+	Camera *camera;
 	Shader* perFragShader, *perVertShader;
-	Skybox* m_skybox;
+	Skybox* skybox;
 
-	GLint m_projectionMatrix;
-	GLint m_viewMatrix;
-	GLint m_modelMatrix;
-
+	GLint projectionMatrix;
+	GLint viewMatrix;
+	GLint modelMatrix;
 
 	Object*& sceneRoot;
 };

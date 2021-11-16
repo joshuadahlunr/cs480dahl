@@ -28,13 +28,13 @@ public:
 public:
 	Physics(Object*& sceneRoot);
 	~Physics();
-	bool Initialize(Engine* engine, const Arguments& args);
-	void Update(float dt);
+	bool initialize(Engine* engine, const Arguments& args);
+	void update(float dt);
 #ifdef PHYSICS_DEBUG
-	void Render(Camera* camera);
+	void render(Camera* camera);
 #endif
 
-  	virtual void onContact(const rp3d::CollisionCallback::CallbackData& callbackData) override;
+	virtual void onContact(const rp3d::CollisionCallback::CallbackData& callbackData) override;
 
 	// Get the factory object
 	rp3d::PhysicsCommon& getFactory() { return factory; }

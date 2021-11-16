@@ -13,20 +13,20 @@ class Skybox {
 public:
 	Skybox();
 	~Skybox();
-	virtual bool Initialize(const Arguments& args, Camera* camera);
-	virtual void Render();
+	virtual bool initialize(const Arguments& args, Camera* camera);
+	virtual void render();
 
 	// Gets the camera's view matrix with translation removed
-	glm::mat4 GetViewTranslateless() { return glm::mat4(glm::mat3( camera->GetView() )); }
+	glm::mat4 getViewTranslateless() { return glm::mat4(glm::mat3( camera->getView() )); }
 
 protected:
 	// Loads a cubemap
-	bool LoadCubeTexture(const Arguments& args, std::string path, std::string extension = ".png"); // Loads a cubemap from a folder containing the six images with standardized names
-	bool LoadCubeTexture(const Arguments& args, const std::vector<std::string>& paths); // Loads a cubmap from a list of images, expects images to provided in this order: Right, Left, Top, Bottom, Front, Back
+	bool loadCubeTexture(const Arguments& args, std::string path, std::string extension = ".png"); // Loads a cubemap from a folder containing the six images with standardized names
+	bool loadCubeTexture(const Arguments& args, const std::vector<std::string>& paths); // Loads a cubmap from a list of images, expects images to provided in this order: Right, Left, Top, Bottom, Front, Back
 
 protected:
 	// List of vertecies
-	std::vector<glm::vec3> Vertices;
+	std::vector<glm::vec3> vertices;
 	// Vertex buffer handle
 	GLuint VB;
 	// Texture handle

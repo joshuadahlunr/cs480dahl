@@ -11,7 +11,7 @@ Window::~Window() {
 	SDL_Quit();
 }
 
-bool Window::Initialize(const string &name, int* width, int* height) {
+bool Window::initialize(const std::string &name, int* width, int* height) {
 	// Start SDL
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("SDL failed to initialize: %s\n", SDL_GetError());
@@ -67,4 +67,4 @@ bool Window::Initialize(const string &name, int* width, int* height) {
 	return true;
 }
 
-void Window::Swap() { SDL_GL_SwapWindow(gWindow); }
+void Window::swap() { SDL_GL_SwapWindow(gWindow); }

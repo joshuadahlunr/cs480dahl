@@ -5,28 +5,20 @@
 
 #include <sstream>
 
-Leaderboard::Leaderboard() {
-
-}
-
-Leaderboard::~Leaderboard() {
-
-}
-
-bool Leaderboard::Initialize(const Arguments& args, const string &filename) {
+bool Leaderboard::initialize(const Arguments& args, const std::string &filename) {
     //std::cout << "Loading leaderleaderstats from " << filename << std::endl;
     //std::string leaderboardDirectory = args.getResourcePath() + "models/";
     filepath = filename;
-    vector<string> tokens;
+    std::vector<std::string> tokens;
 
     // Load data from file
-    ifstream file(filename.c_str());
-    if (file.good()) { 
-        string line;
+    std::ifstream file(filename.c_str());
+    if (file) {
+        std::string line;
         if (file.is_open()) {
             while(getline(file, line)) {
-                istringstream ssLine(line);
-                string token;
+                std::istringstream ssLine(line);
+                std::string token;
                 while(getline(ssLine, token, ',')) {
                     tokens.push_back(token);
                 }
@@ -36,50 +28,49 @@ bool Leaderboard::Initialize(const Arguments& args, const string &filename) {
     }
 
     for(int i = 0; i < tokens.size(); i+=2) {
-        std::cout << tokens[i] << ", " << tokens[i+1] << endl;
-        UpdateScore(tokens[i], stof(tokens[i+1]));
+        std::cout << tokens[i] << ", " << tokens[i+1] << std::endl;
+        updateScore(tokens[i], stof(tokens[i+1]));
     }
     return true;
 }
 
-bool Leaderboard::AddPlayer(const string& userId) {
+bool Leaderboard::addPlayer(const std::string& userId) {
     // Check if player already exists
     if (leaderstats.find(userId) != leaderstats.end())
-        return false; 
-    
+        return false;
+
     // Add player to dictionary
-    leaderstats.insert(pair<string, float>(userId, 0));
+    leaderstats.insert(std::pair<std::string, float>(userId, 0));
     return true;
 }
 
-void Leaderboard::UpdateScore(const string& userId, float score) {
+void Leaderboard::updateScore(const std::string& userId, float score) {
     // Update the players score if its a valid name
     if (userId != "") {
         if (leaderstats.find(userId) == leaderstats.end())
-            leaderstats.insert(pair<string, float>(userId, score));
+            leaderstats.insert(std::pair<std::string, float>(userId, score));
         else
             leaderstats[userId] = score;
     }
     sort();
 }
 
-void Leaderboard::Save() {
-    ofstream file(filepath);
+void Leaderboard::save() {
+    std::ofstream file(filepath);
     for (auto const& element : leaderstats) {
-        file << element.first << "," << to_string(element.second) << endl;
+        file << element.first << "," << std::to_string(element.second) << std::endl;
     }
     //file << "write this to file";
     file.close();
 }
 
-bool compare(pair<string, float>& a, pair<string, float>& b) {
+bool compare(std::pair<std::string, float>& a, std::pair<std::string, float>& b) {
     return a.second < b.second;
 }
 
-void Leaderboard::sort()
-{
+void Leaderboard::sort() {
     // Sort the leaderboard
-    vector<pair<string, float>> items;
+    std::vector<std::pair<std::string, float>> items;
     for (auto& it : leaderstats) {
         items.push_back(it);
     }

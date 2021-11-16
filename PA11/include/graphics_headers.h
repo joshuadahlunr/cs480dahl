@@ -16,7 +16,7 @@
 #endif
 
 // GLM for matricies
-#define GLM_FORCE_SWIZZLE 
+#define GLM_FORCE_SWIZZLE
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,7 +34,7 @@ struct Vertex {
 	glm::vec2 uv;
 	glm::vec3 normal;
 
-	Vertex(glm::vec3 v, glm::vec3 c, glm::vec2 u, glm::vec3 n): vertex(v), color(c), uv(u), normal(n) {}
+	Vertex(glm::vec3 p, glm::vec3 c, glm::vec2 u, glm::vec3 n): vertex(p), color(c), uv(u), normal(n) {}
 };
 
 // Struct defining collision mesh data
@@ -46,6 +46,7 @@ struct CollisionMesh {
 	void clear() {
 		if(vertexData) delete vertexData;
 		vertexData = nullptr;
+
 		if(indiceData) delete indiceData;
 		indiceData = nullptr;
 	}
@@ -61,9 +62,7 @@ struct ConvexCollisionMesh {
 	int* convexIndiceData = nullptr;
 	int numConvexVertices;
 
-	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies) {
-
-	}
+	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies) { }
 
 	~ConvexCollisionMesh() {
 
@@ -74,7 +73,7 @@ struct ConvexCollisionMesh {
 	}
 };
 
-// Function which returns the matrix needed to rotate the <original> vector into the <target> vector
+// Function which returns the matrix needed to rotate the <original> std::vector into the <target> std::vector
 static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 	glm::quat q;
 	glm::vec3 a = glm::cross(original, target);
@@ -89,10 +88,5 @@ static glm::mat4 rotateTo(glm::vec3 original, glm::vec3 target){
 	q = glm::normalize(q);
 	return glm::mat4_cast(q);
 }
-
-// Global variable representing the current timescale
-extern float globalTimeScale;
-// Global variable tracking if we should be using scaled choordinates or not
-extern bool globalShouldScale;
 
 #endif /* GRAPHICS_HEADERS_H */

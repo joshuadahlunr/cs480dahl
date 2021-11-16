@@ -27,15 +27,15 @@ Object::Object() {
 
 Object::~Object() {
 	// Make sure all of the children are freed
-	for(Object* child: children){
+	for(Object* child: children) {
 		delete child;
 		child = nullptr;
 		parent = nullptr;
 	}
 
 	// Clean up the lists of vertecies and indices
-	Vertices.clear();
-	Indices.clear();
+	vertices.clear();
+	indices.clear();
 	collisionMesh.clear();
 
 	// Destroy the rigid body (if it was initialized)
@@ -43,7 +43,7 @@ Object::~Object() {
 		Physics::getSingleton()->getWorld().destroyRigidBody(rigidBody);
 }
 
-bool Object::InitializeGraphics(const Arguments& args, std::string filepath, std::string texturePath){
+bool Object::initializeGraphics(const Arguments& args, std::string filepath, std::string texturePath) {
 	bool success = true;
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
 	std::string modelDirectory = args.getResourcePath() + "models/";
@@ -54,19 +54,19 @@ bool Object::InitializeGraphics(const Arguments& args, std::string filepath, std
 	success &= LoadModelFile(args, filepath);
 
 	// Load the texture (error texture if none provided)
-	success &= LoadTextureFile(args, args.getResourcePath() + "textures/" + texturePath, false);
+	success &= loadTextureFile(args, args.getResourcePath() + "textures/" + texturePath, false);
 
 	// Ensure that the child model matrix is the same as the normal model matrix
 	childModel = model;
 
-	// Initialize the children
+	// initialize the children
 	for(Object* child: children)
-		success &= child->InitializeGraphics(args);
+		success &= child->initializeGraphics(args);
 
 	return success;
 }
 
-bool Object::InitializePhysics(const Arguments& args, Physics& physics, bool _static) {
+bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _static) {
 	// Create a physics rigid body with the initial transform from the model matrix
 	rigidBody = Physics::getSingleton()->getWorld().createRigidBody(getGraphicsTransform());
 
@@ -122,7 +122,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	if (makeConvex) {
 		// store vertex positions temporarily
 		std::vector<quickhull::Vector3<float>> positions;
-		for(Vertex& vert: Vertices) {
+		for(Vertex& vert: vertices) {
 			positions.push_back(quickhull::Vector3<float>(vert.vertex.x, vert.vertex.y, vert.vertex.z));
 		}
 
@@ -138,7 +138,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 
 		collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
 		int i = 0;
-		for(quickhull::Vector3<float> vec: hull.getVertexBuffer()){
+		for(quickhull::Vector3<float> vec: hull.getVertexBuffer()) {
 			collisionMesh.vertexData[i] = vec.x;
 			collisionMesh.vertexData[i + 1] = vec.y;
 			collisionMesh.vertexData[i + 2] = vec.z;
@@ -160,14 +160,14 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 			const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
 			// Error handling
-			if(scene == nullptr){
+			if(scene == nullptr) {
 				std::cerr << "Failed to import model `" << path << "`: ";
 				std::cerr << importer.GetErrorString() << std::endl;
 				return false;
 			}
 
 			// For each mesh...
-			for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++){
+			for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++) {
 
 				std::vector<glm::vec3> tempVertices = std::vector<glm::vec3>();
 				std::vector<int> tempIndices = std::vector<int>();
@@ -176,7 +176,7 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 				const aiMesh* mesh = scene->mMeshes[meshIndex];
 
 				// For each vertex...
-				for(int vert = 0; vert < mesh->mNumVertices; vert++){
+				for(int vert = 0; vert < mesh->mNumVertices; vert++) {
 
 					// Extract the position
 					auto _pos = mesh->mVertices[vert];
@@ -210,18 +210,18 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 			}
 		} else { // if not convex and mesh from file
 			// store the concave mesh using the exact model data
-			collisionMesh.numVertices = Vertices.size();
+			collisionMesh.numVertices = vertices.size();
 			collisionMesh.vertexData = new float[collisionMesh.numVertices * 3];
 			int i = 0;
-			for(Vertex& vert: Vertices) {
+			for(Vertex& vert: vertices) {
 				collisionMesh.vertexData[i] = vert.vertex.x;
 				collisionMesh.vertexData[i + 1] = vert.vertex.y;
 				collisionMesh.vertexData[i + 2] = vert.vertex.z;
 				i += 3;
 			}
-			collisionMesh.indiceData = new int[Indices.size()];
-			for(int i = 0; i < Indices.size(); ++i)
-				collisionMesh.indiceData[i] = Indices[i];
+			collisionMesh.indiceData = new int[indices.size()];
+			for(int i = 0; i < indices.size(); ++i)
+				collisionMesh.indiceData[i] = indices[i];
 		}
 	}
 
@@ -248,20 +248,20 @@ bool Object::addMeshCollider(const Arguments& args, bool makeConvex /*= true*/, 
 	collider = rigidBody->addCollider(shape, transform);
 }
 
-bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation){
+bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation) {
 	// Load the model
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
 	// Error handling
-	if(scene == nullptr){
+	if(scene == nullptr) {
 		std::cerr << "Failed to import model `" << path << "`: ";
 		std::cerr << importer.GetErrorString() << std::endl;
 		return false;
 	}
 
 	// For each mesh...
-	for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++){
+	for(int meshIndex = 0; meshIndex < scene->mNumMeshes; meshIndex++) {
 		// First mesh is put in this object, future meshes are added as sub-object
 		Object* obj;
 		if(meshIndex == 0) obj = this;
@@ -271,14 +271,14 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 		}
 
 		// Remove a previous model
-		obj->Vertices.clear();
-		obj->Indices.clear();
+		obj->vertices.clear();
+		obj->indices.clear();
 
 		// Extract this mesh from the scene
 		const aiMesh* mesh = scene->mMeshes[meshIndex];
 
 		// If the mesh has a material...
-		if(mesh->mMaterialIndex > 0){
+		if(mesh->mMaterialIndex > 0) {
 			// Extract the material from the scene
 			const aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 			// Extract the path to the diffuse texture
@@ -286,13 +286,13 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			mat->GetTexture(aiTextureType_DIFFUSE, 0, &_path);
 
 			if(_path.length > 0)
-				if( !obj->LoadTextureFile(args, std::string(_path.C_Str())) )
+				if( !obj->loadTextureFile(args, std::string(_path.C_Str())) )
 					return false;
 
 		}
 
 		// For each vertex...
-		for(int vert = 0; vert < mesh->mNumVertices; vert++){
+		for(int vert = 0; vert < mesh->mNumVertices; vert++) {
 
 			// Extract the position
 			auto _pos = mesh->mVertices[vert];
@@ -302,27 +302,27 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 
 			// Extract the (first) vertex color if it exists
 			glm::vec3 color(1, 1, 1); // White by default
-			if(mesh->HasVertexColors(0)){
+			if(mesh->HasVertexColors(0)) {
 				auto col = mesh->mColors[0][vert];
 				color = glm::vec3(col.r, col.g, col.b);
 			}
 
 			// Extract the (first) texture coordinates if they exist
 			glm::vec2 uv(0, 0); // 0,0 by default
-			if(mesh->HasTextureCoords(0)){
+			if(mesh->HasTextureCoords(0)) {
 				auto tex = mesh->mTextureCoords[0][vert];
 				uv = glm::vec2(tex.x, -tex.y);
 			}
 
 			// Extract the (first) texture coordinates if they exist
 			glm::vec3 normal(0, 0, 0); // 0,0,0 by default
-			if(mesh->HasNormals()){
+			if(mesh->HasNormals()) {
 				auto tex = mesh->mNormals[vert];
 				normal = glm::vec3(tex.x, tex.y, tex.z);
 			}
 
 			// Add the vertex to the list of vertecies
-			obj->Vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv, normal);
+			obj->vertices.emplace_back(/*position*/ glm::vec3(pos.x, pos.y, pos.z), color, uv, normal);
 		}
 
 		// For each face...
@@ -330,27 +330,27 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			// For each index in the face (3 in the triangles)
 			for(int index = 0; index < 3; index++)
 				// Add the index to the list of indices
-				obj->Indices.push_back(mesh->mFaces[face].mIndices[index]);
+				obj->indices.push_back(mesh->mFaces[face].mIndices[index]);
 
 		// Upload the model to the GPU
-		obj->FinalizeModel();
+		obj->finalizeModel();
 	}
 
 	return true;
 }
 
 // Uploads the model data to the GPU
-void Object::FinalizeModel() {
+void Object::finalizeModel() {
 	// Add the data to the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
 	// Add the data to the face buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * Indices.size(), &Indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 }
 
-bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeRelative) {
+bool Object::loadTextureFile(const Arguments& args, std::string path, bool makeRelative) {
 	// Make the extracted path relative
 	std::string modelDirectory = args.getResourcePath() + "models/";
 	if(path.find(modelDirectory) == std::string::npos && makeRelative)
@@ -379,21 +379,21 @@ bool Object::LoadTextureFile(const Arguments& args, std::string path, bool makeR
 }
 
 
-void Object::Update(float dt){
+void Object::update(float dt) {
 	// Get Rigidbody updated position (if it exists)
-	if(rigidBody){
+	if(rigidBody) {
 		rigidBody->getTransform().getOpenGLMatrix(glm::value_ptr(model));
 		childModel = model;
 	}
 
 	// Pass along to children
 	for(Object* child: children)
-		child->Update(dt);
+		child->update(dt);
 }
 
-void Object::Render(Shader* boundShader) {
+void Object::render(Shader* boundShader) {
 	// Set the model matrix
-	glUniformMatrix4fv(boundShader->GetUniformLocation("modelMatrix"), 1, GL_FALSE, glm::value_ptr(GetModel()));
+	glUniformMatrix4fv(boundShader->getUniformLocation("modelMatrix"), 1, GL_FALSE, glm::value_ptr(getModel()));
 
 	// Enable 3 vertex attributes
 	glEnableVertexAttribArray(0);
@@ -411,7 +411,7 @@ void Object::Render(Shader* boundShader) {
 
 
 	//bind texture (if it exists)
-	if(tex != -1){
+	if(tex != -1) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex);
 	}
@@ -422,7 +422,7 @@ void Object::Render(Shader* boundShader) {
 	// Enable backface culling
 	glEnable(GL_CULL_FACE);
 	// Draw the triangles
-	glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 	// Disable the attributes
 	glDisableVertexAttribArray(0);
@@ -432,17 +432,17 @@ void Object::Render(Shader* boundShader) {
 
 	// Pass along to children.
 	for(Object* child: children)
-		child->Render(boundShader);
+		child->render(boundShader);
 }
 
-Object* Object::setParent(Object* p){
+Object* Object::setParent(Object* p) {
 	// If the parent is the same as what we are setting it to... do nothing
 	if(parent == p) return p;
 
 	// If this object already has a parent... remove it as a child of that parent
 	if(parent != nullptr)
 		for(int i = 0; i < parent->children.size(); i++)
-			if(parent->children[i] == this){ // TODO: Are pointer comparisons sufficient here?
+			if(parent->children[i] == this) { // TODO: Are pointer comparisons sufficient here?
 				parent->children.erase(parent->children.begin() + i);
 				break;
 			}
@@ -458,7 +458,7 @@ Object* Object::setParent(Object* p){
 	return p;
 }
 
-Object* Object::addChild(Object* child){
+Object* Object::addChild(Object* child) {
 	// If the object is already a child... don't bother adding
 	for(Object* c: children)
 		if(c == child)
@@ -472,24 +472,24 @@ Object* Object::addChild(Object* child){
 	return child;
 }
 
-void Object::Keyboard(const SDL_KeyboardEvent& e){
+void Object::keyboard(const SDL_KeyboardEvent& e) {
 	// Pass along to children
 	for(Object* child: children)
-		child->Keyboard(e);
+		child->keyboard(e);
 }
 
-void Object::MouseButton(const SDL_MouseButtonEvent& e){
+void Object::mouseButton(const SDL_MouseButtonEvent& e) {
 	// Pass along to children
 	for(Object* child: children)
-		child->MouseButton(e);
+		child->mouseButton(e);
 }
 
-void Object::setModelRelativeToParent(glm::mat4 _model){
+void Object::setModelRelativeToParent(glm::mat4 _model) {
 	// Multiply the new model by the parent's model (if we have a parent)
 	childModel = model = (parent ? parent->childModel : glm::mat4(1)) * _model;
 }
 
-void Object::setChildModelRelativeToParent(glm::mat4 _model){
+void Object::setChildModelRelativeToParent(glm::mat4 _model) {
 	// Multiply the new model by the parent's model (if we have a parent)
 	childModel = (parent ? parent->childModel : glm::mat4(1)) * _model;
 }

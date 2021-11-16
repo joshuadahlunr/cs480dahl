@@ -6,48 +6,48 @@
 #include "camera.h"
 #include "sound.h"
 
-Engine::Engine(string name, int width, int height) {
-	m_WINDOW_NAME = name;
-	m_WINDOW_WIDTH = width;
-	m_WINDOW_HEIGHT = height;
-	m_FULLSCREEN = false;
+Engine::Engine(std::string name, int width, int height) {
+	WINDOW_NAME = name;
+	WINDOW_WIDTH = width;
+	WINDOW_HEIGHT = height;
+	FULLSCREEN = false;
 }
 
-Engine::Engine(string name) {
-	m_WINDOW_NAME = name;
-	m_WINDOW_HEIGHT = 0;
-	m_WINDOW_WIDTH = 0;
-	m_FULLSCREEN = true;
+Engine::Engine(std::string name) {
+	WINDOW_NAME = name;
+	WINDOW_HEIGHT = 0;
+	WINDOW_WIDTH = 0;
+	FULLSCREEN = true;
 }
 
 Engine::~Engine() {
-	delete m_window;
+	delete window;
 	delete sceneRoot;
-	delete m_graphics;
-	delete m_sound;
-	m_window = nullptr;
+	delete graphics;
+	delete sound;
+	window = nullptr;
 	sceneRoot = nullptr;
-	m_graphics = nullptr;
+	graphics = nullptr;
 }
 
-bool Engine::Initialize(const Arguments& args) {
+bool Engine::initialize(const Arguments& args) {
 	// Start a window
-	m_window = new Window();
-	if(!m_window->Initialize(m_WINDOW_NAME, &m_WINDOW_WIDTH, &m_WINDOW_HEIGHT)) {
+	window = new Window();
+	if(!window->initialize(WINDOW_NAME, &WINDOW_WIDTH, &WINDOW_HEIGHT)) {
 		printf("The window failed to initialize.\n");
 		return false;
 	}
 
 	// Start the graphics
-	m_graphics = new Graphics(sceneRoot);
-	if(!m_graphics->Initialize(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, this, args)) {
+	graphics = new Graphics(sceneRoot);
+	if(!graphics->initialize(WINDOW_WIDTH, WINDOW_HEIGHT, this, args)) {
 		printf("The graphics failed to initialize.\n");
 		return false;
 	}
 
 	// Start the physics
-	m_physics = new Physics(sceneRoot);
-	if(!m_physics->Initialize(this, args)) {
+	physics = new Physics(sceneRoot);
+	if(!physics->initialize(this, args)) {
 		printf("The physics failed to initialize.\n");
 		return false;
 	}
@@ -58,77 +58,74 @@ bool Engine::Initialize(const Arguments& args) {
 	// Set the time
 	frameStartTime = std::chrono::high_resolution_clock::now();
 
-	m_sound = new Sound();
+	sound = new Sound();
 
 	// No errors
 	return true;
 }
 
-void Engine::Run() {
-	m_running = true;
+void Engine::run() {
+	running = true;
 
-	while(m_running) {
+	while(running) {
 		// Update the DT
-		m_DT = getDT();
+		DT = getDT();
 
 		// Process events
-		GUI* gui = m_graphics->getGUI();
-		while(SDL_PollEvent(&m_event) != 0) {
-			auto shouldProcess = gui->ProcessEvent(m_event);
-
-			// bool w_down = false, a_down = false, s_down = false, d_down = false;
+		GUI* gui = graphics->getGUI();
+		while(SDL_PollEvent(&event) != 0) {
+			auto shouldProcess = gui->processEvent(event);
 
 			// Quit Events
-			if(m_event.type == SDL_QUIT)
-				m_running = false;
+			if(event.type == SDL_QUIT)
+				running = false;
 			// Key Events
-			else if (shouldProcess.keyboard && (m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP)){
+			else if (shouldProcess.keyboard && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
 
 				// Escape is quit
-				if(m_event.key.keysym.sym == SDLK_ESCAPE)
-					m_running = false;
+				if(event.key.keysym.sym == SDLK_ESCAPE)
+					running = false;
 				// Forward other events
 				else
-					keyboardEvent(m_event.key);
+					keyboardEvent(event.key);
 			}
 			// Mouse Motion events
-			else if(shouldProcess.mouse && m_event.type == SDL_MOUSEMOTION)
-				mouseMotionEvent(m_event.motion);
+			else if(shouldProcess.mouse && event.type == SDL_MOUSEMOTION)
+				mouseMotionEvent(event.motion);
 			// Mouse Button events
-			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEBUTTONDOWN || m_event.type == SDL_MOUSEBUTTONUP))
-				mouseButtonEvent(m_event.button);
+			else if (shouldProcess.mouse && (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP))
+				mouseButtonEvent(event.button);
 			// Mouse Wheel events
-			else if (shouldProcess.mouse && (m_event.type == SDL_MOUSEWHEEL))
-				mouseWheelEvent(m_event.wheel);
+			else if (shouldProcess.mouse && (event.type == SDL_MOUSEWHEEL))
+				mouseWheelEvent(event.wheel);
 		}
 
 		// Take a sample of the current FPS
-		fpsMeasurements.push_back(1.0 / m_DT);
+		fpsMeasurements.push_back(1.0 / DT);
 
 		// Run application specific code
-		Update(m_DT);
+		update(DT);
 
 		// Update the physics simulation (at a constant rate of 60 times per second)
-		physicsAccumulator += m_DT;
-		if(physicsAccumulator > 1.0/60){
-			std::cout << physicsAccumulator << std::endl;
-			m_physics->Update(physicsAccumulator);
+		physicsAccumulator += DT;
+		if(physicsAccumulator > 1.0/60) {
+			physics->update(physicsAccumulator);
 			physicsAccumulator = 0;
 		}
 
 		// Update the scene tree
-		sceneRoot->Update(m_DT);
+		sceneRoot->update(DT);
 		// Update and render the graphics
-		m_graphics->Update(m_DT);
-		m_graphics->Render();
+		graphics->update(DT);
+		graphics->render();
 
 		// Physic debug display
 #ifdef PHYSICS_DEBUG
-		m_physics->Render(m_graphics->getCamera());
+		physics->render(graphics->getCamera());
 #endif
 
-		// Swap to the Window
-		m_window->Swap();
+		// Swap the framebuffer
+		window->swap();
 	}
 }
 
@@ -141,7 +138,7 @@ float Engine::getDT() {
 	return microseconds * 0.000001;
 }
 
-float Engine::getAverageFPS(){
+float Engine::getAverageFPS() {
 	// Sum all of the recently measure framerates
 	float accumulator = 0;
 	for(float f: fpsMeasurements)

@@ -13,14 +13,14 @@ class Object {
 public:
 	Object();
 	~Object();
-	virtual bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
-	virtual bool InitializePhysics(const Arguments& args, Physics& physics, bool _static);
-	virtual void Update(float dt);
-	virtual void Render(Shader* boundShader);
+	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
+	virtual bool initializePhysics(const Arguments& args, Physics& physics, bool _static);
+	virtual void update(float dt);
+	virtual void render(Shader* boundShader);
 
-	// Mouse and Keyboard event propagation
-	virtual void Keyboard(const SDL_KeyboardEvent& e);
-	virtual void MouseButton(const SDL_MouseButtonEvent& e);
+	// mouse and keyboard event propagation
+	virtual void keyboard(const SDL_KeyboardEvent& e);
+	virtual void mouseButton(const SDL_MouseButtonEvent& e);
 
 	// Physics functions
 	void setPhysicsTransform(rp3d::Transform t) { if(rigidBody) rigidBody->setTransform(t); }
@@ -42,8 +42,8 @@ public:
 	const std::vector<Object*>& getChildren() const { return children; }
 
 	// Sets model matrix
-	glm::mat4 GetModel() { return model; }
-	glm::mat4 GetChildBaseModel() { return childModel;  }
+	glm::mat4 getModel() { return model; }
+	glm::mat4 getChildBaseModel() { return childModel;  }
 	glm::vec3 getPosition() { return glm::vec3(model[3][0], model[3][1], model[3][2]); }
 	void setModel(glm::mat4 _model) { childModel = model = _model; }
 	void setChildModel(glm::mat4 _model) { childModel = _model; }
@@ -54,19 +54,19 @@ public:
 
 	// The depth in the scene tree of this object
 	uint sceneDepth = 0;
-	bool LoadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
+	bool loadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
 
 protected:
 	// Uploads the model data to the GPU
-	void FinalizeModel();
+	void finalizeModel();
 	// Model/Texture loading
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 protected:
 	glm::mat4 model = glm::mat4(1);
 	glm::mat4 childModel = glm::mat4(1); // Model matrix that is used as the base of to this object's children's model matricies
-	std::vector<Vertex> Vertices;
-	std::vector<unsigned int> Indices;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 
 	CollisionMesh collisionMesh;
 
@@ -89,9 +89,9 @@ public:
 	using Object::Object;
 
 	// Submesh initialization doesn't do anything
-	bool InitializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
+	bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
 	// A submesh syncs it model matrix to its parent every frame
-	void Update(float dt) override { setModelRelativeToParent(glm::mat4(1)); }
+	void update(float dt) override { setModelRelativeToParent(glm::mat4(1)); }
 };
 
 #endif /* OBJECT_H */

@@ -18,20 +18,18 @@ class GUI {
 public:
 	// Struct definging if the GUI is actively handling keyboard or mouse events which should then be ignored by the rest of the program
 	struct ShouldProcessEvents {
-		 bool keyboard, mouse;
+		bool keyboard, mouse;
 	};
 
 public:
 	GUI();
 	~GUI();
-	bool Initialize(Engine* engine, const char* glsl_version = "#version 330");
-	void Update(float dt);
-	void Render();
-
-	// bool setupFramebuffer();
+	bool initialize(Engine* engine, const char* glsl_version = "#version 330");
+	void update(float dt) {}
+	void render();
 
 	// Function which processes mouse and keyboard events, returning if they should continue to be propigated
-	ShouldProcessEvents ProcessEvent(SDL_Event& event);
+	ShouldProcessEvents processEvent(SDL_Event& event);
 private:
 	ImGuiIO& io;
 

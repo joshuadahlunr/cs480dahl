@@ -4,14 +4,14 @@
 #include "application.h"
 #include <algorithm> // for clamp
 
-Camera::Camera(Application* engine) : m_app(engine) { }
+Camera::Camera(Application* engine) : app(engine) { }
 
 Camera::~Camera() {
 	// Unregister us as a listener to resize events
 	SDL_DelEventWatch(windowResizeEventListener, this);
 }
 
-bool Camera::Initialize(int w, int h) {
+bool Camera::initialize(int w, int h) {
 	// Init the starting eye and focus pos details
 	eyePos = glm::vec3(0.0, 25, -25.0);
 	focusPos = glm::vec3(0.0, 0.0, 0.0);
@@ -39,7 +39,7 @@ bool Camera::Initialize(int w, int h) {
 	return true;
 }
 
-void Camera::Update(float dt) {
+void Camera::update(float dt) {
 	// Get the focus position
 	if (focusObj != nullptr)
 		focusPos = focusObj->getPosition();
@@ -59,9 +59,9 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 
 		int w = event->window.data1, h = event->window.data2;
 		camera->projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
-								 			float(w)/float(h), //Aspect Ratio, so Circles stay Circular
-								 			0.01f, //Distance to the near plane, normally a small value like this
-								 			10000000.0f); //Distance to the far plane,
+											float(w)/float(h), //Aspect Ratio, so Circles stay Circular
+											0.01f, //Distance to the near plane, normally a small value like this
+											10000000.0f); //Distance to the far plane,
 
 		// Resize the OpenGL viewport
 		glViewport(0, 0, w, h);
@@ -70,7 +70,7 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 	return 0;
 }
 
-void Camera::Keyboard(const SDL_KeyboardEvent& e){
+void Camera::keyboard(const SDL_KeyboardEvent& e) {
 	if (e.type == SDL_KEYDOWN) {
 		if (e.keysym.sym == SDLK_LSHIFT) {
 			// When holding shift decrease zoom amount
@@ -81,7 +81,7 @@ void Camera::Keyboard(const SDL_KeyboardEvent& e){
 				focusObj = nullptr;
 				focusPos = glm::vec3(0.0,0.0,0.0);
 			} else {
-				focusObj = m_app->ball;
+				focusObj = app->ball;
 			}
 		}
 	} else if (e.type == SDL_KEYUP) {
@@ -92,11 +92,11 @@ void Camera::Keyboard(const SDL_KeyboardEvent& e){
 	}
 }
 
-void Camera::MouseButton(const SDL_MouseButtonEvent& e){
+void Camera::mouseButton(const SDL_MouseButtonEvent& e) {
 	// No purpose yet
 }
 
-void Camera::MouseMotion(const SDL_MouseMotionEvent& e){
+void Camera::mouseMotion(const SDL_MouseMotionEvent& e) {
 	// Check if right mouse button held
 	if ((e.state & SDL_BUTTON_RMASK) != 0) {
 		// Get xy as xDiff yDiff from last frame
@@ -128,7 +128,7 @@ void Camera::MouseMotion(const SDL_MouseMotionEvent& e){
 	mouseLastPos = glm::vec2(e.x, e.y);
 }
 
-void Camera::MouseWheel(const SDL_MouseWheelEvent& e) {
+void Camera::mouseWheel(const SDL_MouseWheelEvent& e) {
 	// increase/decrease the distance from the focus pos based on wheel scroll up/down
 	distanceFromFocusPos -= e.y * distanceFromFocusPos * zoomScale;
 

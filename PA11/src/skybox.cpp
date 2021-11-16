@@ -15,93 +15,93 @@ Skybox::Skybox() {
 
 Skybox::~Skybox() {
 	// Clean up the lists of vertecies and indices
-	Vertices.clear();
+	vertices.clear();
 }
 
-bool Skybox::Initialize(const Arguments& args, Camera* camera){
+bool Skybox::initialize(const Arguments& args, Camera* camera) {
 	bool success = true;
 
 	// Assign the camera
 	this->camera = camera;
 
 	// Create a cube the skybox will be draw onto
-	Vertices = {
+	vertices = {
 		{-1.0f,  1.0f, -1.0f},
-        {-1.0f, -1.0f, -1.0f},
-        { 1.0f, -1.0f, -1.0f},
-        { 1.0f, -1.0f, -1.0f},
-        { 1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
+		{-1.0f, -1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f},
+		{ 1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f},
 
-        {-1.0f, -1.0f,  1.0f},
-        {-1.0f, -1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        {-1.0f, -1.0f,  1.0f},
+		{-1.0f, -1.0f,  1.0f},
+		{-1.0f, -1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f,  1.0f},
+		{-1.0f, -1.0f,  1.0f},
 
-        { 1.0f, -1.0f, -1.0f},
-        { 1.0f, -1.0f,  1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        { 1.0f,  1.0f, -1.0f},
-        { 1.0f, -1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f},
+		{ 1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{ 1.0f,  1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f},
 
-        {-1.0f, -1.0f,  1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        { 1.0f, -1.0f,  1.0f},
-        {-1.0f, -1.0f,  1.0f},
+		{-1.0f, -1.0f,  1.0f},
+		{-1.0f,  1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{ 1.0f, -1.0f,  1.0f},
+		{-1.0f, -1.0f,  1.0f},
 
-        {-1.0f,  1.0f, -1.0f},
-        { 1.0f,  1.0f, -1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        { 1.0f,  1.0f,  1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        {-1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f},
+		{ 1.0f,  1.0f, -1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f},
+		{-1.0f,  1.0f,  1.0f},
+		{-1.0f,  1.0f, -1.0f},
 
-        {-1.0f, -1.0f, -1.0f},
-        {-1.0f, -1.0f,  1.0f},
-        { 1.0f, -1.0f, -1.0f},
-        { 1.0f, -1.0f, -1.0f},
-        {-1.0f, -1.0f,  1.0f},
-        { 1.0f, -1.0f,  1.0f}
+		{-1.0f, -1.0f, -1.0f},
+		{-1.0f, -1.0f,  1.0f},
+		{ 1.0f, -1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f},
+		{-1.0f, -1.0f,  1.0f},
+		{ 1.0f, -1.0f,  1.0f}
 	};
 
 	// Upload the cube to the gpu
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), &Vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
 	// Create a shader program for the skybox
 	shader = new Shader();
-	success &= shader->Initialize();
-	success &= shader->AddShader(GL_VERTEX_SHADER, "skybox.vert.glsl", args);
-	success &= shader->AddShader(GL_FRAGMENT_SHADER, "skybox.frag.glsl", args);
-	success &= shader->Finalize();
+	success &= shader->initialize();
+	success &= shader->addShader(GL_VERTEX_SHADER, "skybox.vert.glsl", args);
+	success &= shader->addShader(GL_FRAGMENT_SHADER, "skybox.frag.glsl", args);
+	success &= shader->finalize();
 
 	// Find the projection matrix in the skybox shader
-	projectionMatLocation = shader->GetUniformLocation("projectionMat");
-	if(projectionMatLocation == INVALID_UNIFORM_LOCATION){
+	projectionMatLocation = shader->getUniformLocation("projectionMat");
+	if(projectionMatLocation == INVALID_UNIFORM_LOCATION) {
 		std::cerr << "Can't find uniform `projectionMat` in skybox shader" << std::endl;
 		success = false;
 	}
 
 	// Find the view matrix in the skybox shader
-	viewMatLocation = shader->GetUniformLocation("viewMat");
-	if(viewMatLocation == INVALID_UNIFORM_LOCATION){
+	viewMatLocation = shader->getUniformLocation("viewMat");
+	if(viewMatLocation == INVALID_UNIFORM_LOCATION) {
 		std::cerr << "Can't find uniform `viewMat` in skybox shader" << std::endl;
 		success = false;
 	}
 
 	// Load the cube map
-	success &= LoadCubeTexture(args, args.getResourcePath() + "textures/skyboxs/space");
+	success &= loadCubeTexture(args, args.getResourcePath() + "textures/skyboxs/space");
 
 	return success;
 }
 
 // Loads a cubemap from a folder containing the six images with standardized names
-bool Skybox::LoadCubeTexture(const Arguments& args, std::string path, std::string extension){
+bool Skybox::loadCubeTexture(const Arguments& args, std::string path, std::string extension) {
 	// Create the six paths based on standardized names
 	std::vector<std::string> paths {
 		path + "/right" + extension,
@@ -113,13 +113,13 @@ bool Skybox::LoadCubeTexture(const Arguments& args, std::string path, std::strin
 	};
 
 	// Load the cubemao
-	return LoadCubeTexture(args, paths);
+	return loadCubeTexture(args, paths);
 }
 
 // Loads a cubmap from a list of images, expects images to provided in this order: Right, Left, Top, Bottom, Front, Back
-bool Skybox::LoadCubeTexture(const Arguments& args, const std::vector<std::string>& paths) {
+bool Skybox::loadCubeTexture(const Arguments& args, const std::vector<std::string>& paths) {
 	// Complain if we aren't given 6 images
-	if(paths.size() != 6){
+	if(paths.size() != 6) {
 		std::cerr << "Cubemaps must be initialized with 6 images." << std::endl;
 		return false;
 	}
@@ -130,38 +130,38 @@ bool Skybox::LoadCubeTexture(const Arguments& args, const std::vector<std::strin
 
 	// Load the images
 	int width, height, channelsPresent;
-	for (unsigned int i = 0; i < paths.size(); i++){
-        unsigned char *img = stbi_load(paths[i].c_str(), &width, &height, &channelsPresent, 3);
-        if (img){
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-            stbi_image_free(img);
-        } else {
-            std::cerr << "Failed to load cubemap texture `" << paths[i] << "`" << std::endl;
-            stbi_image_free(img);
+	for (unsigned int i = 0; i < paths.size(); i++) {
+		unsigned char *img = stbi_load(paths[i].c_str(), &width, &height, &channelsPresent, 3);
+		if (img) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+			stbi_image_free(img);
+		} else {
+			std::cerr << "Failed to load cubemap texture `" << paths[i] << "`" << std::endl;
+			stbi_image_free(img);
 			return false;
-        }
-    }
+		}
+	}
 
 	// Set parameters
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	return true;
 }
 
-void Skybox::Render() {
+void Skybox::render() {
 	// Disable depth testing
 	glDepthMask(GL_FALSE);
 
-	// Enable the skybox shader
-	shader->Enable();
+	// enable the skybox shader
+	shader->enable();
 
 	// Set the view and projection matrix
-	glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, glm::value_ptr(GetViewTranslateless()));
-	glUniformMatrix4fv(projectionMatLocation, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+	glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, glm::value_ptr(getViewTranslateless()));
+	glUniformMatrix4fv(projectionMatLocation, 1, GL_FALSE, glm::value_ptr(camera->getProjection()));
 
 	// Enable 1 vertex attribute
 	glEnableVertexAttribArray(0);
@@ -178,7 +178,7 @@ void Skybox::Render() {
 	// Disable backface culling
 	glDisable(GL_CULL_FACE);
 	// Draw the triangles
-	glDrawArrays(GL_TRIANGLES, 0, Vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
 	// Disable the attributes
 	glDisableVertexAttribArray(0);

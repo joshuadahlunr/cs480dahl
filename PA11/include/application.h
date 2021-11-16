@@ -15,12 +15,12 @@ public:
 		GameOver = 2
 	};
 
-    using Engine::Engine;
+	using Engine::Engine;
 	~Application();
 
-	bool Initialize(const Arguments& args);
-	void Update(float dt) override;
-	void Reset();
+	bool initialize(const Arguments& args);
+	void update(float dt) override;
+	void reset();
 
 	int getScore() {return score;}
 
@@ -30,12 +30,12 @@ public:
 	Object *ball;
 
 private:
-	void KeyboardCallback(const SDL_KeyboardEvent& event);
+	void keyboardCallback(const SDL_KeyboardEvent& event);
 	void resetBall();
 
 	Object *leftPaddle, *rightPaddle;
-    Object *plunger;
-    Object *bottomWallCenter;
+	Object *plunger;
+	Object *bottomWallCenter;
 	float leftPaddleAngle = 0, rightPaddleAngle = 0;
 	float paddleSpeed = 720;
 
@@ -52,7 +52,7 @@ private:
 
 	// Leaderboard
 	int* scores; // list of scores
-	std::string* players; // list of players 
+	std::string* players; // list of players
 };
 
 #endif // APPLICATION_H

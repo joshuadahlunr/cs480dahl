@@ -11,7 +11,7 @@ Physics* Physics::getSingleton() { return singleton; }
 Physics::Physics(Object*& sceneRoot) : sceneRoot(sceneRoot) { }
 Physics::~Physics() { }
 
-bool Physics::Initialize(Engine* engine, const Arguments& args) {
+bool Physics::initialize(Engine* engine, const Arguments& args) {
 	// Setup the singleton
 	singleton = this;
 
@@ -33,21 +33,21 @@ bool Physics::Initialize(Engine* engine, const Arguments& args) {
 
 	// Generate the shader
 	debugShader = new Shader();
-	debugShader->Initialize();
-	debugShader->AddShader(GL_VERTEX_SHADER, "physics.vert.glsl", args);
-	debugShader->AddShader(GL_FRAGMENT_SHADER, "physics.frag.glsl", args);
-	debugShader->Finalize();
+	debugShader->initialize();
+	debugShader->addShader(GL_VERTEX_SHADER, "physics.vert.glsl", args);
+	debugShader->addShader(GL_FRAGMENT_SHADER, "physics.frag.glsl", args);
+	debugShader->finalize();
 #endif
 
 	return true;
 }
 
-void Physics::Update(float dt) {
+void Physics::update(float dt) {
 	// Update the physics simulation
 	world->update(dt);
 }
 
-void Physics::addContactCallback(Object* obj, ContactEvent e){ contactEvents[obj->getCollider().getEntity().id] = e; }
+void Physics::addContactCallback(Object* obj, ContactEvent e) { contactEvents[obj->getCollider().getEntity().id] = e; }
 
 void Physics::onContact(const rp3d::CollisionCallback::CallbackData& callbackData) {
 	for(int i = 0; i < callbackData.getNbContactPairs(); i++)
@@ -60,7 +60,7 @@ void Physics::onContact(const rp3d::CollisionCallback::CallbackData& callbackDat
 #ifdef PHYSICS_DEBUG
 
 // Function which convers a uint32 color into a glm::vec3
-glm::vec3 fromUint(uint32_t color){
+glm::vec3 fromUint(uint32_t color) {
 	glm::vec3 out;
 	float a;
 
@@ -71,7 +71,7 @@ glm::vec3 fromUint(uint32_t color){
 	return out;
 }
 
-void Physics::Render(Camera* camera) {
+void Physics::render(Camera* camera) {
 	// Get a reference to the debug renderer and set what we would like to see
 	rp3d::DebugRenderer& debugRenderer = getWorld().getDebugRenderer();
 	debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLISION_SHAPE, true);
@@ -81,7 +81,7 @@ void Physics::Render(Camera* camera) {
 
 	// Get the vertices for each debug triangle
 	std::vector<Vertex> lineVerts;
-	for(rp3d::DebugRenderer::DebugTriangle& tri: debugRenderer.getTriangles()){
+	for(rp3d::DebugRenderer::DebugTriangle& tri: debugRenderer.getTriangles()) {
 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0), glm::vec3(0));
 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0), glm::vec3(0));
 
@@ -93,7 +93,7 @@ void Physics::Render(Camera* camera) {
 	}
 
 	// Get the vertices for each debug line
-	for(rp3d::DebugRenderer::DebugLine& line: debugRenderer.getLines()){
+	for(rp3d::DebugRenderer::DebugLine& line: debugRenderer.getLines()) {
 		lineVerts.emplace_back(*((glm::vec3*)(&line.point1)), fromUint(line.color1), glm::vec2(0), glm::vec3(0));
 		lineVerts.emplace_back(*((glm::vec3*)(&line.point2)), fromUint(line.color2), glm::vec2(0), glm::vec3(0));
 	}
@@ -103,12 +103,12 @@ void Physics::Render(Camera* camera) {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * lineVerts.size(), &lineVerts[0], GL_STATIC_DRAW);
 
 
-	// Enable the physics debug shader
-	debugShader->Enable();
+	// enable the physics debug shader
+	debugShader->enable();
 
 	// Set the view and projection matrix
-	glUniformMatrix4fv(debugShader->GetUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
-	glUniformMatrix4fv(debugShader->GetUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+	glUniformMatrix4fv(debugShader->getUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(camera->getProjection()));
+	glUniformMatrix4fv(debugShader->getUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(camera->getView()));
 
 	// Disable depth testing
 	glDepthMask(GL_FALSE);

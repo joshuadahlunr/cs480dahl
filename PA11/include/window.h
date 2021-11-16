@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
-using namespace std;
+
 
 // Uncomment to enable VSYNC
 // #define USE_VSYNC
@@ -13,8 +13,8 @@ class Window {
 public:
 	Window();
 	~Window();
-	bool Initialize(const string &name, int* width, int* height);
-	void Swap();
+	bool initialize(const std::string &name, int* width, int* height);
+	void swap();
 
 	SDL_Window* getWindow() const { return gWindow; }
 	SDL_GLContext getContext() const { return gContext; }

@@ -1,38 +1,34 @@
 #include "gui.h"
 
 #include <SDL2/SDL.h>
+#include <iomanip>
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "application.h"
 #include "window.h"
 #include "graphics.h"
 
-// Provide a backing for the globalTimeScale global variable
-float globalTimeScale = 1;
-// Provide a backing for the globalShouldScale global variable;
-bool globalShouldScale = true;
-
-// Initialize the ImGUI IO instance
+// initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	return ImGui::GetIO();
-}() ){ }
+}() ) { }
 
-GUI::~GUI(){
+GUI::~GUI() {
 	ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
+	 ImGui_ImplSDL2_Shutdown();
+	 ImGui::DestroyContext();
 }
 
-bool GUI::Initialize(Engine* engine, const char* glsl_version/* = "#version 330"*/){
+bool GUI::initialize(Engine* engine, const char* glsl_version/* = "#version 330"*/) {
 	// Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer backends
-    if( !ImGui_ImplSDL2_InitForOpenGL(engine->getWindow()->getWindow(), engine->getWindow()->getContext()) )
+	// Setup Platform/renderer backends
+	if( !ImGui_ImplSDL2_InitForOpenGL(engine->getWindow()->getWindow(), engine->getWindow()->getContext()) )
 		return false;
-    if( !ImGui_ImplOpenGL3_Init(glsl_version) )
+	if( !ImGui_ImplOpenGL3_Init(glsl_version) )
 		return false;
 
 	// Save the pointer to the application
@@ -44,31 +40,7 @@ bool GUI::Initialize(Engine* engine, const char* glsl_version/* = "#version 330"
 	return true;
 }
 
-// bool GUI::setupFramebuffer() {
-// 	glGenFramebuffers(1, &framebuffprivateer);
-// 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-// 	glGenTextures(1, &renderedTexture);
-// 	glBindTexture(GL_TEXTURE_2D, renderedTexture);
-
-// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0,GL_RGB, GL_UNSIGNED_BYTE, 0); // Empty image
-
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-// 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
-
-// 	GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-// 	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
-// 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-// 		return false;
-
-// 	// Unbind the framebuffer
-// 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-// }
-
-GUI::ShouldProcessEvents GUI::ProcessEvent(SDL_Event& event){
+GUI::ShouldProcessEvents GUI::processEvent(SDL_Event& event) {
 	// Pass events along to ImGUI
 	ImGui_ImplSDL2_ProcessEvent(&event);
 
@@ -77,17 +49,14 @@ GUI::ShouldProcessEvents GUI::ProcessEvent(SDL_Event& event){
 }
 
 void TextCenter(std::string text) {
-    float font_size = ImGui::GetFontSize() * text.size() / 2;
-    ImGui::SameLine(
-        ImGui::GetWindowSize().x / 2 -
-        font_size + (font_size / 2)
-    );
+	float font_size = ImGui::GetFontSize() * text.size() / 2;
+	ImGui::SameLine(ImGui::GetWindowSize().x / 2 - font_size + (font_size / 2));
 
-    ImGui::Text(text.c_str());
+	ImGui::Text(text.c_str());
 	ImGui::NewLine();
 }
 
-void GUI::Render(){
+void GUI::render() {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
@@ -107,12 +76,12 @@ void GUI::Render(){
 					ImGui::TableHeader("Player");
 					ImGui::TableSetColumnIndex(1);
 					ImGui::TableHeader("Score");
-				for (std::pair<string, float> stat: app->leaderboard->leaderstats) {
+				for (std::pair<std::string, float> stat: app->leaderboard->leaderstats) {
 					ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						ImGui::Text(stat.first.c_str());
 						ImGui::TableSetColumnIndex(1);
-						ImGui::Text(to_string(stat.second).c_str());
+						ImGui::Text(std::to_string(stat.second).c_str());
 				}
 
 				ImGui::EndTable();
@@ -125,17 +94,16 @@ void GUI::Render(){
 			ImGui::Begin("Round Ended");
 			TextCenter("Game Over!");
 
-			TextCenter("Your Score: " + to_string(app->getScore()));
+			TextCenter("Your Score: " + std::to_string(app->getScore()));
 
-            ImGui::Text("Enter your name to save your score");
+			ImGui::Text("Enter your name to save your score");
  			static char name[128] = "";
 			ImGui::Text("Name: "); ImGui::SameLine(); ImGui::InputText("", name, IM_ARRAYSIZE(name));
-			if (ImGui::Button("Confirm"))
-			{
-				app->leaderboard->UpdateScore(name, app->getScore());
-				app->Reset();
+			if (ImGui::Button("Confirm")) {
+				app->leaderboard->updateScore(name, app->getScore());
+				app->reset();
 			}
-            ImGui::End();
+			ImGui::End();
 		}
 
 		// Light Controls
@@ -166,7 +134,7 @@ void GUI::Render(){
 			ImGui::EndMenu();
 		}
 
-		// Render help menu
+		// render help menu
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
@@ -255,7 +223,7 @@ void GUI::Render(){
 					ImGui::Text("Left Shift");
 					ImGui::TableSetColumnIndex(2);
 					ImGui::Text("Slow Zoom Speed");
-				
+
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text(" ");

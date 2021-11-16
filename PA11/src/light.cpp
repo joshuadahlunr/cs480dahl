@@ -4,29 +4,27 @@
 // Set the static count so shaders on the GPU know how many to process
 size_t Light::count = 0;
 
-void Light::Update(float dt) {
+void Light::update(float dt) {
 	setModel(glm::mat4(1));
 	Object::setPosition(getParent()->getPosition() + position);
 }
 
-void Light:: Render(Shader* boundShader){
+void Light::render(Shader* boundShader) {
 	glm::vec4 lightPosition = glm::vec4(getPosition(), 1);
 
 	// Bind all of the variables in the shader
-	glUniform1ui(boundShader->GetUniformLocation(uniformLocationLightType.c_str()), (int) type);
-	if(!uniformLocationAmbient.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
-	if(!uniformLocationDiffuse.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
-	if(!uniformLocationSpecular.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
-	if(!uniformLocationPosition.empty()) glUniform4fv(boundShader->GetUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
-	if(!uniformLocationDirection.empty()) glUniform3fv(boundShader->GetUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
-	if(!uniformLocationLightCutoffAngleCosine.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
-	if(!uniformLocationLightIntensity.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightIntensity.c_str()), lightIntensity);
-	if(!uniformLocationLightFalloff.empty()) glUniform1f(boundShader->GetUniformLocation(uniformLocationLightFalloff.c_str()), lightFalloff);
+	glUniform1ui(boundShader->getUniformLocation(uniformLocationLightType.c_str()), (int) type);
+	if(!uniformLocationAmbient.empty()) glUniform4fv(boundShader->getUniformLocation(uniformLocationAmbient.c_str()), 1, glm::value_ptr(lightAmbient));
+	if(!uniformLocationDiffuse.empty()) glUniform4fv(boundShader->getUniformLocation(uniformLocationDiffuse.c_str()), 1, glm::value_ptr(lightDiffuse));
+	if(!uniformLocationSpecular.empty()) glUniform4fv(boundShader->getUniformLocation(uniformLocationSpecular.c_str()), 1, glm::value_ptr(lightSpecular));
+	if(!uniformLocationPosition.empty()) glUniform4fv(boundShader->getUniformLocation(uniformLocationPosition.c_str()), 1, glm::value_ptr(lightPosition));
+	if(!uniformLocationDirection.empty()) glUniform3fv(boundShader->getUniformLocation(uniformLocationDirection.c_str()), 1, glm::value_ptr(lightDirection));
+	if(!uniformLocationLightCutoffAngleCosine.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
+	if(!uniformLocationLightIntensity.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightIntensity.c_str()), lightIntensity);
+	if(!uniformLocationLightFalloff.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightFalloff.c_str()), lightFalloff);
 
-	//std::cout << count << std::endl;
-
-	// Render base class
-	Object::Render(boundShader);
+	// render base class
+	Object::render(boundShader);
 }
 
 AmbientLight::AmbientLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Ambient, setupID()) {

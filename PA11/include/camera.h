@@ -12,21 +12,21 @@ class Camera {
 public:
 	Camera(Application* engine);
 	~Camera();
-	bool Initialize(int w, int h);
-	void Update(float dt);
-	glm::mat4 GetProjection() { return projection; }
-	glm::mat4 GetView() { return view; }
+	bool initialize(int w, int h);
+	void update(float dt);
+	glm::mat4 getProjection() { return projection; }
+	glm::mat4 getView() { return view; }
 
 	// The camera updates some matricies when the window is resized.
 	static int windowResizeEventListener(void* data, SDL_Event* event);
 
-	virtual void Keyboard(const SDL_KeyboardEvent& e);
-	void MouseButton(const SDL_MouseButtonEvent& e);
-	void MouseMotion(const SDL_MouseMotionEvent& e);
-	void MouseWheel(const SDL_MouseWheelEvent& e);
+	virtual void keyboard(const SDL_KeyboardEvent& e);
+	void mouseButton(const SDL_MouseButtonEvent& e);
+	void mouseMotion(const SDL_MouseMotionEvent& e);
+	void mouseWheel(const SDL_MouseWheelEvent& e);
 
 private:
-	Application* m_app;
+	Application* app;
 	Object* focusObj = nullptr;
 
 	glm::mat4 projection;

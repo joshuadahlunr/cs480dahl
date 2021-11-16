@@ -4,18 +4,18 @@
 #include <fstream>
 
 // Constructor parses the arguments
-Arguments::Arguments(int argc, char **argv){
+Arguments::Arguments(int argc, char **argv) {
 	// If we weren't given any arguments, skip argument parsing
 	if(argc == 1)
 		canContinue = false;
 
 	// Foreach argument
-	for(int i = 1; i < argc && canContinue; i++){
+	for(int i = 1; i < argc && canContinue; i++) {
 		std::string arg = argv[i];
 		std::string file = arg.substr(2);
 
 		// If the argument is a help command
-		if(arg.substr(0, 2) == "-h" || arg.substr(0, 2) == "-?" || arg.substr(0, 6) == "--help"){
+		if(arg.substr(0, 2) == "-h" || arg.substr(0, 2) == "-?" || arg.substr(0, 6) == "--help") {
 			std::cout << std::string(60, '-') << std::endl;
 			std::cout << "Arguments" << std::endl;
 			std::cout << std::string(60, '-') << std::endl;
@@ -24,7 +24,7 @@ Arguments::Arguments(int argc, char **argv){
 			std::cout << "\t-c <file> - Sets the config file (relative to the resource directory)\n\t\t[default=config.json]" << std::endl;
 			std::cout << "\t-v <file> - Sets the vertex shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Vertex Shader File Path\"]" << std::endl;
 			std::cout << "\t-f <file> - Sets the fragment shader (relative to the resource/shaders" << std::endl << "\t\tdirectory)\n\t\t[Can be ommited if specified in the top level of the config file\n\t\twith \"Fragment Shader File Path\"]" << std::endl;
-			
+
 			std::cout << "Optional" << std::endl;
 			std::cout << "\t--resource-path <path> - Sets the resource directory, the directory" << std::endl << "\t\twhere all of the program's resources can be found. [default=../]" << std::endl;
 
@@ -43,7 +43,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with "-vv"
-		else if(arg.substr(0, 3) == "-vv"){
+		else if(arg.substr(0, 3) == "-vv") {
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
 				perVertexVertexFilePath = file;
@@ -55,7 +55,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with "-vf"
-		else if(arg.substr(0, 3) == "-vf"){
+		else if(arg.substr(0, 3) == "-vf") {
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
 				perVertexFragmentFilePath = file;
@@ -67,7 +67,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with "-v"
-		else if(arg.substr(0, 3) == "-fv"){
+		else if(arg.substr(0, 3) == "-fv") {
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
 				perFragmentVertexFilePath = file;
@@ -79,7 +79,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with "-f"
-		else if(arg.substr(0, 3) == "-ff"){
+		else if(arg.substr(0, 3) == "-ff") {
 			// Check if the rest of the argument contains the file
 			if(file.find(".glsl") != std::string::npos)
 				perFragmentFragmentFilePath = file;
@@ -91,7 +91,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with -c
-		else if(arg.substr(0, 2) == "-c"){
+		else if(arg.substr(0, 2) == "-c") {
 			// Check if the rest of the argument contains the file
 			if(file.find(".json") != std::string::npos)
 				configFilePath = file;
@@ -103,7 +103,7 @@ Arguments::Arguments(int argc, char **argv){
 		}
 
 		// If the argument starts with "--resource-path"
-		else if(arg.substr(0, 15) == "--resource-path"){
+		else if(arg.substr(0, 15) == "--resource-path") {
 			i++;
 			resourcePath = argv[i];
 		}
@@ -111,10 +111,10 @@ Arguments::Arguments(int argc, char **argv){
 
 	// Make sure the config file exists and parse it
 	canContinue &= !configFilePath.empty();
-	if(canContinue){
+	if(canContinue) {
 		// Open the config file
 		std::ifstream configFile(resourcePath + configFilePath);
-		if(!configFile){
+		if(!configFile) {
 			std::cerr << "Failed to open config file `" << resourcePath + configFilePath << "`" << std::endl;
 			canContinue = false;
 		}
@@ -143,7 +143,7 @@ Arguments::Arguments(int argc, char **argv){
 
 	// If we can't continue provide an error message
 	canContinue &= !perVertexVertexFilePath.empty() && !perVertexFragmentFilePath.empty() && !perFragmentVertexFilePath.empty() && !perFragmentFragmentFilePath.empty();
-	if(!canContinue){
+	if(!canContinue) {
 		std::cerr << "To run the program you must specify the vertex shader, fragment shader, (both per fragment and per vertex) and config file to load:" << std::endl;
 		std::cerr << argv[0] << " -vv <file> -vf <file> -fv <file> -ff <file> -c <file>" << std::endl;
 		std::cerr << std::endl << std::string(60, '-') << std::endl;

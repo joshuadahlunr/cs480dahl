@@ -5,26 +5,26 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-using namespace std;
+
 
 class Arguments;
 
 // Class holding the Leaderboard
 class Leaderboard {
 public:
-	Leaderboard();
-	~Leaderboard();
-	bool Initialize(const Arguments& args, const string &filename);
-	bool AddPlayer(const string& userId);
-	void UpdateScore(const string& userId, float score);
-	void Save();
+	Leaderboard() {}
+	~Leaderboard() {}
+	bool initialize(const Arguments& args, const std::string &filename);
+	bool addPlayer(const std::string& userId);
+	void updateScore(const std::string& userId, float score);
+	void save();
 
-	map<string, float> leaderstats;
+	std::map<std::string, float> leaderstats;
 
 private:
 
 	void sort();
-	string filepath;
+	std::string filepath;
 };
 
 #endif /* Leaderboard_H */
