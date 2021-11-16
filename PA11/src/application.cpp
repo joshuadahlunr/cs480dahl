@@ -70,7 +70,7 @@ bool Application::initialize(const Arguments& args) {
 			ball->getRigidBody().applyForceAtLocalPosition(-contact.getContactPoint(0).getWorldNormal() * 1000.0, contactPoint);
 			score += 10;
 
-			getSound()->StartSound("Bounce");
+			getSound()->startSound("Bounce");
 
 			// Enable our light and start a timer to turn it off
 			if(lightup) {
@@ -111,7 +111,7 @@ bool Application::initialize(const Arguments& args) {
 				std::cout << "Your final score was: " << score << std::endl;
 			}
 			std::cout << ballsRemaining << " balls left with score: " << score << std::endl;
-			getSound()->StartSound("LoseBall");
+			getSound()->startSound("LoseBall");
 			resetBall();
 		}
 	};
@@ -557,9 +557,9 @@ void Application::keyboardCallback(const SDL_KeyboardEvent& event) {
 	else if((event.keysym.sym == SDLK_DOWN || event.keysym.sym == SDLK_s) && event.type == SDL_KEYUP && !hasLaunched) { // TODO: should only happen before launched
 		ball->getRigidBody().applyForceAtLocalPosition(rp3d::Vector3(0, 0, 1) * ballLaunchPower, rp3d::Vector3(0, 0, 0));
 		hasLaunched = true;
-		getSound()->StopSound("Charging");
+		getSound()->stopSound("Charging");
 	} else if((event.keysym.sym == SDLK_DOWN || event.keysym.sym == SDLK_s) && event.type == SDL_KEYDOWN && !hasLaunched) { // TODO: should only happen before launched
-		getSound()->StartSound("Charging");
+		getSound()->startSound("Charging", /*start over*/false, /*looping*/false);
 	} else if(event.keysym.sym == SDLK_r && event.type == SDL_KEYUP)
 		resetBall();
 }

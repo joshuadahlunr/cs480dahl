@@ -7,29 +7,41 @@
 
 //One individual sound effect
 class SoundEffect {
-	public:
-		SoundEffect(const char* filePath);
-		ma_device* GetDevice() { return m_device; }
-		ma_decoder* GetDecoder() { return m_decoder; }
-	private:
-		ma_decoder* m_decoder;
-		ma_device_config m_config;
-		ma_device* m_device;
-		const char* m_filePath;
+friend class Sound;
+public:
+	// Struct storing the data which is provided to the data callback
+	struct UserData {
+		ma_decoder* decoder;
+		bool looping = false;
+	};
+public:
+	SoundEffect(const char* filePath);
+	ma_device* getDevice() { return device; }
+	ma_decoder* getDecoder() { return userData.decoder; }
+
+	void setLooping(bool looping) { userData.looping = looping; }
+
+private:
+	UserData userData;
+	ma_device_config config;
+	ma_device* device;
+	const char* filePath;
+
+	bool isPlaying = false;
 };
 
 //Stores sound effects. Starts and stops sounds
 class Sound {
-	public:
-		Sound();
-		~Sound();
+public:
+	Sound();
+	~Sound();
 
-		void StartSound(std::string key, bool fromBeginning = true);
-		void StopSound(std::string key);
-		void StopAllSounds();
+	void startSound(std::string key, bool fromBeginning = true, bool looping = false);
+	void stopSound(std::string key);
+	void stopAllSounds();
 
-	private:
-		std::map<std::string, SoundEffect*> soundEffects;
+private:
+	std::map<std::string, SoundEffect*> soundEffects;
 };
 
 #endif
