@@ -65,76 +65,7 @@ void GUI::render() {
 	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
-
-		// Leaderboard
-		if(ImGui::BeginMenu("Leaderboard")) {
-
-			ImGui::TextColored(ImVec4(.9,.9,1,1), "Leaderboard");
-			if (ImGui::BeginTable("", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
-				ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::TableHeader("Player");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::TableHeader("Score");
-				for (std::pair<std::string, float> stat: app->leaderboard->leaderstats) {
-					ImGui::TableNextRow();
-						ImGui::TableSetColumnIndex(0);
-						ImGui::Text(stat.first.c_str());
-						ImGui::TableSetColumnIndex(1);
-						ImGui::Text(std::to_string(stat.second).c_str());
-				}
-
-				ImGui::EndTable();
-			}
-			ImGui::EndMenu();
-		}
-
-		// Game over window
-		if(app->gameState == Application::GameState::GameOver) {
-			ImGui::Begin("Round Ended");
-			TextCenter("Game Over!");
-
-			TextCenter("Your Score: " + std::to_string(app->getScore()));
-
-			ImGui::Text("Enter your name to save your score");
- 			static char name[128] = "";
-			ImGui::Text("Name: "); ImGui::SameLine(); ImGui::InputText("", name, IM_ARRAYSIZE(name));
-			if (ImGui::Button("Confirm")) {
-				app->leaderboard->updateScore(name, app->getScore());
-				app->reset();
-			}
-			ImGui::End();
-		}
-
-		// Light Controls
-		if(ImGui::BeginMenu("Lighting Controls")) {
-			ImGui::Text("ADS Lighting Settings");
-
-			Light::ptr ambient = app->lights[0];
-			Light::ptr ballSpotlight = app->lights[2];
-
-			ImGui::ColorEdit3("Ambient Color", glm::value_ptr(ambient->lightAmbient));
-
-			glm::vec3 specular(app->lights[1]->lightSpecular);
-			glm::vec3 diffuse(app->lights[1]->lightDiffuse);
-
-			ImGui::ColorEdit3("Specular Color", glm::value_ptr(specular));
-			ImGui::ColorEdit3("Diffuse Color", glm::value_ptr(diffuse));
-
-			for(Light::ptr light : app->lights) {
-				light->lightSpecular = glm::vec4(specular, 1.0);
-				light->lightDiffuse = glm::vec4(diffuse, 1.0);
-			}
-
-			float lightCutoffAngle = glm::degrees(glm::acos(ballSpotlight->lightCutoffAngleCosine));
-			ImGui::SliderFloat("BallSpotlight Cutoff Angle", &lightCutoffAngle, 0.0f, 180.0f);
-			ballSpotlight->lightCutoffAngleCosine = glm::cos(glm::radians(lightCutoffAngle));
-			ImGui::SliderFloat("BallSpotlight Intensity", &ballSpotlight->lightIntensity, 0.0f, 5.0f);
-
-			ImGui::EndMenu();
-		}
-
-		// render help menu
+		// Render help menu
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
@@ -246,12 +177,13 @@ void GUI::render() {
 			ImGui::EndMenu();
 		}
 
+		app->drawGUI();
+
 		std::stringstream fps;
 		fps << "FPS: " << std::setprecision(4) << app->getAverageFPS();
 		// Right justify the fps text
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - ImGui::CalcTextSize(fps.str().c_str()).x - 10);
 		ImGui::Text(fps.str().c_str());
-
 
 		ImGui::EndMainMenuBar();
 	}

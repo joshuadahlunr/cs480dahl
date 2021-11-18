@@ -72,18 +72,9 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 
 void Camera::keyboard(const SDL_KeyboardEvent& e) {
 	if (e.type == SDL_KEYDOWN) {
-		if (e.keysym.sym == SDLK_LSHIFT) {
+		if (e.keysym.sym == SDLK_LSHIFT)
 			// When holding shift decrease zoom amount
 			zoomScale = 0.1;
-		} else if (e.keysym.sym == SDLK_TAB) {
-			// change focus
-			if (focusObj != nullptr) {
-				focusObj = nullptr;
-				focusPos = glm::vec3(0.0,0.0,0.0);
-			} else {
-				focusObj = app->ball;
-			}
-		}
 	} else if (e.type == SDL_KEYUP) {
 		if (e.keysym.sym == SDLK_LSHIFT) {
 			// When shift is released increase zoom amount
