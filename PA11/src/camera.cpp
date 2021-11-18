@@ -14,7 +14,7 @@ Camera::~Camera() {
 bool Camera::initialize(int w, int h) {
 	// Init the starting eye and focus pos details
 	eyePos = glm::vec3(0.0, 25, -25.0);
-	focusPos = glm::vec3(0.0, 0.0, 0.0);
+	focusPos = glm::vec3(8.0, 20.0, 8.0);
 
 	// Determine the distance, starting pos in sphere and camera orbit angles based on eyePos and focusPos
 	glm::vec3 diffVec = eyePos - focusPos;

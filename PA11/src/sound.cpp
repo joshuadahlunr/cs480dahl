@@ -31,10 +31,10 @@ SoundEffect::SoundEffect(const char* filePath) {
 
 //Declare new sounds here and add them to the map. That's all you have to do.
 Sound::Sound() {
-	soundEffects["Music"] = new SoundEffect("../sound/switch-me-on.mp3");
-	soundEffects["Charging"] = new SoundEffect("../sound/mixkit-arcade-rising-231.wav");
-	soundEffects["Bounce"] = new SoundEffect("../sound/mixkit-arcade-bonus-alert-767.wav");
-	soundEffects["LoseBall"] = new SoundEffect("../sound/mixkit-retro-arcade-lose-2027.wav");
+	// soundEffects["Music"] = new SoundEffect("../sound/switch-me-on.mp3");
+	// soundEffects["Charging"] = new SoundEffect("../sound/mixkit-arcade-rising-231.wav");
+	// soundEffects["Bounce"] = new SoundEffect("../sound/mixkit-arcade-bonus-alert-767.wav");
+	// soundEffects["LoseBall"] = new SoundEffect("../sound/mixkit-retro-arcade-lose-2027.wav");
 }
 
 Sound::~Sound() {

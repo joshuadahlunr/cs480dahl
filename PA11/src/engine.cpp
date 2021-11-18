@@ -58,7 +58,6 @@ bool Engine::initialize(const Arguments& args) {
 	frameStartTime = std::chrono::high_resolution_clock::now();
 
 	sound = new Sound();
-	sound->startSound("Music", /*start over*/true, /*looping*/true);
 
 	// No errors
 	return true;
