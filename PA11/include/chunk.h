@@ -15,7 +15,7 @@ struct Chunk : public Object {
         };
 
         Type id;
-        double isoLevel;
+        float isoLevel;
     };
 
     // TODO: Chunk width

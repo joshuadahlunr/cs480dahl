@@ -36,7 +36,25 @@ struct Vertex {
 	glm::vec3 normal;
 
 	Vertex(glm::vec3 p, glm::vec3 c, glm::vec2 u, glm::vec3 n): vertex(p), color(c), uv(u), normal(n) {}
+
+	bool operator==(const Vertex& other) const { return vertex == other.vertex && color == other.color && uv == other.uv && normal == other.normal; }
 };
+
+// Function to hash a vertex
+namespace std {
+	template <>
+	struct hash<Vertex> {
+		size_t operator()(const Vertex& v) const {
+			std::hash<float> hash;
+			return hash(
+				hash(v.vertex.x) * 7 + hash(v.vertex.y) * 13 + hash(v.vertex.z) * 19
+				+ hash(v.color.r) * 29 + hash(v.color.g) * 37 + hash(v.color.b) * 43
+				+ hash(v.uv.x) * 53 + hash(v.uv.y) * 61
+				+ hash(v.normal.x) * 71 + hash(v.normal.y) * 79 + hash(v.normal.z) * 89
+			);
+		}
+	};
+}
 
 // Struct defining collision mesh data
 struct CollisionMesh {
