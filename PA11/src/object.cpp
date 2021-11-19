@@ -70,7 +70,7 @@ bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _st
 	// Create a physics rigid body with the initial transform from the model matrix
 	rigidBody = Physics::getSingleton()->getWorld().createRigidBody( toReact(getModel()) );
 
-	// Set wether the object is static or dynamic
+	// Set whether the object is static or dynamic
 	if(_static) rigidBody->setType(rp3d::BodyType::STATIC);
 	else rigidBody->setType(rp3d::BodyType::DYNAMIC);
 
@@ -491,7 +491,7 @@ void Object::setChildModelRelativeToParent(glm::mat4 _model) {
 }
 
 void Object::setPosition(glm::vec3 _pos, bool relativeToParent /*= false*/) {
-	// If the position should be realtive to parent multiply it by the parent's child base model
+	// If the position should be relative to parent multiply it by the parent's child base model
 	if(relativeToParent)
 		_pos = glm::vec3(getParent()->getChildBaseModel() * glm::vec4(_pos, 1));
 

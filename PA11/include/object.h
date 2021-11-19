@@ -68,7 +68,7 @@ public:
 	void setScale(glm::vec3 scale, bool relativeToParent = false);
 	glm::vec3 getScale();
 	void scale(glm::vec3 scale) { setModel(glm::scale(model, scale)); }
-	void setLinearVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setLinearVelocity( toReact(velocity) ); } // TODO: Does linear velocity need to propigate through the scene tree?
+	void setLinearVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setLinearVelocity( toReact(velocity) ); } // TODO: Does linear velocity need to propagate through the scene tree?
 	glm::vec3 getLinearVelocity(){
 		if(rigidBody) return toGLM( rigidBody->getLinearVelocity() );
 		return glm::vec3(0);

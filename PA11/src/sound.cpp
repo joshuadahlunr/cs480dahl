@@ -89,7 +89,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     if (data == NULL)
         return;
 
-    // A decoder is a data source which means you can seemlessly plug it into the ma_data_source API. We can therefore take advantage of the "loop" parameter of ma_data_source_read_pcframes() to handle looping for us.
+    // A decoder is a data source which means you can seamlessly plug it into the ma_data_source API. We can therefore take advantage of the "loop" parameter of ma_data_source_read_pcframes() to handle looping for us.
     ma_data_source_read_pcm_frames(data->decoder, pOutput, frameCount, NULL, (data->looping ? MA_TRUE : MA_FALSE));
 
     (void)pInput;

@@ -409,7 +409,7 @@ void Chunk::rebuildMesh(const Arguments& args) {
 	indices.clear();
 
 	// Map of vertecies to their index
-	std::unordered_map<Vertex, size_t> vertexIndecies;
+	std::unordered_map<Vertex, size_t> vertexIndices;
 	// List of faces defining how vertices are connected
 	std::list<glm::ivec3> faces = { glm::ivec3(0) };
 
@@ -444,7 +444,7 @@ void Chunk::rebuildMesh(const Arguments& args) {
 
 				// Merge the marching cubes vertecies into our existing list of vertices with index optimizations
 				for(const auto& pos: verts){
-					// Make sure we always have enouph faces
+					// Make sure we always have enough faces
 					if(face >= 3){
 						faces.emplace_back(0);
 						face = 0;
@@ -454,13 +454,13 @@ void Chunk::rebuildMesh(const Arguments& args) {
 					Vertex v(pos, glm::vec3(0), uv, glm::vec3(0));
 
 					// If the vertex has already been cached... push its index back again
-					if(vertexIndecies.find(v) != vertexIndecies.end()){
-						indices.push_back(vertexIndecies[v]);
-						faces.back()[face++] = vertexIndecies[v];
+					if(vertexIndices.find(v) != vertexIndices.end()){
+						indices.push_back(vertexIndices[v]);
+						faces.back()[face++] = vertexIndices[v];
 					// Otherwise add it to the list of vertecies and cache its index
 					} else {
 						vertices.emplace_back(std::move(v));
-						vertexIndecies[v] = index;
+						vertexIndices[v] = index;
 						faces.back()[face++] = index;
 						indices.push_back(index++);
 					}

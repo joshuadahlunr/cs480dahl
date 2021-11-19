@@ -59,7 +59,7 @@ void Physics::onContact(const rp3d::CollisionCallback::CallbackData& callbackDat
 
 #ifdef PHYSICS_DEBUG
 
-// Function which convers a uint32 color into a glm::vec3
+// Function which converts a uint32 color into a glm::vec3
 glm::vec3 fromUint(uint32_t color) {
 	glm::vec3 out;
 	float a;

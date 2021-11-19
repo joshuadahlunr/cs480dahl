@@ -81,7 +81,7 @@ struct ConvexCollisionMesh {
 	int* convexIndiceData = nullptr;
 	int numConvexVertices;
 
-	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies) { }
+	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) { }
 
 	~ConvexCollisionMesh() {
 
