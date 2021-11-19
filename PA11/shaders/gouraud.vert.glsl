@@ -79,6 +79,7 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V, mat4 mv_matrix){
 
     vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * falloff;
     vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * falloff;
+	if(max(dot(N,L), 0.0) == 0) specular = vec3(0);
 
     return ambient + diffuse + specular;
 }
