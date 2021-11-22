@@ -25,9 +25,13 @@ IF(NOT APPLE)
 ENDIF(NOT APPLE)
 
 # Thirdparty
-add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/reactphysics3d")
-
 SET(THIRDPARTY_BASE "${PROJECT_SOURCE_DIR}/thirdparty/")
+
+add_subdirectory("${THIRDPARTY_BASE}/reactphysics3d")
+
+set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE) #example if don't need the graph tool
+add_subdirectory("${THIRDPARTY_BASE}/FastNoise2")
+
 
 SET(IMGUI_BASE "${THIRDPARTY_BASE}/dearimgui")
 SET(IMGUI_INCLUDE_DIRS
@@ -46,6 +50,7 @@ INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/include"
 	"${PROJECT_SOURCE_DIR}/thirdparty"
 	"${PROJECT_SOURCE_DIR}/thirdparty/reactphysics3d/include"
+	"${PROJECT_SOURCE_DIR}/thirdparty/FastNoise2/include"
 	${SDL2_INCLUDE_DIR}
 	${GLM_INCLUDE_DIRS}
 	${IMGUI_INCLUDE_DIRS}
@@ -76,6 +81,6 @@ add_custom_target("${PROJECT_NAME}_SUCCESSFUL" ALL
 									COMMAND ${CMAKE_COMMAND} -E echo ""
 								 )
 
-target_link_libraries(${PROJECT_NAME} reactphysics3d)
+target_link_libraries(${PROJECT_NAME} reactphysics3d FastNoise)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} ${assimp_LIBRARIES} Threads::Threads)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)

@@ -7,3 +7,6 @@
 [submodule "PA8/thirdparty/quickhull"]
 	path = PA8/thirdparty/quickhull
 	url = https://github.com/akuukka/quickhull.git
+[submodule "PA11/thirdparty/FastNoise2"]
+	path = PA11/thirdparty/FastNoise2
+	url = https://github.com/Auburn/FastNoise2.git
