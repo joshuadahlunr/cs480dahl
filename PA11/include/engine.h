@@ -61,7 +61,7 @@ private:
 	float DT;
 	float physicsAccumulator = 0;
 	std::chrono::high_resolution_clock::time_point frameStartTime;
-	circular_buffer<float> fpsMeasurements{60};
+	circular_buffer<float, std::array<float, 60>> fpsMeasurements;
 	bool running;
 
 	std::shared_ptr<Object> sceneRoot;
