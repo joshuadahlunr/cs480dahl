@@ -3,18 +3,30 @@
 #include <unordered_map>
 #include <list>
 
+#include "FastNoise/FastNoise.h"
+
 // Function which generates the data we will mesh
-void Chunk::generateVoxels(int x, int z) {
+void Chunk::generateVoxels(int X, int Z) {
+	static auto simplex = FastNoise::New<FastNoise::Simplex>();
+
+	// std::array<float, 16 * 256 * 16> noiseOutput;
+	// // Generate a 16 x 16 x 16 area of noise
+	// simplex->GenUniformGrid3D(noiseOutput.data(), X * 16, 0, Z * 16, 16, 256, 16, 0.2f, NOISE_SEED);
+
 	glm::ivec3 sphereMiddle(CHUNK_X_SIZE / 2, 10, CHUNK_Z_SIZE / 2);
 
 	for(int x = 0; x < CHUNK_X_SIZE; x++)
 		for(int y = 0; y < CHUNK_Y_SIZE; y++)
 			for(int z = 0; z < CHUNK_X_SIZE; z++){
-				float groundFunction = y - 10;
-				float sphereX = x - sphereMiddle.x, sphereY = y - sphereMiddle.y, sphereZ = z - sphereMiddle.z;
-				float sphereFunction = (sphereX * sphereX + sphereY * sphereY + sphereZ * sphereZ) - (3 * 3);
+				float heightMap = (simplex->GenSingle2D((x + 16 * X) / 100.0, (z + 16 * Z) / 100.0, NOISE_SEED + 20) + 1) * 10 + 20;
 
-				float function = std::min(groundFunction, sphereFunction); // Min is a union
+				float factor;
+				if(y < heightMap) factor = glm::smoothstep(heightMap - 50, heightMap, glm::vec2(y)).x;
+				else factor = 1 - glm::smoothstep(heightMap, heightMap + 5, glm::vec2(y)).x;
+
+				float noiseFunction = simplex->GenSingle3D((x + 16 * X) / 20.0, y / 20.0, (z + 16 * Z) / 20.0, NOISE_SEED) * 5;
+
+				float function = factor * noiseFunction + (1 - factor) * (y - heightMap);
 
 				if(function > 0)
 					 voxels[x][y][z] = {Voxel::Type::Air, function};
