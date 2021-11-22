@@ -10,6 +10,8 @@ Graphics::Graphics(Object::ptr& sceneRoot) : sceneRoot(sceneRoot) { }
 Graphics::~Graphics() { }
 
 bool Graphics::initialize(int width, int height, Engine* engine, const Arguments& args) {
+	this->engine = engine;
+
 	// Used for the linux OS
 #if !defined(__APPLE__) && !defined(MACOSX)
 	// std::cout << glewGetString(GLEW_VERSION) << std::endl;
@@ -160,6 +162,8 @@ void Graphics::render() {
 
 	// render the object
 	sceneRoot->render(boundShader);
+
+	engine->render(boundShader);
 
 	// render the GUI
 	gui->render();

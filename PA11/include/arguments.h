@@ -22,7 +22,9 @@ private:
 	bool canContinue = true;
 public:
 	// Constructor parses the arguments
+	Arguments() = default;
 	Arguments(int argc, char **argv);
+	Arguments(Arguments&) = default;
 
 	std::string getResourcePath() const { return resourcePath; }
 	std::string getConfigFilePath() const { return configFilePath; }

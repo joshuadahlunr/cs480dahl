@@ -3,6 +3,7 @@
 
 #include "engine.h"
 #include "leaderboard.h"
+#include "voxel_world.h"
 
 //class Leaderboard;
 
@@ -13,7 +14,13 @@ public:
 
 	bool initialize(const Arguments& args);
 	void update(float dt) override;
+	void render(Shader* boundShader) override;
 	void drawGUI();
+
+protected:
+	Arguments args;
+	
+	VoxelWorld world;
 };
 
 #endif // APPLICATION_H

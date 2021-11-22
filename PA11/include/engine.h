@@ -18,6 +18,7 @@ class Object;
 class Celestial;
 class Light;
 class Sound;
+class Shader;
 
 // Class which provides engine related internals
 class Engine {
@@ -28,6 +29,7 @@ public:
 	virtual bool initialize(const Arguments& args);
 	virtual void run();
 	virtual void update(float dt) {}
+	virtual void render(Shader* boundShader) {}
 
 	// Time functions
 	float getDT();

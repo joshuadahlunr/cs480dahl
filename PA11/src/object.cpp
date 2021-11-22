@@ -23,6 +23,8 @@ Object::Object() {
 	glGenBuffers(1, &IB);
 	// Mark that we don't have a parent
 	parent = nullptr;
+	// Ensure that we don't have a physics component
+	rigidBody = nullptr;
 }
 
 Object::~Object() {

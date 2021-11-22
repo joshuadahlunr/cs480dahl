@@ -10,6 +10,8 @@
 
 struct Chunk : public Object {
 
+    using ptr = std::shared_ptr<Chunk>;
+
     struct Voxel {
         enum Type : uint8_t {
             Air = 0,

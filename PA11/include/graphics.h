@@ -37,7 +37,8 @@ protected:
 
 	GUI* gui;
 
-	Camera *camera;
+	Engine* engine;
+	Camera* camera;
 	Shader* perFragShader, *perVertShader;
 	Skybox* skybox;
 
