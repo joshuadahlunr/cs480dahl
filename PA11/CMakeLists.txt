@@ -49,8 +49,9 @@ FILE(GLOB THIRDPARTY_SOURCES
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/include"
 	"${PROJECT_SOURCE_DIR}/thirdparty"
-	"${PROJECT_SOURCE_DIR}/thirdparty/reactphysics3d/include"
-	"${PROJECT_SOURCE_DIR}/thirdparty/FastNoise2/include"
+	"${THIRDPARTY_BASE}/reactphysics3d/include"
+	"${THIRDPARTY_BASE}/FastNoise2/include"
+	"${THIRDPARTY_BASE}/Compute-Shaders/src"
 	${SDL2_INCLUDE_DIR}
 	${GLM_INCLUDE_DIRS}
 	${IMGUI_INCLUDE_DIRS}

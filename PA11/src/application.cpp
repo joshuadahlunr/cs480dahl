@@ -29,7 +29,7 @@ bool Application::initialize(const Arguments& args) {
 
 
 	for(int z = -WORLD_RADIUS; z <= WORLD_RADIUS; z++){
-		auto chunks = world.generateChunksZ(0, z);
+		auto chunks = world.generateChunksZ(args, 0, z);
 		for(int x = 0; x < chunks.size() - 1; x++){
 			auto& chunk = chunks[x];
 			chunk->setPosition({16 * (x - WORLD_RADIUS), 0, 16 * z});
@@ -54,7 +54,7 @@ void Application::update(float dt) {
 		timer = 0;
 
 		// TODO: why is it derpy at the start?
-		auto chunks = world.generateChunksX(x, -WORLD_RADIUS);
+		auto chunks = world.generateChunksX(args, x, -WORLD_RADIUS);
 		for(int z = 0; z < chunks.size() - 1; z++){
 			auto& chunk = chunks[z];
 			chunk->setPosition({16 * x, 0, 16 * (z - WORLD_RADIUS)});

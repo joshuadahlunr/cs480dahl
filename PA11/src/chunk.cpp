@@ -4,41 +4,33 @@
 #include <list>
 
 #include "FastNoise/FastNoise.h"
+#include "ComputeBuffer.hpp"
+#include "ComputeShader.hpp"
 
 // Function which generates the data we will mesh
-void Chunk::generateVoxels(int X, int Z) {
-	static auto simplex = FastNoise::New<FastNoise::Simplex>();
+void Chunk::generateVoxels(const Arguments& args, int X, int Z) {
+	static std::unique_ptr<ComputeShader> voxelGenerator = [](const Arguments& args){
+		std::ifstream fin(args.getResourcePath() + "/shaders/generateVoxels.compute.glsl");
+		if(!fin)
+			throw std::runtime_error("Compute shader `" + args.getResourcePath() + "/shaders/generateVoxels.compute.glsl` not found");
 
-	// std::array<float, 16 * 256 * 16> noiseOutput;
-	// // Generate a 16 x 16 x 16 area of noise
-	// simplex->GenUniformGrid3D(noiseOutput.data(), X * 16, 0, Z * 16, 16, 256, 16, 0.2f, NOISE_SEED);
+		return std::make_unique<ComputeShader>(fin);
+	}(args);
 
-	glm::ivec3 sphereMiddle(CHUNK_X_SIZE / 2, 10, CHUNK_Z_SIZE / 2);
+	ComputeBuffer buffer(1, sizeof(voxels), voxels);
 
-	for(int x = 0; x < CHUNK_X_SIZE; x++)
-		for(int y = 0; y < CHUNK_Y_SIZE; y++)
-			for(int z = 0; z < CHUNK_X_SIZE; z++){
-				float heightMap = (simplex->GenSingle2D((x + 16 * X) / 100.0, (z + 16 * Z) / 100.0, NOISE_SEED + 20) + 1) * 10 + 20;
+	voxelGenerator->setParameter("chunkX", X);
+	voxelGenerator->setParameter("chunkZ", Z);
+	voxelGenerator->dispatch(17, 256 / 16, 17);
 
-				float factor;
-				if(y < heightMap) factor = glm::smoothstep(heightMap - 50, heightMap, glm::vec2(y)).x;
-				else factor = 1 - glm::smoothstep(heightMap, heightMap + 5, glm::vec2(y)).x;
-
-				float noiseFunction = simplex->GenSingle3D((x + 16 * X) / 20.0, y / 20.0, (z + 16 * Z) / 20.0, NOISE_SEED) * 5;
-
-				float function = factor * noiseFunction + (1 - factor) * (y - heightMap);
-
-				if(function > 0)
-					 voxels[x][y][z] = {Voxel::Type::Air, function};
-				else voxels[x][y][z] = {Voxel::Type::Grass, function};
-			}
+	buffer.getData(voxels);
 }
 
 /*
 	Linearly interpolate the position where an isosurface cuts
 	an edge between two vertices, each with their own scalar value
 */
-glm::vec3 VertexInterp(float isolevel, glm::vec3 p1, glm::vec3 p2, float valp1, float valp2) {
+glm::vec3 vertexInterp(float isolevel, glm::vec3 p1, glm::vec3 p2, float valp1, float valp2) {
 	float mu;
 	glm::vec3 p;
 
@@ -381,29 +373,29 @@ std::vector<glm::vec3> calculateMarchingCubes(const IsoGridSample& grid, float i
 
 	/* Find the vertices where the surface intersects the cube */
 	if (edgeTable[cubeindex] & 1)
-		vertlist[0] = VertexInterp(isolevel, grid.points[0], grid.points[1], grid.values[0], grid.values[1]);
+		vertlist[0] = vertexInterp(isolevel, grid.points[0], grid.points[1], grid.values[0], grid.values[1]);
 	if (edgeTable[cubeindex] & 2)
-		vertlist[1] = VertexInterp(isolevel, grid.points[1], grid.points[2], grid.values[1], grid.values[2]);
+		vertlist[1] = vertexInterp(isolevel, grid.points[1], grid.points[2], grid.values[1], grid.values[2]);
 	if (edgeTable[cubeindex] & 4)
-		vertlist[2] = VertexInterp(isolevel, grid.points[2], grid.points[3], grid.values[2], grid.values[3]);
+		vertlist[2] = vertexInterp(isolevel, grid.points[2], grid.points[3], grid.values[2], grid.values[3]);
 	if (edgeTable[cubeindex] & 8)
-		vertlist[3] = VertexInterp(isolevel, grid.points[3], grid.points[0], grid.values[3], grid.values[0]);
+		vertlist[3] = vertexInterp(isolevel, grid.points[3], grid.points[0], grid.values[3], grid.values[0]);
 	if (edgeTable[cubeindex] & 16)
-		vertlist[4] = VertexInterp(isolevel, grid.points[4], grid.points[5], grid.values[4], grid.values[5]);
+		vertlist[4] = vertexInterp(isolevel, grid.points[4], grid.points[5], grid.values[4], grid.values[5]);
 	if (edgeTable[cubeindex] & 32)
-		vertlist[5] = VertexInterp(isolevel, grid.points[5], grid.points[6], grid.values[5], grid.values[6]);
+		vertlist[5] = vertexInterp(isolevel, grid.points[5], grid.points[6], grid.values[5], grid.values[6]);
 	if (edgeTable[cubeindex] & 64)
-		vertlist[6] = VertexInterp(isolevel, grid.points[6], grid.points[7], grid.values[6], grid.values[7]);
+		vertlist[6] = vertexInterp(isolevel, grid.points[6], grid.points[7], grid.values[6], grid.values[7]);
 	if (edgeTable[cubeindex] & 128)
-		vertlist[7] = VertexInterp(isolevel, grid.points[7], grid.points[4], grid.values[7], grid.values[4]);
+		vertlist[7] = vertexInterp(isolevel, grid.points[7], grid.points[4], grid.values[7], grid.values[4]);
 	if (edgeTable[cubeindex] & 256)
-		vertlist[8] = VertexInterp(isolevel, grid.points[0], grid.points[4], grid.values[0], grid.values[4]);
+		vertlist[8] = vertexInterp(isolevel, grid.points[0], grid.points[4], grid.values[0], grid.values[4]);
 	if (edgeTable[cubeindex] & 512)
-		vertlist[9] = VertexInterp(isolevel, grid.points[1], grid.points[5], grid.values[1], grid.values[5]);
+		vertlist[9] = vertexInterp(isolevel, grid.points[1], grid.points[5], grid.values[1], grid.values[5]);
 	if (edgeTable[cubeindex] & 1024)
-		vertlist[10] = VertexInterp(isolevel, grid.points[2], grid.points[6], grid.values[2], grid.values[6]);
+		vertlist[10] = vertexInterp(isolevel, grid.points[2], grid.points[6], grid.values[2], grid.values[6]);
 	if (edgeTable[cubeindex] & 2048)
-		vertlist[11] = VertexInterp(isolevel, grid.points[3], grid.points[7], grid.values[3], grid.values[7]);
+		vertlist[11] = vertexInterp(isolevel, grid.points[3], grid.points[7], grid.values[3], grid.values[7]);
 
 	/* Create the triangle */
 	std::vector<glm::vec3> out;

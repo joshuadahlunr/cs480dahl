@@ -28,11 +28,11 @@ void VoxelWorld::AddNegX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chu
         this->chunks[i].push_back(chunks[i]);
 }
 
-std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksX(size_t X, size_t startZ) {
+std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksX(const Arguments& args, size_t X, size_t startZ) {
     std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> out;
-    for(int i = 0; i < WORLD_RADIUS * 2 + 1; i++){ // one less, we don't generate the null chunk 
+    for(int i = 0; i < WORLD_RADIUS * 2 + 1; i++){ // one less, we don't generate the null chunk
         out[i] = std::make_shared<Chunk>();
-	    out[i]->generateVoxels(X, startZ + i);
+	    out[i]->generateVoxels(args, X, startZ + i);
     }
 
     return out;
@@ -49,11 +49,11 @@ void VoxelWorld::AddNegZ(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chu
     this->chunks.push_back(rowBuffer(chunks));
 }
 
-std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksZ(size_t startX, size_t Z) {
+std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksZ(const Arguments& args, size_t startX, size_t Z) {
     std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> out;
-    for(int i = 0; i < WORLD_RADIUS * 2 + 1; i++){ // one less, we don't generate the null chunk 
+    for(int i = WORLD_RADIUS * 2; 0 <= i ; i--){ // one less, we don't generate the null chunk
         out[i] = std::make_shared<Chunk>();
-	    out[i]->generateVoxels(startX + i, Z);
+	    out[i]->generateVoxels(args, startX + i, Z);
     }
 
     return out;
