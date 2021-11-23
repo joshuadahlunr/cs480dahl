@@ -26,7 +26,7 @@ bool Application::initialize(const Arguments& args) {
 
 
 	for(int z = -WORLD_RADIUS; z <= WORLD_RADIUS; z++){
-		auto chunks = world.generateChunksZ(args, 0, z);
+		auto chunks = world.generateChunksZ(args, -WORLD_RADIUS, z);
 		for(int x = 0; x < chunks.size() - 1; x++){
 			auto& chunk = chunks[x];
 			chunk->setPosition({16 * (x - WORLD_RADIUS), 0, 16 * z});
@@ -39,7 +39,7 @@ bool Application::initialize(const Arguments& args) {
 	return ret;
 }
 
-int x = WORLD_RADIUS + 1, z = WORLD_RADIUS;
+int x = -WORLD_RADIUS - 1, z = WORLD_RADIUS;
 float timer = 0;
 
 void Application::update(float dt) {
@@ -57,8 +57,8 @@ void Application::update(float dt) {
 			meshingQueue.push(chunk);
 		}
 
-		world.AddPosX(chunks);
-		x++;
+		world.AddNegX(chunks);
+		x--;
 	}
 
 	// If there are chunks which need meshes generated for them... generate a mesh for those chunks

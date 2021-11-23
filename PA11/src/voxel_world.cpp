@@ -19,13 +19,13 @@ void VoxelWorld::render(Shader* boundShader){
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddPosX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
     for(int i = 0; i < chunks.size(); i++)
-        this->chunks[i].push_front(chunks[i]);
+        this->chunks[i].push_back(chunks[i]);
 }
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddNegX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
     for(int i = 0; i < chunks.size(); i++)
-        this->chunks[i].push_back(chunks[i]);
+        this->chunks[i].push_front(chunks[i]);
 }
 
 std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksX(const Arguments& args, size_t X, size_t startZ) {
