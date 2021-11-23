@@ -412,10 +412,8 @@ void Chunk::rebuildMesh(const Arguments& args) {
 	vertices.clear();
 	indices.clear();
 
-	// Map of vertecies to their index
-	std::unordered_map<Vertex, size_t> vertexIndices;
-	// List of faces defining how vertices are connected
-	std::list<glm::ivec3> faces = { glm::ivec3(0) };
+	// Map of vertecies to their index and normal accumulator
+	std::unordered_map<Vertex, std::pair<size_t, glm::vec3>> vertexIndicesAndNormals;
 
 	size_t index = 0, face = 0;
 	for(size_t x = 0; x < CHUNK_X_SIZE - 1; x++)
@@ -447,44 +445,29 @@ void Chunk::rebuildMesh(const Arguments& args) {
 				// TODO: apply additional smoothing?
 
 				// Merge the marching cubes vertecies into our existing list of vertices with index optimizations
-				for(const auto& pos: verts){
-					// Make sure we always have enough faces
-					if(face >= 3){
-						faces.emplace_back(0);
-						face = 0;
-					}
+				for(int i = 0; i < verts.size(); i++){
+					const auto& pos = verts[i];
+					int face = i - (i % 3);
 
-					glm::vec2 uv = {pos.x, pos.z}; // TODO: Improve UV calculations
+					glm::vec2 uv = {pos.x, pos.z}; // TODO: Improve UV calculations (just use triplanar projection?)
 					Vertex v(pos, glm::vec3(0), uv, glm::vec3(0));
 
-					// If the vertex has already been cached... push its index back again
-					if(vertexIndices.find(v) != vertexIndices.end()){
-						indices.push_back(vertexIndices[v]);
-						faces.back()[face++] = vertexIndices[v];
-					// Otherwise add it to the list of vertecies and cache its index
+					// If the vertex has already been cached... push its index back again and add this new face's normal to its normal
+					if(vertexIndicesAndNormals.find(v) != vertexIndicesAndNormals.end()){
+						indices.push_back(vertexIndicesAndNormals[v].first);
+						vertexIndicesAndNormals[v].second += glm::cross(verts[face + 1] - verts[face], verts[face + 2] - verts[face]);
+					// Otherwise add it to the list of vertecies and cache its index and base normal
 					} else {
 						vertices.emplace_back(std::move(v));
-						vertexIndices[v] = index;
-						faces.back()[face++] = index;
+						vertexIndicesAndNormals[v] = {index, glm::cross(verts[face + 1] - verts[face], verts[face + 2] - verts[face])};
 						indices.push_back(index++);
 					}
 				}
 			}
 
-	// Now that we have all of the vertecies we can calculate their normals
-	for(int i = 0; i < vertices.size(); i++){
-		// Clear the normal
-		vertices[i].normal = glm::vec3(0);
-		// For each face...
-		for(glm::ivec3& face: faces)
-			// That contains the vertex...
-			if(face.x == i || face.y == i || face.z == i)
-				// Add its face normal to the vertex's normal
-				vertices[i].normal += glm::cross(vertices[face.y].vertex - vertices[face.x].vertex, vertices[face.z].vertex - vertices[face.x].vertex);
-
-		// Normalize the vertex's normal
-		vertices[i].normal = glm::normalize(vertices[i].normal);
-	}
+	// For each vertex assign the normalized version of its accumulated normal vector
+	for(Vertex& v: vertices)
+		v.normal = glm::normalize(vertexIndicesAndNormals[v].second);
 
 	// Upload the model to the gpu
 	finalizeModel(); // TODO: Do we need to clear the current model?
