@@ -5,7 +5,7 @@
 #include "leaderboard.h"
 #include "voxel_world.h"
 
-//class Leaderboard;
+#include <queue>
 
 // Class which provides engine related internals
 class Application: public Engine {
@@ -19,8 +19,10 @@ public:
 
 protected:
 	Arguments args;
-	
+
 	VoxelWorld world;
+
+	std::queue<std::shared_ptr<Chunk>> meshingQueue;
 };
 
 #endif // APPLICATION_H

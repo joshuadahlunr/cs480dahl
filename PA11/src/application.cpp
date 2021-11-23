@@ -10,7 +10,6 @@
 
 #include "chunk.h"
 
-
 bool Application::initialize(const Arguments& args) {
 	bool ret = Engine::initialize(args);
 
@@ -26,15 +25,12 @@ bool Application::initialize(const Arguments& args) {
 	point->setDiffuse({1, 1, 1, 1});
 
 
-
-
 	for(int z = -WORLD_RADIUS; z <= WORLD_RADIUS; z++){
 		auto chunks = world.generateChunksZ(args, 0, z);
 		for(int x = 0; x < chunks.size() - 1; x++){
 			auto& chunk = chunks[x];
 			chunk->setPosition({16 * (x - WORLD_RADIUS), 0, 16 * z});
-			chunk->rebuildMesh(args);
-			chunk->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
+			meshingQueue.push(chunk);
 		}
 
 		world.AddPosZ(chunks);
@@ -58,14 +54,20 @@ void Application::update(float dt) {
 		for(int z = 0; z < chunks.size() - 1; z++){
 			auto& chunk = chunks[z];
 			chunk->setPosition({16 * x, 0, 16 * (z - WORLD_RADIUS)});
-			chunk->rebuildMesh(args);
-			chunk->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
+			meshingQueue.push(chunk);
 		}
 
 		world.AddPosX(chunks);
 		x++;
 	}
 
+	// If there are chunks which need meshes generated for them... generate a mesh for those chunks
+	if(!meshingQueue.empty()){
+		auto nextMesh = meshingQueue.front();
+		meshingQueue.pop();
+		nextMesh->rebuildMesh(args);
+		nextMesh->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
+	}
 }
 
 void Application::render(Shader* boundShader){
