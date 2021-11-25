@@ -19,13 +19,13 @@ void VoxelWorld::render(Shader* boundShader){
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddPosX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
     for(int i = 0; i < chunks.size(); i++)
-        this->chunks[i].push_back(chunks[i]);
+        this->chunks[i].emplace_back(chunks[i]);
 }
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddNegX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
     for(int i = 0; i < chunks.size(); i++)
-        this->chunks[i].push_front(chunks[i]);
+        this->chunks[i].emplace_front(chunks[i]);
 }
 
 std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksX(const Arguments& args, size_t X, size_t startZ) {
@@ -40,13 +40,12 @@ std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksX(const A
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddPosZ(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
-    rowBuffer b = chunks;
-    this->chunks.push_front(b);
+    this->chunks.emplace_front(chunks);
 }
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddNegZ(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>& chunks) {
-    this->chunks.push_back(rowBuffer(chunks));
+    this->chunks.emplace_back(chunks);
 }
 
 std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2> VoxelWorld::generateChunksZ(const Arguments& args, size_t startX, size_t Z) {

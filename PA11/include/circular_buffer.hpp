@@ -4,12 +4,14 @@
 #include <array>
 #include <exception>
 #include <type_traits>
+#include <memory>
 
 // Adaptor which extends an array-like class to act as a circular buffer
 // NOTE: In order for ranged iteration to work, there must be an unused cell between
 // 	the start and end, thus if the backing array can store N elements, the circular buffer can only store N - 1
-template<typename T, typename Container = std::array<T, 10>>
-class circular_buffer : public Container {
+template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<typename Container::value_type>>
+class circular_buffer_base : public Container {
+
 	// Template metaprogramming checking if a type has a function called capacity
 	template<typename, typename _T>
 	struct has_capacity { static_assert(std::integral_constant<_T, false>::value, "Second template parameter needs to be of function type."); };
@@ -36,9 +38,11 @@ class circular_buffer : public Container {
 	    static constexpr bool value = type::value;
 	};
 
+
 public:
 	// Types brought in from the backing container
 	using container_type = Container;
+	using allocator_type = Allocator;
 	using value_type = typename Container::value_type;
 	using size_type = typename Container::size_type;
 	using difference_type = typename Container::difference_type;
@@ -52,12 +56,12 @@ public:
 	template<typename pointerType, typename referenceType>
 	class circular_iterator : public std::iterator<std::bidirectional_iterator_tag, value_type, difference_type, pointerType, referenceType> {
 		// Reference to the buffer which created this iterator
-		circular_buffer& creator;
+		circular_buffer_base& creator;
 		// Index (in array space) the iterator is currently pointing to
 		size_type i;
 
 	public:
-		explicit circular_iterator(circular_buffer& creator, const size_type i): creator(creator), i(i) {}
+		explicit circular_iterator(circular_buffer_base& creator, const size_type i): creator(creator), i(i) {}
 		// Increment support
 		circular_iterator& operator++() { creator.increment(i); return *this; }
         circular_iterator operator++(int) { circular_iterator retval = *this; ++(*this); return retval; }
@@ -87,14 +91,14 @@ protected:
 	size_type _end() { return (start + _size) % _capacity(); }
 
 public:
-	circular_buffer() = default;
-	circular_buffer(const Container& c, size_t start = 0) : Container(c), _size(c.size() - 1), start(start) {}
-	circular_buffer(const Container&& c, size_t start = 0) : Container(std::move(c)), _size(c.size() - 1), start(start) {}
-	circular_buffer(const circular_buffer& b) : Container(b), _size(b._size), start(b.start) {}
-	circular_buffer(const circular_buffer&& b) : Container(std::move(b)), _size(b._size), start(b.start) {}
+	circular_buffer_base() = default;
+	circular_buffer_base(const Container& c, size_t start = 0) : Container(c), _size(c.size() - 1), start(start) {}
+	circular_buffer_base(const Container&& c, size_t start = 0) : Container(std::move(c)), _size(c.size() - 1), start(start) {}
+	circular_buffer_base(const circular_buffer_base& b) : Container(b), _size(b._size), start(b.start) {}
+	circular_buffer_base(const circular_buffer_base&& b) : Container(std::move(b)), _size(b._size), start(b.start) {}
 	using Container::Container;
 
-	circular_buffer& operator=(const circular_buffer& other) {
+	circular_buffer_base& operator=(const circular_buffer_base& other) {
 		*((Container*) this) = other;
 		_size = other._size;
 		start = other.start;
@@ -102,7 +106,7 @@ public:
 		return *this;
 	}
 
-	circular_buffer& operator=(const circular_buffer&& other) {
+	circular_buffer_base& operator=(const circular_buffer_base&& other) {
 		*((Container*) this) = std::move(other);
 		_size = other._size;
 		start = other.start;
@@ -110,8 +114,8 @@ public:
 		return *this;
 	}
 
-	circular_buffer& operator=(const Container& other) { *((Container*) this) = other; }
-	circular_buffer& operator=(const Container&& other) { *((Container*) this) = std::move(other); }
+	circular_buffer_base& operator=(const Container& other) { *((Container*) this) = other; }
+	circular_buffer_base& operator=(const Container&& other) { *((Container*) this) = std::move(other); }
 
 
 	// The number of elements the buffer is capable of holding
@@ -135,13 +139,13 @@ public:
 
 	// Function which returns the base container's allocator
 	// NOTE: Only gets compiled into the class if the base container has a get_allocator function
-	template<typename Q = Container> typename std::enable_if<has_get_allocator<Q, typename Q::allocator_type()>::value, typename Q::allocator_type>::type
+	template<typename Q = Container> typename std::enable_if<has_get_allocator<Q, allocator_type()>::value, allocator_type>::type
 	get_allocator(){ return Q::get_allocator(); }
 
 	// Function which returns the base container's allocator
 	// NOTE: Only gets compiled into the class if the base container DOESN'T HAVE a get_allocator function
-	template<typename Q = Container> typename std::enable_if<!has_get_allocator<Q, typename Q::allocator_type()>::value, std::allocator<value_type>>::type
-	get_allocator(){ return std::allocator<value_type>{}; }
+	template<typename Q = Container> typename std::enable_if<!has_get_allocator<Q, allocator_type()>::value, allocator_type>::type
+	get_allocator(){ return allocator_type{}; }
 
 	// Constructs a new element at the start of the buffer, returns an iterator to it
 	template<typename... Args>
@@ -164,6 +168,7 @@ public:
 
 		Container::operator[](start) = r;
 	}
+	void push_front(const value_type&& r){ push_front(r); }
 
 	// Function which removes an element from the front of the buffer
 	void pop_front() {
@@ -191,6 +196,7 @@ public:
 		if(size() < _capacity() - 1) _size++;
 		else increment(start);
 	}
+	void push_back(const value_type&& r){ push_back(r); }
 
 	// Function which removes an element from the end of the buffer
 	void pop_back() {
@@ -236,6 +242,27 @@ protected:
 		if(n == 0) n = _capacity() - 1;
 		else n = (n - 1) % _capacity();
 	}
+};
+
+// Buffer based on a container
+template<typename Container>
+struct circular_buffer : public circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type> {
+	using Base = circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type>;
+	using Base::Base;
+};
+
+// Buffer based on a std::array
+template<typename T, size_t N>
+struct circular_buffer_array : public circular_buffer_base<T, std::array<T, N>, std::allocator<T>> {
+	using Base = circular_buffer_base<T, std::array<T, N>, std::allocator<T>>;
+	using Base::Base;
+};
+
+// Buffer with explicit controls
+template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<T>>
+struct circular_buffer_explicit : public circular_buffer_base<T, Container, Allocator> {
+	using Base = circular_buffer_base<T, Container, Allocator>;
+	using Base::Base;
 };
 
 #endif /* end of include guard: CIRCULAR_BUFFER_HPP */

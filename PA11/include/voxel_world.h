@@ -7,9 +7,9 @@
 #define WORLD_RADIUS 10
 
 struct VoxelWorld {
-    // Outer = X, Inner = Z
-    using rowBuffer = circular_buffer<Chunk::ptr, std::array<Chunk::ptr, WORLD_RADIUS * 2 + 2>>;
-    circular_buffer<rowBuffer, std::array<rowBuffer, WORLD_RADIUS * 2 + 2>> chunks;
+	// Circular Buffer of Circular Buffers of Chunks
+	// Need +1 on the radius to include 0,0 and another +1 for the empty slot the buffer requires
+    circular_buffer_array<circular_buffer_array<Chunk::ptr, WORLD_RADIUS * 2 + 2>, WORLD_RADIUS * 2 + 2> chunks; // Outer = X, Inner = Z
 
     void update(float dt);
     void render(Shader* boundShader);
