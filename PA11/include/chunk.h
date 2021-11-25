@@ -9,7 +9,6 @@
 #define CHUNK_Z_SIZE 17
 
 struct Chunk : public Object {
-
     using ptr = std::shared_ptr<Chunk>;
 
     struct Voxel {

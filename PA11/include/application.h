@@ -5,12 +5,11 @@
 #include "leaderboard.h"
 #include "voxel_world.h"
 
-#include <queue>
-
 // Class which provides engine related internals
 class Application: public Engine {
 public:
-	using Engine::Engine;
+	Application(std::string name, int width, int height): Engine(name, width, height), world(args) {}
+	Application(std::string name): Engine(name), world(args) {}
 
 	bool initialize(const Arguments& args);
 	void update(float dt) override;
@@ -21,8 +20,6 @@ protected:
 	Arguments args;
 
 	VoxelWorld world;
-
-	std::queue<std::shared_ptr<Chunk>> meshingQueue;
 };
 
 #endif // APPLICATION_H
