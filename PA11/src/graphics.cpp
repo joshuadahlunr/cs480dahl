@@ -43,7 +43,7 @@ bool Graphics::initialize(int width, int height, Engine* engine, const Arguments
 	}
 
 	// Hookup camera mouse and keyboard events
-	engine->keyboardEvent += [&](auto event) { camera->keyboard(event); };
+	engine->keyboardEvent += [&](auto event) { camera->keyboard(event);};
 	engine->mouseButtonEvent += [&](auto event) { camera->mouseButton(event); };
 	engine->mouseMotionEvent += [&](auto event) { camera->mouseMotion(event); };
 	engine->mouseWheelEvent += [&](auto event) { camera->mouseWheel(event); };

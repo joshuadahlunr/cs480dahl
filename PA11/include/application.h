@@ -16,10 +16,23 @@ public:
 	void render(Shader* boundShader) override;
 	void drawGUI();
 
+	virtual void keyboard(const SDL_KeyboardEvent& e);
+	void mouseButton(const SDL_MouseButtonEvent& e);
+	void mouseMotion(const SDL_MouseMotionEvent& e);
+	void mouseWheel(const SDL_MouseWheelEvent& e);
+
+	Object::ptr ufo;
+
 protected:
+
 	Arguments args;
 
 	VoxelWorld world;
+private:
+	glm::vec2 inputDirection;
+	glm::vec3 desiredVelocity;
+	glm::vec3 velocity;
+	float accelerationRate = 0.5;
 };
 
 #endif // APPLICATION_H

@@ -17,6 +17,8 @@ public:
 	void update(float dt);
 	glm::mat4 getProjection() { return projection; }
 	glm::mat4 getView() { return view; }
+	glm::vec3 getLookDirection() { return normalize(focusPos - eyePos);}
+	void setFocus(std::shared_ptr<Object> object) {focusObj = object;}
 
 	// The camera updates some matricies when the window is resized.
 	static int windowResizeEventListener(void* data, SDL_Event* event);
