@@ -46,11 +46,13 @@ void Application::update(float dt) {
 
 
 	// UFO Control
+	float speed = 20;
 	glm::vec3 direction = Engine::getGraphics()->getCamera()->getLookDirection();
-	float forwardforce = 5 * inputDirection.x;
-	float sideForce = 5 * inputDirection.y;
+	float forwardforce = speed * inputDirection.x;
+	float sideForce = speed * inputDirection.y;
+	float verticalForce = speed * inputDirection.z;
 
-	desiredVelocity = forwardforce*direction + sideForce*glm::cross(direction,glm::vec3(0,1,0));
+	desiredVelocity = forwardforce*direction + sideForce*glm::cross(direction,glm::vec3(0,1,0)) + verticalForce*glm::cross(direction,glm::vec3(1,0,0));
     glm::vec3 diff = desiredVelocity - velocity;
     velocity += diff * accelerationRate * dt;
 
@@ -89,16 +91,20 @@ void Application::drawGUI(){
 
 void Application::keyboard(const SDL_KeyboardEvent& e) {
 
-	inputDirection = glm::vec2();
+	inputDirection = glm::vec3();
 	if (e.type == SDL_KEYDOWN) {
-		if (e.keysym.sym == SDLK_w)
-			inputDirection += glm::vec2(1,0);
-		if (e.keysym.sym == SDLK_s)
-			inputDirection += glm::vec2(-1,0);
-		if (e.keysym.sym == SDLK_a)
-			inputDirection += glm::vec2(0,-1);
-		if (e.keysym.sym == SDLK_d)
-			inputDirection += glm::vec2(0,1);
+		if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_UP)
+			inputDirection += glm::vec3(1,0,0);
+		if (e.keysym.sym == SDLK_s || e.keysym.sym == SDLK_DOWN)
+			inputDirection += glm::vec3(-1,0,0);
+		if (e.keysym.sym == SDLK_a || e.keysym.sym == SDLK_LEFT)
+			inputDirection += glm::vec3(0,-1,0);
+		if (e.keysym.sym == SDLK_d || e.keysym.sym == SDLK_RIGHT)
+			inputDirection += glm::vec3(0,1,0);
+		if (e.keysym.sym == SDLK_q || e.keysym.sym == SDLK_PLUS)
+			inputDirection += glm::vec3(0,0,1);
+		if (e.keysym.sym == SDLK_e || e.keysym.sym == SDLK_MINUS)
+			inputDirection += glm::vec3(0,0,-1);
 	}
 }
 

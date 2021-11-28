@@ -29,7 +29,7 @@ protected:
 
 	VoxelWorld world;
 private:
-	glm::vec2 inputDirection;
+	glm::vec3 inputDirection;
 	glm::vec3 desiredVelocity;
 	glm::vec3 velocity;
 	float accelerationRate = 0.5;
