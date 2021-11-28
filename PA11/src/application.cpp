@@ -28,6 +28,7 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
+	ufo->setPosition({8, 0, 8});
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 
@@ -40,15 +41,9 @@ bool Application::initialize(const Arguments& args) {
 	return ret;
 }
 
-float timer = 0;
 void Application::update(float dt) {
 	world.update(dt);
 
-	timer += dt;
-	if(timer > 5){
-		timer = 0;
-		world.stepPlayerNegZ();
-	}
 
 	// UFO Control
 	glm::vec3 direction = Engine::getGraphics()->getCamera()->getLookDirection();
@@ -60,6 +55,25 @@ void Application::update(float dt) {
     velocity += diff * accelerationRate * dt;
 
     ufo->setPosition(ufo->getPosition() + (velocity * dt));
+
+	glm::vec2 pointA = world.getPlayerChunk() * 16 - glm::ivec2(CHUNK_X_SIZE / 4); // TODO: if we do chunk scale this will need to be updated
+	glm::vec2 pointB = pointA + glm::vec2(CHUNK_X_SIZE / 4) + glm::vec2(CHUNK_X_SIZE);
+
+	// If the UFO is outside a 4 unit extension of the chunk...
+	if(glm::vec3 position = ufo->getPosition(); !(position.x > pointA.x && position.z > pointA.y && position.x < pointB.x && position.z < pointB.y) ){
+		// Step the world in whichever direction the ufo moved
+		if(position.x > pointB.x)
+			world.stepPlayerPosX();
+		else if(position.x < pointA.x)
+			world.stepPlayerNegX();
+		else if(position.z > pointB.y)
+			world.stepPlayerPosZ();
+		else if(position.z < pointA.y)
+			world.stepPlayerNegZ();	
+	}
+
+
+
 
     // Tilt if diff in velocity large
     //setRotation(glm::quat(diff));

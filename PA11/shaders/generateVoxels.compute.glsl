@@ -95,7 +95,7 @@ void main() {
 	int X = chunkX;
 	int Z = chunkZ;
 
-	float heightMap = (simplex(vec3((x + 16 * chunkX) / 100.0, (z + 16 * chunkZ) / 100.0, 0)) + 1) * 10 + 20;
+	float heightMap = (simplex(vec3((x + 16 * chunkX) / 100.0, (z + 16 * chunkZ) / 100.0, 0)) + 1) * 10 + 128;
 
 	float factor;
 	if(y < heightMap) factor = smoothstep(heightMap - 50, heightMap, vec2(y)).x;
