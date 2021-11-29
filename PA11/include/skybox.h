@@ -6,6 +6,10 @@
 #include "arguments.h"
 #include "camera.h"
 
+#ifndef SKYBOX_TEXTURE
+#define SKYBOX_TEXTURE "skyboxs/axis_walls"
+#endif
+
 class Shader;
 
 // Class which renders a skybox
