@@ -74,13 +74,11 @@ void Engine::run() {
 		GUI* gui = graphics->getGUI();
 		while(SDL_PollEvent(&event) != 0) {
 			auto shouldProcess = gui->processEvent(event);
-
 			// Quit Events
 			if(event.type == SDL_QUIT)
 				running = false;
 			// Key Events
 			else if (shouldProcess.keyboard && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
-
 				// Escape is quit
 				if(event.key.keysym.sym == SDLK_ESCAPE)
 					running = false;

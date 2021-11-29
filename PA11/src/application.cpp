@@ -44,15 +44,32 @@ bool Application::initialize(const Arguments& args) {
 void Application::update(float dt) {
 	world.update(dt);
 
+	// Capture input
+	const Uint8* keystate = SDL_GetKeyboardState(NULL);
+	inputDirection = glm::vec3();
+	if (keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP])
+		inputDirection += glm::vec3(1,0,0);
+	if (keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN])
+		inputDirection += glm::vec3(-1,0,0);
+	if (keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT])
+		inputDirection += glm::vec3(0,-1,0);
+	if (keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT])
+		inputDirection += glm::vec3(0,1,0);
+	if (keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP])
+		inputDirection += glm::vec3(0,0,1);
+	if (keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN])
+		inputDirection += glm::vec3(0,0,-1);
 
 	// UFO Control
 	float speed = 20;
-	glm::vec3 direction = Engine::getGraphics()->getCamera()->getLookDirection();
-	float forwardforce = speed * inputDirection.x;
-	float sideForce = speed * inputDirection.y;
-	float verticalForce = speed * inputDirection.z;
+	glm::vec3 camDirection = Engine::getGraphics()->getCamera()->getLookDirection();
+	glm::vec3 direction = glm::normalize(glm::vec3(camDirection.x, 0, camDirection.z));
+	glm::vec3 force = speed * inputDirection;
 
-	desiredVelocity = forwardforce*direction + sideForce*glm::cross(direction,glm::vec3(0,1,0)) + verticalForce*glm::cross(direction,glm::vec3(1,0,0));
+	desiredVelocity = 
+		direction * force.x + // forward movement
+		glm::cross(direction,glm::vec3(0,1,0)) * force.y + // up movement
+		glm::cross(direction,glm::vec3(0,0,1)) * force.z; // side movement5
     glm::vec3 diff = desiredVelocity - velocity;
     velocity += diff * accelerationRate * dt;
 
@@ -91,21 +108,7 @@ void Application::drawGUI(){
 
 void Application::keyboard(const SDL_KeyboardEvent& e) {
 
-	inputDirection = glm::vec3();
-	if (e.type == SDL_KEYDOWN) {
-		if (e.keysym.sym == SDLK_w || e.keysym.sym == SDLK_UP)
-			inputDirection += glm::vec3(1,0,0);
-		if (e.keysym.sym == SDLK_s || e.keysym.sym == SDLK_DOWN)
-			inputDirection += glm::vec3(-1,0,0);
-		if (e.keysym.sym == SDLK_a || e.keysym.sym == SDLK_LEFT)
-			inputDirection += glm::vec3(0,-1,0);
-		if (e.keysym.sym == SDLK_d || e.keysym.sym == SDLK_RIGHT)
-			inputDirection += glm::vec3(0,1,0);
-		if (e.keysym.sym == SDLK_q || e.keysym.sym == SDLK_PLUS)
-			inputDirection += glm::vec3(0,0,1);
-		if (e.keysym.sym == SDLK_e || e.keysym.sym == SDLK_MINUS)
-			inputDirection += glm::vec3(0,0,-1);
-	}
+
 }
 
 void Application::mouseButton(const SDL_MouseButtonEvent& e) {
