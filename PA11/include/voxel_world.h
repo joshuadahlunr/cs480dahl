@@ -7,7 +7,7 @@
 #include <queue>
 #include <algorithm>
 
-#define WORLD_RADIUS 10
+#define WORLD_RADIUS 25
 
 // Class which extends a priority queue to allow access to its comparision object
 template<class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
