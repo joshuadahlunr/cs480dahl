@@ -16,6 +16,7 @@ template<class T, class Container = std::vector<T>, class Compare = std::less<ty
 struct ModifiablePriorityQueue : public std::priority_queue<T, Container, Compare> {
 	using std::priority_queue<T, Container, Compare>::priority_queue;
 	Compare& getCompare() { return std::priority_queue<T, Container, Compare>::comp; }
+	Container& getContainer() { return std::priority_queue<T, Container, Compare>::c; }
 };
 
 struct VoxelWorld {

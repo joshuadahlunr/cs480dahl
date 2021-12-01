@@ -20,11 +20,16 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 		AddPosZ(chunks);
 	}
 
+
 	// Stop the meshing thread of already started
 	if(meshingThread.joinable()){
 		shouldMeshingThreadRun = false;
 		meshingThread.join();
 	}
+
+	// Resort generation queue so generation happens around the player
+	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
+
 	// Start a new meshing thread which just meshes chunks while there are chunks to be meshed
 	meshingThread = std::thread([this](){
 		while(shouldMeshingThreadRun){
@@ -42,16 +47,6 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 	});
-
-	// Make sure all of the inital chunks are generated before we procede
-	while(!generationQueue.empty()){
-		auto& nextGeneration = generationQueue.top();
-		generationQueue.pop();
-		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
-		nextGeneration.first->state = Chunk::GenerateState::Generated;
-		// Add this chunk to the meshing queue
-		meshingQueue->push(nextGeneration.first);
-	}
 }
 
 void VoxelWorld::update(float dt){
@@ -98,6 +93,9 @@ void VoxelWorld::stepPlayerPosX(){
 		chunk->setPosition({16 * (playerChunk.x + WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
 	}
 
+	// Resort generation queue so generation happens around the player
+	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
+
 	AddPosX(chunks);
 	playerChunk.x++;
 }
@@ -111,6 +109,9 @@ void VoxelWorld::stepPlayerNegX(){
 		chunk->setPosition({16 * (playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
 	}
 
+	// Resort generation queue so generation happens around the player
+	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
+
 	AddNegX(chunks);
 }
 
@@ -120,6 +121,9 @@ void VoxelWorld::stepPlayerPosZ(){
 		auto& chunk = chunks[x];
 		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y + WORLD_RADIUS)});
 	}
+
+	// Resort generation queue so generation happens around the player
+	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
 
 	AddPosZ(chunks);
 	playerChunk.y++;
@@ -133,6 +137,9 @@ void VoxelWorld::stepPlayerNegZ(){
 		auto& chunk = chunks[x];
 		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y - WORLD_RADIUS)});
 	}
+
+	// Resort generation queue so generation happens around the player
+	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
 
 	AddNegZ(chunks);
 }
