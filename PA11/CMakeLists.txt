@@ -32,6 +32,13 @@ add_subdirectory("${THIRDPARTY_BASE}/reactphysics3d")
 set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE) #example if don't need the graph tool
 add_subdirectory("${THIRDPARTY_BASE}/FastNoise2")
 
+#V-HACD
+set(VHACD_BASE_DIR "${THIRDPARTY_BASE}v-hacd/src/VHACD_Lib")
+set(CMAKE_COMMON_INC "${THIRDPARTY_BASE}v-hacd.cmake")
+set(NO_OPENCL true) # No OpenCL
+set(NO_OPENMP true) # No OpenMP
+add_subdirectory ("${VHACD_BASE_DIR}")
+
 
 SET(IMGUI_BASE "${THIRDPARTY_BASE}/dearimgui")
 SET(IMGUI_INCLUDE_DIRS
@@ -52,6 +59,8 @@ INCLUDE_DIRECTORIES(
 	"${THIRDPARTY_BASE}/reactphysics3d/include"
 	"${THIRDPARTY_BASE}/FastNoise2/include"
 	"${THIRDPARTY_BASE}/Compute-Shaders/src"
+	"${VHACD_BASE_DIR}/inc"
+	"${VHACD_BASE_DIR}/public"
 	${SDL2_INCLUDE_DIR}
 	${GLM_INCLUDE_DIRS}
 	${IMGUI_INCLUDE_DIRS}
@@ -82,6 +91,6 @@ add_custom_target("${PROJECT_NAME}_SUCCESSFUL" ALL
 									COMMAND ${CMAKE_COMMAND} -E echo ""
 								 )
 
-target_link_libraries(${PROJECT_NAME} reactphysics3d FastNoise)
+target_link_libraries(${PROJECT_NAME} reactphysics3d FastNoise vhacd)
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} ${assimp_LIBRARIES} Threads::Threads)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
