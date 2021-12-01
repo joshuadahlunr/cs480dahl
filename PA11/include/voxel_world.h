@@ -3,9 +3,11 @@
 
 #include "chunk.h"
 #include "circular_buffer.hpp"
+#include "monitor.hpp"
 
 #include <queue>
 #include <algorithm>
+#include <thread>
 
 #define WORLD_RADIUS 25
 
@@ -18,6 +20,7 @@ struct ModifiablePriorityQueue : public std::priority_queue<T, Container, Compar
 
 struct VoxelWorld {
 	VoxelWorld(Arguments& args): args(args) {}
+	~VoxelWorld() { shouldMeshingThreadRun = false; meshingThread.join(); }
 
 	void initialize(glm::ivec2 playerChunk = {0, 0});
     void update(float dt);
@@ -66,7 +69,14 @@ protected:
 	static ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair<Chunk::ptr, glm::ivec2>>, MeshingSort> generationQueue;
 
 	// Queue of chunks that need to be meshed
-	ModifiablePriorityQueue<Chunk::ptr, std::vector<Chunk::ptr>, MeshingSort> meshingQueue;
+	monitor<ModifiablePriorityQueue<Chunk::ptr, std::vector<Chunk::ptr>, MeshingSort>> meshingQueue;
+	// Thread responsible for meshing chunks
+	std::thread meshingThread;
+	// Bool which checks if the meshing thread should keep running
+	bool shouldMeshingThreadRun = true;
+
+	// Queue of chunks which need to be uploaded to the gpu
+	std::queue<Chunk::ptr> uploadQueue;
 };
 
 #endif // VOXEL_WORLD_H

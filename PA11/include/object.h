@@ -86,10 +86,10 @@ public:
 	const uint sceneDepth = 0;
 	bool loadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
 
-protected:
 	// Uploads the model data to the GPU
 	void finalizeModel();
 
+protected:
 	// Model/Texture loading
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
