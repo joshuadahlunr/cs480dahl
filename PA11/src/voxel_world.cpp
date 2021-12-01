@@ -8,26 +8,49 @@ ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair
 void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	this->playerChunk = playerChunk;
 	generationQueue.getCompare().playerChunk = &this->playerChunk;
-	meshingQueue.getCompare().playerChunk = &this->playerChunk;
+	meshingQueue->getCompare().playerChunk = &this->playerChunk;
 
 	for(int z = playerChunk.y - WORLD_RADIUS; z <= playerChunk.y + WORLD_RADIUS; z++){
 		auto chunks = generateChunksZ(args, playerChunk.x - WORLD_RADIUS, z);
 		for(int x = 0; x < chunks.size(); x++){
 			auto& chunk = chunks[x];
 			chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y)});
-			meshingQueue.push(chunk);
 		}
 
 		AddPosZ(chunks);
 	}
+
+	// Stop the meshing thread of already started
+	if(meshingThread.joinable()){
+		shouldMeshingThreadRun = false;
+		meshingThread.join();
+	}
+	// Start a new meshing thread which just meshes chunks while there are chunks to be meshed
+	meshingThread = std::thread([this](){
+		while(shouldMeshingThreadRun){
+			// If there are chunks which need meshes generated for them... generate a mesh for those chunks
+			if(!meshingQueue.unsafe().empty()){
+				auto nextMesh = meshingQueue.read_lock()->top();
+				meshingQueue->pop();
+				nextMesh->rebuildMesh(args);
+				nextMesh->state = Chunk::GenerateState::Meshed;
+
+				// Upload the meshed data to the gpu
+				uploadQueue.push(nextMesh);
+
+			// If there aren't chunks to generate... sleep for 5 milliseconds
+			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		}
+	});
 
 	// Make sure all of the inital chunks are generated before we procede
 	while(!generationQueue.empty()){
 		auto& nextGeneration = generationQueue.top();
 		generationQueue.pop();
 		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
+		nextGeneration.first->state = Chunk::GenerateState::Generated;
 		// Add this chunk to the meshing queue
-		meshingQueue.push(nextGeneration.first);
+		meshingQueue->push(nextGeneration.first);
 	}
 }
 
@@ -41,17 +64,21 @@ void VoxelWorld::update(float dt){
 		auto& nextGeneration = generationQueue.top();
 		generationQueue.pop();
 		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
+		nextGeneration.first->state = Chunk::GenerateState::Generated;
 
 		// Add this chunk to the meshing queue
-		meshingQueue.push(nextGeneration.first);
+		meshingQueue->push(nextGeneration.first);
 	}
 
-	// If there are chunks which need meshes generated for them... generate a mesh for those chunks
-	if(!meshingQueue.empty()){
-		auto nextMesh = meshingQueue.top();
-		meshingQueue.pop();
-		nextMesh->rebuildMesh(args);
+	// If there are meshed chunks which need to be uploaded to the gpu... upload them
+	while(!uploadQueue.empty()){
+		auto nextMesh = uploadQueue.front();
+		uploadQueue.pop();
+
+		// Upload the model to the gpu
+		nextMesh->finalizeModel(); // TODO: Do we need to clear the current model?
 		nextMesh->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
+		nextMesh->state = Chunk::GenerateState::Finalized;
 	}
 }
 
@@ -69,7 +96,6 @@ void VoxelWorld::stepPlayerPosX(){
 	for(int z = 0; z < chunks.size(); z++){
 		auto& chunk = chunks[z];
 		chunk->setPosition({16 * (playerChunk.x + WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
-		meshingQueue.push(chunk);
 	}
 
 	AddPosX(chunks);
@@ -83,7 +109,6 @@ void VoxelWorld::stepPlayerNegX(){
 	for(int z = 0; z < chunks.size(); z++){
 		auto& chunk = chunks[z];
 		chunk->setPosition({16 * (playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
-		meshingQueue.push(chunk);
 	}
 
 	AddNegX(chunks);
@@ -94,7 +119,6 @@ void VoxelWorld::stepPlayerPosZ(){
 	for(int x = 0; x < chunks.size(); x++){
 		auto& chunk = chunks[x];
 		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y + WORLD_RADIUS)});
-		meshingQueue.push(chunk);
 	}
 
 	AddPosZ(chunks);
@@ -108,7 +132,6 @@ void VoxelWorld::stepPlayerNegZ(){
 	for(int x = 0; x < chunks.size(); x++){
 		auto& chunk = chunks[x];
 		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y - WORLD_RADIUS)});
-		meshingQueue.push(chunk);
 	}
 
 	AddNegZ(chunks);

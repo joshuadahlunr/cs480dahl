@@ -468,7 +468,4 @@ void Chunk::rebuildMesh(const Arguments& args) {
 	// For each vertex assign the normalized version of its accumulated normal vector
 	for(Vertex& v: vertices)
 		v.normal = glm::normalize(vertexIndicesAndNormals[v].second);
-
-	// Upload the model to the gpu
-	finalizeModel(); // TODO: Do we need to clear the current model?
 }
