@@ -48,6 +48,8 @@ protected:
 			glm::vec3 origin = {16 * playerChunk->x, -CHUNK_Y_SIZE / 2, 16 * playerChunk->y};
 			return glm::length2(a->getPosition() - origin) > glm::length2(b->getPosition() - origin);
 		}
+		// Overload which allows generation pairs to be passed in
+		bool operator() (const std::pair<Chunk::ptr, glm::ivec2>& a, const std::pair<Chunk::ptr, glm::ivec2>& b){ return operator() (a.first, b.first); }
 	};
 
 protected:
@@ -59,6 +61,9 @@ protected:
 
 	// Vec2 storing the chunk the player is currently in
 	glm::ivec2 playerChunk = {0, 0};
+
+	// Queue of chunks that need their data generated
+	static ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair<Chunk::ptr, glm::ivec2>>, MeshingSort> generationQueue;
 
 	// Queue of chunks that need to be meshed
 	ModifiablePriorityQueue<Chunk::ptr, std::vector<Chunk::ptr>, MeshingSort> meshingQueue;

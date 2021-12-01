@@ -1,9 +1,13 @@
 #include "voxel_world.h"
 
+// Memory backing for the generation queue
+ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair<Chunk::ptr, glm::ivec2>>, VoxelWorld::MeshingSort> VoxelWorld::generationQueue;
+
 // Outer = X, Inner = Z
 
 void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	this->playerChunk = playerChunk;
+	generationQueue.getCompare().playerChunk = &this->playerChunk;
 	meshingQueue.getCompare().playerChunk = &this->playerChunk;
 
 	for(int z = playerChunk.y - WORLD_RADIUS; z <= playerChunk.y + WORLD_RADIUS; z++){
@@ -16,12 +20,31 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 
 		AddPosZ(chunks);
 	}
+
+	// Make sure all of the inital chunks are generated before we procede
+	while(!generationQueue.empty()){
+		auto& nextGeneration = generationQueue.top();
+		generationQueue.pop();
+		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
+		// Add this chunk to the meshing queue
+		meshingQueue.push(nextGeneration.first);
+	}
 }
 
 void VoxelWorld::update(float dt){
     for(auto& row: chunks)
         for(auto& chunk: row)
             chunk->update(dt);
+
+	// If there are chunks which need their data generated... generate one
+	if(!generationQueue.empty()){
+		auto& nextGeneration = generationQueue.top();
+		generationQueue.pop();
+		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
+
+		// Add this chunk to the meshing queue
+		meshingQueue.push(nextGeneration.first);
+	}
 
 	// If there are chunks which need meshes generated for them... generate a mesh for those chunks
 	if(!meshingQueue.empty()){
@@ -107,7 +130,8 @@ std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> VoxelWorld::generateChunksX(const A
     std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> out;
     for(int i = 0; i < WORLD_RADIUS * 2 + 1; i++){ // one less, we don't generate the null chunk
         out[i] = std::make_shared<Chunk>();
-	    out[i]->generateVoxels(args, X, startZ + i);
+		generationQueue.emplace(out[i], glm::ivec2{X, startZ + i});
+	    // out[i]->generateVoxels(args, X, startZ + i);
     }
 
     return out;
@@ -127,7 +151,8 @@ std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> VoxelWorld::generateChunksZ(const A
     std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> out;
     for(int i = WORLD_RADIUS * 2; 0 <= i ; i--){ // one less, we don't generate the null chunk
         out[i] = std::make_shared<Chunk>();
-	    out[i]->generateVoxels(args, startX + i, Z);
+		generationQueue.emplace(out[i], glm::ivec2{startX + i, Z});
+	    // out[i]->generateVoxels(args, startX + i, Z);
     }
 
     return out;
