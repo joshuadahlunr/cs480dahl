@@ -32,6 +32,8 @@ bool Application::initialize(const Arguments& args) {
 	ufo->setPosition({0, 0, 0});
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
+	ufo->initializePhysics(args, *Engine::getPhysics(), /*static*/false);
+	ufo->addMeshCollider(args, *Engine::getPhysics());
 
 	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 	getSceneRoot()->addChild(npc);

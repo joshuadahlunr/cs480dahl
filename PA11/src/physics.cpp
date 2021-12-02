@@ -15,11 +15,8 @@ bool Physics::initialize(Engine* engine, const Arguments& args) {
 	// Setup the singleton
 	singleton = this;
 
-	// Set physics world settings
-	rp3d::PhysicsWorld::WorldSettings settings;
-	settings.gravity = rp3d::Vector3(0, -2.0 / sqrt(5), -1.0 / sqrt(5)) * 9.81; // (0, -2, -1) normalized
-
 	// Create the physics world
+	rp3d::PhysicsWorld::WorldSettings settings;
 	world = factory.createPhysicsWorld(settings);
 	world->setEventListener(this);
 
@@ -75,7 +72,7 @@ void Physics::render(Camera* camera) {
 	// Get a reference to the debug renderer and set what we would like to see
 	rp3d::DebugRenderer& debugRenderer = getWorld().getDebugRenderer();
 	debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLISION_SHAPE, true);
-	// debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
+	debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
 	// debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_BROADPHASE_AABB, true);
 
 
