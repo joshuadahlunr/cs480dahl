@@ -49,7 +49,6 @@ FILE(GLOB THIRDPARTY_SOURCES
 	"${IMGUI_BASE}/*.cpp"
 	"${IMGUI_BASE}/backends/imgui_impl_opengl3.cpp"
 	"${IMGUI_BASE}/backends/imgui_impl_sdl.cpp"
-	"${THIRDPARTY_BASE}/quickhull/QuickHull.cpp"
 )
 
 

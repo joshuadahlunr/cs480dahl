@@ -31,6 +31,8 @@ bool Application::initialize(const Arguments& args) {
 	ufo->setPosition({8, 0, 8});
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
+	ufo->initializePhysics(args, *Engine::getPhysics(), /*static*/false);
+	ufo->addMeshCollider(args, *Engine::getPhysics());
 
 	// Hookup the input events
 	Engine::keyboardEvent += [&](auto event) { keyboard(event);};
