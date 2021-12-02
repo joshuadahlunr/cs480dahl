@@ -69,7 +69,7 @@ void Application::update(float dt) {
 	desiredVelocity = 
 		direction * force.x + // forward movement
 		glm::cross(direction,glm::vec3(0,1,0)) * force.y + // up movement
-		glm::cross(direction,glm::vec3(0,0,1)) * force.z; // side movement5
+		glm::vec3(0,1,0) * force.z; // side movement
     glm::vec3 diff = desiredVelocity - velocity;
     velocity += diff * accelerationRate * dt;
 
