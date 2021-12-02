@@ -91,11 +91,8 @@ void Application::update(float dt) {
 			world.stepPlayerNegZ();	
 	}
 
-
-
-
-    // Tilt if diff in velocity large
-    //setRotation(glm::quat(diff));
+    // Tilt the ufo relative to velocity
+	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + velocity)), true);
 }
 
 void Application::render(Shader* boundShader){
