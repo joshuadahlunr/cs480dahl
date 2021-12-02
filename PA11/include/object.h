@@ -10,6 +10,7 @@
 #include "arguments.h"
 
 #define RELATIVE_TO_PARENT true
+#define CONVEX_MESH 32
 
 // Base class for objects in the scene tree, provides basic mouse, keyboard, and
 // tick event propagation, along with managing the model, texture, and position in the scene tree of the object
@@ -41,7 +42,7 @@ public:
 	void addCapsuleCollider(float radius, float height, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
 	void addBoxCollider(glm::vec3 halfExtents, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
 	void addSphereCollider(float radius, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
-	bool addMeshCollider(const Arguments& args, bool makeConvex = true, std::string path = "", glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
+	bool addMeshCollider(const Arguments& args, Physics& physics, size_t maxHulls = CONVEX_MESH, std::string path = "", glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
 
 	// Scene tree management
 	Object::ptr setParent(Object::ptr p);
@@ -112,13 +113,27 @@ protected:
 		glm::decompose(childModel, scale, rotate, translate, skew, perspective);
 	}
 
+	std::unique_ptr<ConcaveCollisionMesh>& getConcaveCollisionMesh(){
+		if(collisionMesh->type != CollisionMesh::Type::Concave) 
+			throw std::runtime_error("Attempted to convert a convex collision mesh to a concave collision mesh");
+		
+		return *(std::unique_ptr<ConcaveCollisionMesh>*) &collisionMesh;
+	}
+
+	std::unique_ptr<ConvexCollisionMesh>& getConvexCollisionMesh(){
+		if(collisionMesh->type != CollisionMesh::Type::Convex) 
+			throw std::runtime_error("Attempted to convert a concave collision mesh to a convex collision mesh");
+
+		return *(std::unique_ptr<ConvexCollisionMesh>*) &collisionMesh;
+	}
+
 protected:
 	glm::mat4 model = glm::mat4(1);
 	glm::mat4 childModel = glm::mat4(1); // Model matrix that is used as the base of to this object's children's model matricies
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	CollisionMesh collisionMesh;
+	std::unique_ptr<CollisionMesh> collisionMesh = nullptr;
 
 	GLuint VB;
 	GLuint IB;

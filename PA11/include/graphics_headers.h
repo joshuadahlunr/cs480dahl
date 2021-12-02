@@ -28,6 +28,8 @@
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 
+#include <reactphysics3d/collision/PolygonVertexArray.h>
+
 // Struct defining the vertecies sent to OpenGL
 struct Vertex {
 	glm::vec3 vertex;
@@ -56,11 +58,21 @@ namespace std {
 	};
 }
 
+struct CollisionMesh {	
+	enum Type {
+		Convex,
+		Concave
+	} type;
+
+	CollisionMesh(Type type): type(type) {}
+};
+
 // Struct defining collision mesh data
-struct CollisionMesh {
+struct ConcaveCollisionMesh : public CollisionMesh {
 	float* vertexData = nullptr;
-	int* indiceData = nullptr;
 	int numVertices;
+	int* indiceData = nullptr;
+	int numIndices;
 
 	void clear() {
 		if(vertexData) delete [] vertexData;
@@ -70,26 +82,19 @@ struct CollisionMesh {
 		indiceData = nullptr;
 	}
 
-	~CollisionMesh() {
+	ConcaveCollisionMesh() : CollisionMesh(Concave) {}
+
+	~ConcaveCollisionMesh() {
 		clear();
 	}
 };
 
-// Struct defining collision mesh data
-struct ConvexCollisionMesh {
-	float* convexVertexData = nullptr;
-	int* convexIndiceData = nullptr;
-	int numConvexVertices;
-
-	ConvexCollisionMesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) { }
-
-	~ConvexCollisionMesh() {
-
-		if(convexVertexData) delete convexVertexData;
-		convexVertexData = nullptr;
-		if(convexIndiceData) delete convexIndiceData;
-		convexIndiceData = nullptr;
-	}
+struct ConvexCollisionMesh : public CollisionMesh {
+	std::vector<float> points;
+	std::vector<int> indices;
+	std::vector<reactphysics3d::PolygonVertexArray::PolygonFace> faces;
+	
+	ConvexCollisionMesh() : CollisionMesh(Convex) {}
 };
 
 // Function which returns the matrix needed to rotate the <original> std::vector into the <target> std::vector
