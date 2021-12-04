@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "threadTimer.h"
 #include "shader.h"
+#include "npc.h"
 
 #include "chunk.h"
 
@@ -28,9 +29,16 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({8, 0, 8});
+	ufo->setPosition({0, 0, 0});
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
+
+	npc = std::make_shared<NPC>();
+	getSceneRoot()->addChild(npc);
+	npc->setPosition({0, 0, 0});
+	npc->initializeGraphics(args, "cube.obj");
+
+
 
 	// Hookup the input events
 	Engine::keyboardEvent += [&](auto event) { keyboard(event);};
