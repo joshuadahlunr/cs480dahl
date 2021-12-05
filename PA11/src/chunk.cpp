@@ -416,9 +416,9 @@ void Chunk::rebuildMesh(const Arguments& args) {
 	std::unordered_map<Vertex, std::pair<size_t, glm::vec3>> vertexIndicesAndNormals;
 
 	size_t index = 0, face = 0;
-	for(size_t x = 0; x < CHUNK_X_SIZE - 1; x++)
-		for(size_t y = 0; y < CHUNK_Y_SIZE - 1; y++)
-			for(size_t z = 0; z < CHUNK_X_SIZE - 1; z++){
+	for(size_t x = 0; x < CHUNK_WIDTH - 1; x++)
+		for(size_t y = 0; y < CHUNK_HEIGHT - 1; y++)
+			for(size_t z = 0; z < CHUNK_WIDTH - 1; z++){
 				// Define our sample
 				IsoGridSample cell;
 				float scale = 1; // TODO: calculate from chunk width

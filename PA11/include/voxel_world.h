@@ -8,6 +8,7 @@
 #include <queue>
 #include <algorithm>
 #include <thread>
+#include <optional>
 
 #define WORLD_RADIUS 25
 
@@ -27,13 +28,24 @@ struct VoxelWorld {
     void update(float dt);
     void render(Shader* boundShader);
 
-	glm::ivec2 getPlayerChunk(){ return playerChunk; }
+	glm::ivec2 getPlayerChunkCoordinates(){ return playerChunk; }
 
 	// Functions which update which chunk the player is in and load chunks around them accordingly
 	void stepPlayerPosX();
 	void stepPlayerNegX();
 	void stepPlayerPosZ();
 	void stepPlayerNegZ();
+
+	// Functions which access the world
+	Chunk::ptr getChunk(glm::ivec2 worldPos);
+	Chunk::ptr getChunk(glm::ivec3 worldPos) { return getChunk({worldPos.x, worldPos.z}); }
+	std::optional<std::array<std::reference_wrapper<Chunk::Voxel>, CHUNK_HEIGHT>> getColumn(glm::ivec2 worldPos);
+	std::optional<std::array<std::reference_wrapper<Chunk::Voxel>, CHUNK_HEIGHT>> getColumn(glm::ivec3 worldPos) { return getColumn({worldPos.x, worldPos.z}); }
+	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
+
+	// Function which determines the highest Y of the world value given its X and Z coordinate
+	float getWorldHeight(glm::ivec2 worldPos);
+	float getWorldHeight(glm::ivec3 worldPos) { return getWorldHeight({worldPos.x, worldPos.z}); }
 
 protected:
     void AddPosX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1>& chunks);
@@ -49,7 +61,7 @@ protected:
 		glm::ivec2* playerChunk;
 
 		bool operator() (const Chunk::ptr& a, const Chunk::ptr& b){
-			glm::vec3 origin = {16 * playerChunk->x, -CHUNK_Y_SIZE / 2, 16 * playerChunk->y};
+			glm::vec3 origin = {16 * playerChunk->x, -CHUNK_HEIGHT / 2, 16 * playerChunk->y};
 			return glm::length2(a->getPosition() - origin) > glm::length2(b->getPosition() - origin);
 		}
 		// Overload which allows generation pairs to be passed in
@@ -60,7 +72,8 @@ protected:
 	Arguments& args;
 
 	// Circular Buffer of Circular Buffers of Chunks
-	// Need +1 on the radius to include 0,0 and another +1 for the empty slot the buffer requires
+	// Need +1 on the radius to include 0,0
+	// Outer = X, Inner = Z
     circular_buffer_array<circular_buffer_array<Chunk::ptr, WORLD_RADIUS * 2 + 1>, WORLD_RADIUS * 2 + 1> chunks; // Outer = X, Inner = Z
 
 	// Vec2 storing the chunk the player is currently in

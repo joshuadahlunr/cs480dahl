@@ -1,5 +1,9 @@
 #include "voxel_world.h"
 
+// Macros for accessing glm::vec2s which represent points in x, z space
+#define X(variable) (variable).x
+#define Z(variable) (variable).y
+
 // Memory backing for the generation queue
 ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair<Chunk::ptr, glm::ivec2>>, VoxelWorld::MeshingSort> VoxelWorld::generationQueue;
 
@@ -10,11 +14,11 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	generationQueue.getCompare().playerChunk = &this->playerChunk;
 	meshingQueue->getCompare().playerChunk = &this->playerChunk;
 
-	for(int z = playerChunk.y - WORLD_RADIUS; z <= playerChunk.y + WORLD_RADIUS; z++){
-		auto chunks = generateChunksZ(args, playerChunk.x - WORLD_RADIUS, z);
+	for(int z = Z(playerChunk) - WORLD_RADIUS; z <= Z(playerChunk) + WORLD_RADIUS; z++){
+		auto chunks = generateChunksZ(args, X(playerChunk) - WORLD_RADIUS, z);
 		for(int x = 0; x < chunks.size(); x++){
 			auto& chunk = chunks[x];
-			chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y)});
+			chunk->setPosition({(CHUNK_WIDTH - 1) * (x + X(playerChunk) - WORLD_RADIUS), -CHUNK_HEIGHT / 2, (CHUNK_WIDTH - 1) * (z + Z(playerChunk))});
 		}
 
 		AddPosZ(chunks);
@@ -87,26 +91,26 @@ void VoxelWorld::render(Shader* boundShader){
 
 
 void VoxelWorld::stepPlayerPosX(){
-	auto chunks = generateChunksX(args, playerChunk.x + WORLD_RADIUS, playerChunk.y - WORLD_RADIUS);
+	auto chunks = generateChunksX(args, X(playerChunk) + WORLD_RADIUS, Z(playerChunk) - WORLD_RADIUS);
 	for(int z = 0; z < chunks.size(); z++){
 		auto& chunk = chunks[z];
-		chunk->setPosition({16 * (playerChunk.x + WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
+		chunk->setPosition({(CHUNK_WIDTH - 1) * (X(playerChunk) + WORLD_RADIUS), -CHUNK_HEIGHT / 2, (CHUNK_WIDTH - 1) * (z + Z(playerChunk) - WORLD_RADIUS)});
 	}
 
 	// Resort generation queue so generation happens around the player
 	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
 
 	AddPosX(chunks);
-	playerChunk.x++;
+	X(playerChunk)++;
 }
 
 void VoxelWorld::stepPlayerNegX(){
-	playerChunk.x--;
+	X(playerChunk)--;
 
-	auto chunks = generateChunksX(args, playerChunk.x - WORLD_RADIUS, playerChunk.y - WORLD_RADIUS);
+	auto chunks = generateChunksX(args, X(playerChunk) - WORLD_RADIUS, Z(playerChunk) - WORLD_RADIUS);
 	for(int z = 0; z < chunks.size(); z++){
 		auto& chunk = chunks[z];
-		chunk->setPosition({16 * (playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (z + playerChunk.y - WORLD_RADIUS)});
+		chunk->setPosition({(CHUNK_WIDTH - 1) * (X(playerChunk) - WORLD_RADIUS), -CHUNK_HEIGHT / 2, (CHUNK_WIDTH - 1) * (z + Z(playerChunk) - WORLD_RADIUS)});
 	}
 
 	// Resort generation queue so generation happens around the player
@@ -116,26 +120,26 @@ void VoxelWorld::stepPlayerNegX(){
 }
 
 void VoxelWorld::stepPlayerPosZ(){
-	auto chunks = generateChunksZ(args, playerChunk.x - WORLD_RADIUS, playerChunk.y + WORLD_RADIUS);
+	auto chunks = generateChunksZ(args, X(playerChunk) - WORLD_RADIUS, Z(playerChunk) + WORLD_RADIUS);
 	for(int x = 0; x < chunks.size(); x++){
 		auto& chunk = chunks[x];
-		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y + WORLD_RADIUS)});
+		chunk->setPosition({(CHUNK_WIDTH - 1) * (x + X(playerChunk) - WORLD_RADIUS), -CHUNK_HEIGHT / 2, (CHUNK_WIDTH - 1) * (Z(playerChunk) + WORLD_RADIUS)});
 	}
 
 	// Resort generation queue so generation happens around the player
 	std::sort(generationQueue.getContainer().begin(), generationQueue.getContainer().end(), generationQueue.getCompare());
 
 	AddPosZ(chunks);
-	playerChunk.y++;
+	Z(playerChunk)++;
 }
 
 void VoxelWorld::stepPlayerNegZ(){
-	playerChunk.y--;
+	Z(playerChunk)--;
 
-	auto chunks = generateChunksZ(args, playerChunk.x - WORLD_RADIUS, playerChunk.y - WORLD_RADIUS);
+	auto chunks = generateChunksZ(args, X(playerChunk) - WORLD_RADIUS, Z(playerChunk) - WORLD_RADIUS);
 	for(int x = 0; x < chunks.size(); x++){
 		auto& chunk = chunks[x];
-		chunk->setPosition({16 * (x + playerChunk.x - WORLD_RADIUS), -CHUNK_Y_SIZE / 2, 16 * (playerChunk.y - WORLD_RADIUS)});
+		chunk->setPosition({(CHUNK_WIDTH - 1) * (x + X(playerChunk) - WORLD_RADIUS), -CHUNK_HEIGHT / 2, (CHUNK_WIDTH - 1) * (Z(playerChunk) - WORLD_RADIUS)});
 	}
 
 	// Resort generation queue so generation happens around the player
@@ -143,6 +147,89 @@ void VoxelWorld::stepPlayerNegZ(){
 
 	AddNegZ(chunks);
 }
+
+
+// Function which extracts the chunk at the given world position
+Chunk::ptr VoxelWorld::getChunk(glm::ivec2 worldPos){
+	glm::ivec2 chunkPos = worldPos / (CHUNK_WIDTH - 1);	// Convert from world space to chunk space
+	if(X(worldPos) < 0) X(chunkPos)--;
+	if(Z(worldPos) < 0) Z(chunkPos)--;
+	chunkPos -= playerChunk;				// Make chunk position relative to the player's position
+
+	// If the requested chunk is currently outside of the loaded radius, return nullptr
+	if(glm::length2(glm::vec2(chunkPos)) > WORLD_RADIUS * WORLD_RADIUS)
+		return nullptr;
+
+	chunkPos = glm::ivec2(WORLD_RADIUS) - chunkPos;	// Normalize the coordinates into array indices
+
+	return chunks[X(chunkPos)][Z(chunkPos)];
+}
+
+template<typename T, size_t size>
+std::array<T, size> fillInitalize(T value){
+	auto arrayGenerator = []<size_t... I>(T& value, std::integer_sequence<size_t, I...> s){
+		auto fillGenerator = [](int index, T& value) { return value; };
+		return std::array<T, sizeof...(I)> { fillGenerator(I, value)... };
+	};
+	
+	return arrayGenerator(value, std::make_index_sequence<size>{});
+}
+
+// Function which extracts the column of voxels at the given world position
+std::optional<std::array<std::reference_wrapper<Chunk::Voxel>, CHUNK_HEIGHT>> VoxelWorld::getColumn(glm::ivec2 worldPos){
+	auto chunk = getChunk(worldPos);
+	// If the chunk is invalid, return an invalid optional
+	if(!chunk) return {};
+
+	// Normalize the chunk positions [0, 16)
+	glm::ivec2 innerChunkPos = worldPos % (CHUNK_WIDTH - 1);
+	if(X(innerChunkPos) < 0) X(innerChunkPos) += CHUNK_WIDTH;
+	if(Z(innerChunkPos) < 0) Z(innerChunkPos) += CHUNK_WIDTH;
+
+	// Initalize the array with a given default value
+	auto column = fillInitalize<std::reference_wrapper<Chunk::Voxel>, CHUNK_HEIGHT>(std::ref(chunk->voxels[0][0][0]));
+	// Fill the array with references to the individual voxels
+	for(int y = 0; y < CHUNK_HEIGHT; y++)
+		column[y] = std::ref(chunk->voxels[X(innerChunkPos)][y][Z(innerChunkPos)]);
+ 
+	return column;
+}
+
+// Function which extracts the voxel at a given world position
+std::optional<std::reference_wrapper<Chunk::Voxel>> VoxelWorld::getVoxel(glm::ivec3 worldPos){
+	worldPos.y += CHUNK_HEIGHT / 2; // The whole world is shifted by half (y = 0 in chunks = y = -128 in world)
+	// If the y value is outside the valid range, return invalid
+	if(worldPos.y < 0 || worldPos.y > CHUNK_HEIGHT) return {};
+	auto chunk = getChunk(worldPos);
+	// If the chunk is not loaded, return invalid
+	if(!chunk) return {};
+
+	// Normalize the chunk positions [0, 16)
+	glm::ivec3 innerChunkPos = { worldPos.x % (CHUNK_WIDTH - 1), worldPos.y, worldPos.z % (CHUNK_WIDTH - 1) };
+	if(innerChunkPos.x < 0) innerChunkPos.x += CHUNK_WIDTH;
+	if(innerChunkPos.z < 0) innerChunkPos.z += CHUNK_WIDTH;
+
+	return chunk->voxels[innerChunkPos.x][innerChunkPos.y][innerChunkPos.z];
+}
+
+
+// Function which determines the highest Y of the world value given its X and Z coordinate
+float VoxelWorld::getWorldHeight(glm::ivec2 worldPos){
+	auto columnOpt = getColumn(worldPos);
+	if(!columnOpt) return 0;
+	auto column = std::move(columnOpt.value());
+
+	size_t top = 255;
+	Chunk::Voxel* voxel;
+	for( ; top > 0; top--)
+		if(voxel = &column[top].get(); voxel->id != Chunk::Voxel::Type::Air)
+			break;
+	
+	float level = top - voxel->isoLevel;	// The loop will get us the bottom of the voxel, then we need to subtract its ISO level to get the surface level
+	level -= CHUNK_HEIGHT / 2;				// The whole world is shifted by half (y = 0 in chunks = y = -128 in world)
+	return level;
+}
+
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddPosX(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1>& chunks) {

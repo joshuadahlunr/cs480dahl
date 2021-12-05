@@ -4,9 +4,8 @@
 #include "object.h"
 #define NOISE_SEED 12345
 
-#define CHUNK_X_SIZE 17
-#define CHUNK_Y_SIZE 256
-#define CHUNK_Z_SIZE 17
+#define CHUNK_WIDTH 17
+#define CHUNK_HEIGHT 256
 
 struct Chunk : public Object {
     using ptr = std::shared_ptr<Chunk>;
@@ -42,7 +41,7 @@ struct Chunk : public Object {
 
     void rebuildMesh(const Arguments& args);
 
-    Voxel voxels[CHUNK_X_SIZE][CHUNK_Y_SIZE][CHUNK_Z_SIZE]; // X, Y, Z
+    Voxel voxels[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH]; // X, Y, Z
 
 
 };
