@@ -33,12 +33,12 @@ bool Application::initialize(const Arguments& args) {
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 
-	npc = std::make_shared<NPC>();
+	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 	getSceneRoot()->addChild(npc);
 	npc->setPosition({0, 0, 0});
 	npc->initializeGraphics(args, "cube.obj");
 
-
+	npcs.push_back(npc);
 
 	// Hookup the input events
 	Engine::keyboardEvent += [&](auto event) { keyboard(event);};
@@ -100,11 +100,25 @@ void Application::update(float dt) {
 	}
 
     // Tilt the ufo relative to velocity
-	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + velocity)), true);
+	glm::vec3 noYVel = glm::vec3(velocity.x, 0, velocity.z);
+	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
 
+	// Create NPCs if not enough NPCs in proximity
+	if (npcs.size() < 20) {
+		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
+		getSceneRoot()->addChild(npc);
+		npc->setPosition(ufo->getPosition());
+		npc->initializeGraphics(args, "cube.obj");
 
-	// Print world height under ufo
-	std::cout << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
+		npcs.push_back(npc);
+	}
+
+	// Destroy NPCs if they go out of range from UFO
+	for (std::shared_ptr<NPC> npc : npcs) {
+		if (glm::distance(npc->getPosition(), ufo->getPosition()) > 10) {
+			// delete npc;
+		}
+	}
 }
 
 void Application::render(Shader* boundShader){

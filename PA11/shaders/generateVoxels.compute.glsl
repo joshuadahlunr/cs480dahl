@@ -125,21 +125,42 @@ void main() {
 	int X = chunkX;
 	int Z = chunkZ;
 
-	float heightMap = 0;
-  for(int i = 1; i <= 4; i++){
-    heightMap += (simplex(vec2((x + 16 * chunkX) / 1000.0 * i, (z + 16 * chunkZ) / 1000.0 * i), NOISE_SEED * i) + 1) * 100 / i - 100 / i;
+  int octaves = 3;
+  float persistance = 0.2f;
+  float lacunarity = 2.0f;
+  float scale = 16 * 8;
+  
+  float amplitude = 28.0f;
+  float frequency = 1.0f;
+  float height = 0.0f;
+  float xCoord = (x + 16 * chunkX) / scale;
+  float yCoord = (z + 16 * chunkZ) / scale;
+
+  float heightMap = 0.0f;
+
+  for(int i = 0; i < octaves; i++) {
+    float height = simplex(vec2(xCoord * frequency, yCoord * frequency), NOISE_SEED * i) + 1;
+    heightMap += height * amplitude;
+    amplitude *= persistance;
+    frequency *= lacunarity;
   }
+
+
+	// float heightMap = 0;
+  // for(int i = 1; i <= 4; i++){
+  //   heightMap += (simplex(vec2((x + 16 * chunkX) / 1000.0 * i, (z + 16 * chunkZ) / 1000.0 * i), NOISE_SEED * i) + 1) * 100 / i - 100 / i;
+  // }
 
 
   heightMap = pow(abs(heightMap) / 30, 6);
 
   // float terrace = smoothTerrace(heightMap / 10) * 10;
-  float terrace = floor(heightMap / 10) * 10;
-  heightMap *= 2;
-  heightMap += terrace;
-  heightMap /= 3;
+  // float terrace = floor(heightMap / 10) * 10;
+  // heightMap *= 2;
+  // heightMap += terrace;
+  // heightMap /= 3;
 
-  heightMap = clamp(heightMap + 20, -257, 257);
+  // heightMap = clamp(heightMap + 20, -257, 257);
 
   
   

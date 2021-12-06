@@ -19,6 +19,7 @@ void NPC::update(float dt) {
         currentWait = currentWait - dt; 
     } else {
         glm::vec3 direction = glm::normalize(waypoints.front() - getPosition());
+        
         float speed = 5;
         setPosition(getPosition() + (direction * speed * dt));
     }

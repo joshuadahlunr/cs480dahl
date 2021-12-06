@@ -5,6 +5,8 @@
 #include "leaderboard.h"
 #include "voxel_world.h"
 
+#include <vector>
+
 class NPC;
 
 // Class which provides engine related internals
@@ -24,7 +26,7 @@ public:
 	void mouseWheel(const SDL_MouseWheelEvent& e);
 
 	Object::ptr ufo;
-	std::shared_ptr<NPC> npc;
+	std::vector<std::shared_ptr<NPC>> npcs;
 
 protected:
 
