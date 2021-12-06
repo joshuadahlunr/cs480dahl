@@ -118,7 +118,7 @@ float simplex(vec4 v){
 
 // Lower dimensional simplex noise with seeding
 float simplex(vec3 p, float seed) { return simplex(vec4(p, seed)); }
-float simplex(vec2 p, float seed) { return simplex(vec4(p, seed, seed + 1)); }
+float simplex(vec2 p, float seed) { return simplex(vec4(p, seed, seed * seed)); }
 
 void main() {
 	int x = int(gl_GlobalInvocationID.x), y = int(gl_GlobalInvocationID.y), z = int(gl_GlobalInvocationID.z);
@@ -171,8 +171,8 @@ void main() {
 
   float function = (y - heightMap) * (aboveGround ? 1.0f : noiseFunction);
 
-  // function = noiseFunction;
-
+  // Add a floor, so we can't see through the world.
+  function = min(function, y - heightMap / 10.0 + 2);
 
 	voxels[x][y][z].isoLevel = function;
 	if(function > 0)
