@@ -10,6 +10,7 @@ FIND_PACKAGE(SDL2 REQUIRED)
 FIND_PACKAGE(GLEW REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
 FIND_PACKAGE(Assimp REQUIRED)
+FIND_PACKAGE(Bullet REQUIRED)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX17_FLAGS}")
 SET(TARGET_LIBRARIES "${OPENGL_LIBRARY} ${SDL2_LIBRARY}")
 
@@ -26,8 +27,6 @@ ENDIF(NOT APPLE)
 
 # Thirdparty
 SET(THIRDPARTY_BASE "${PROJECT_SOURCE_DIR}/thirdparty/")
-
-add_subdirectory("${THIRDPARTY_BASE}/reactphysics3d")
 
 set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE) #example if don't need the graph tool
 add_subdirectory("${THIRDPARTY_BASE}/FastNoise2")
@@ -55,7 +54,6 @@ FILE(GLOB THIRDPARTY_SOURCES
 INCLUDE_DIRECTORIES(
 	"${PROJECT_SOURCE_DIR}/include"
 	"${PROJECT_SOURCE_DIR}/thirdparty"
-	"${THIRDPARTY_BASE}/reactphysics3d/include"
 	"${THIRDPARTY_BASE}/FastNoise2/include"
 	"${THIRDPARTY_BASE}/Compute-Shaders/src"
 	"${VHACD_BASE_DIR}/inc"
@@ -64,6 +62,7 @@ INCLUDE_DIRECTORIES(
 	${GLM_INCLUDE_DIRS}
 	${IMGUI_INCLUDE_DIRS}
 	${assimp_INCLUDE_DIRS}
+	${BULLET_INCLUDE_DIRS}
 )
 
 
@@ -90,6 +89,6 @@ add_custom_target("${PROJECT_NAME}_SUCCESSFUL" ALL
 									COMMAND ${CMAKE_COMMAND} -E echo ""
 								 )
 
-target_link_libraries(${PROJECT_NAME} reactphysics3d FastNoise vhacd)
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} ${assimp_LIBRARIES} Threads::Threads)
+target_link_libraries(${PROJECT_NAME} FastNoise vhacd)
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARY} ${SDL2_LIBRARY} ${CMAKE_DL_LIBS} ${assimp_LIBRARIES} ${BULLET_LIBRARIES} Threads::Threads)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)

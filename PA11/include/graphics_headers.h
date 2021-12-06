@@ -28,7 +28,7 @@
 
 #define INVALID_UNIFORM_LOCATION 0x7fffffff
 
-#include <reactphysics3d/collision/PolygonVertexArray.h>
+// #include <reactphysics3d/collision/PolygonVertexArray.h>
 
 // Struct defining the vertecies sent to OpenGL
 struct Vertex {
@@ -58,44 +58,44 @@ namespace std {
 	};
 }
 
-struct CollisionMesh {	
-	enum Type {
-		Convex,
-		Concave
-	} type;
+// struct CollisionMesh {	
+// 	enum Type {
+// 		Convex,
+// 		Concave
+// 	} type;
 
-	CollisionMesh(Type type): type(type) {}
-};
+// 	CollisionMesh(Type type): type(type) {}
+// };
 
-// Struct defining collision mesh data
-struct ConcaveCollisionMesh : public CollisionMesh {
-	float* vertexData = nullptr;
-	int numVertices;
-	int* indiceData = nullptr;
-	int numIndices;
+// // Struct defining collision mesh data
+// struct ConcaveCollisionMesh : public CollisionMesh {
+// 	float* vertexData = nullptr;
+// 	int numVertices;
+// 	int* indiceData = nullptr;
+// 	int numIndices;
 
-	void clear() {
-		if(vertexData) delete [] vertexData;
-		vertexData = nullptr;
+// 	void clear() {
+// 		if(vertexData) delete [] vertexData;
+// 		vertexData = nullptr;
 
-		if(indiceData) delete [] indiceData;
-		indiceData = nullptr;
-	}
+// 		if(indiceData) delete [] indiceData;
+// 		indiceData = nullptr;
+// 	}
 
-	ConcaveCollisionMesh() : CollisionMesh(Concave) {}
+// 	ConcaveCollisionMesh() : CollisionMesh(Concave) {}
 
-	~ConcaveCollisionMesh() {
-		clear();
-	}
-};
+// 	~ConcaveCollisionMesh() {
+// 		clear();
+// 	}
+// };
 
-struct ConvexCollisionMesh : public CollisionMesh {
-	std::vector<float> points;
-	std::vector<int> indices;
-	std::vector<reactphysics3d::PolygonVertexArray::PolygonFace> faces;
+// struct ConvexCollisionMesh : public CollisionMesh {
+// 	std::vector<float> points;
+// 	std::vector<int> indices;
+// 	std::vector<reactphysics3d::PolygonVertexArray::PolygonFace> faces;
 	
-	ConvexCollisionMesh() : CollisionMesh(Convex) {}
-};
+// 	ConvexCollisionMesh() : CollisionMesh(Convex) {}
+// };
 
 // Function which returns the matrix needed to rotate the <original> std::vector into the <target> std::vector
 static glm::quat rotateTo(glm::vec3 original, glm::vec3 target){
