@@ -30,13 +30,13 @@ public:
 	virtual void mouseButton(const SDL_MouseButtonEvent& e);
 
 	// Physics functions
-	rp3d::RigidBody& getRigidBody() { return *rigidBody; }
-	rp3d::Collider& getCollider() { return *collider; }
-	void applyForce(glm::vec3 force) { if(rigidBody) rigidBody->applyForceToCenterOfMass( toReact(force) ); } 	// Applies force to center of mass
-	void applyForceAtLocalPosition(glm::vec3 force, glm::vec3 point) { if(rigidBody) rigidBody->applyForceAtLocalPosition( toReact(force), toReact(point) ); }
-	void applyForceAtWorldPosition(glm::vec3 force, glm::vec3 point) { if(rigidBody) rigidBody->applyForceAtWorldPosition( toReact(force), toReact(point) ); }
-	void applyTorque(glm::vec3 torque) { if(rigidBody) rigidBody->applyTorque( toReact(torque) ); }
-	void addCollisionCallback(Physics::ContactEvent event) { if(Physics::getSingleton()) Physics::getSingleton()->addContactCallback(shared_from_this(), event); }
+	// rp3d::RigidBody& getRigidBody() { return *rigidBody; }
+	// rp3d::Collider& getCollider() { return *collider; }
+	void applyForce(glm::vec3 force);// { if(rigidBody) rigidBody->applyForceToCenterOfMass( toReact(force) ); } 	// Applies force to center of mass
+	void applyForceAtLocalPosition(glm::vec3 force, glm::vec3 point);// { if(rigidBody) rigidBody->applyForceAtLocalPosition( toReact(force), toReact(point) ); }
+	void applyForceAtWorldPosition(glm::vec3 force, glm::vec3 point);// { if(rigidBody) rigidBody->applyForceAtWorldPosition( toReact(force), toReact(point) ); }
+	void applyTorque(glm::vec3 torque);// { if(rigidBody) rigidBody->applyTorque( toReact(torque) ); }
+	void addCollisionCallback(Physics::ContactEvent event);// { if(Physics::getSingleton()) Physics::getSingleton()->addContactCallback(shared_from_this(), event); }
 
 	// Physics Collider adding functions
 	void addCapsuleCollider(float radius, float height, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
@@ -72,16 +72,16 @@ public:
 	void setScale(glm::vec3 scale, bool relativeToParent = false);
 	glm::vec3 getScale();
 	void scale(glm::vec3 scale) { setModel(glm::scale(model, scale)); }
-	void setLinearVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setLinearVelocity( toReact(velocity) ); } // TODO: Does linear velocity need to propagate through the scene tree?
-	glm::vec3 getLinearVelocity(){
-		if(rigidBody) return toGLM( rigidBody->getLinearVelocity() );
-		return glm::vec3(0);
-	}
-	void setAngularVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setAngularVelocity( toReact(velocity) ); }
-	glm::vec3 getAngularVelocity(){
-		if(rigidBody) return toGLM( rigidBody->getAngularVelocity() );
-		return glm::vec3(0);
-	}
+	void setLinearVelocity(glm::vec3 velocity);//{ if(rigidBody) rigidBody->setLinearVelocity( toReact(velocity) ); } // TODO: Does linear velocity need to propagate through the scene tree?
+	glm::vec3 getLinearVelocity();//{
+	// 	if(rigidBody) return toGLM( rigidBody->getLinearVelocity() );
+	// 	return glm::vec3(0);
+	// }
+	void setAngularVelocity(glm::vec3 velocity);//{ if(rigidBody) rigidBody->setAngularVelocity( toReact(velocity) ); }
+	glm::vec3 getAngularVelocity();//{
+	// 	if(rigidBody) return toGLM( rigidBody->getAngularVelocity() );
+	// 	return glm::vec3(0);
+	// }
 
 	// The depth in the scene tree of this object
 	const uint sceneDepth = 0;
@@ -95,9 +95,9 @@ protected:
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 	// Physics functions
-	void setPhysicsTransform(rp3d::Transform t) { if(rigidBody) rigidBody->setTransform(t); }
-	void syncPhysicsWithGraphics(){ setPhysicsTransform( toReact(getModel()) ); }
-	void syncGraphicsWithPhysics() { if(rigidBody) setModel( toGLM(rigidBody->getTransform()) ); }
+	// void setPhysicsTransform(rp3d::Transform t) { if(rigidBody) rigidBody->setTransform(t); }
+	void syncPhysicsWithGraphics();// { setPhysicsTransform( toReact(getModel()) ); }
+	void syncGraphicsWithPhysics();// { if(rigidBody) setModel( toGLM(rigidBody->getTransform()) ); }
 
 	// Decompose the model matrix
 	void decomposeModelMatrix(glm::vec3& translate, glm::quat& rotate, glm::vec3& scale){
@@ -113,19 +113,19 @@ protected:
 		glm::decompose(childModel, scale, rotate, translate, skew, perspective);
 	}
 
-	std::unique_ptr<ConcaveCollisionMesh>& getConcaveCollisionMesh(){
-		if(collisionMesh->type != CollisionMesh::Type::Concave) 
-			throw std::runtime_error("Attempted to convert a convex collision mesh to a concave collision mesh");
+	// std::unique_ptr<ConcaveCollisionMesh>& getConcaveCollisionMesh(){
+	// 	if(collisionMesh->type != CollisionMesh::Type::Concave) 
+	// 		throw std::runtime_error("Attempted to convert a convex collision mesh to a concave collision mesh");
 		
-		return *(std::unique_ptr<ConcaveCollisionMesh>*) &collisionMesh;
-	}
+	// 	return *(std::unique_ptr<ConcaveCollisionMesh>*) &collisionMesh;
+	// }
 
-	std::unique_ptr<ConvexCollisionMesh>& getConvexCollisionMesh(){
-		if(collisionMesh->type != CollisionMesh::Type::Convex) 
-			throw std::runtime_error("Attempted to convert a concave collision mesh to a convex collision mesh");
+	// std::unique_ptr<ConvexCollisionMesh>& getConvexCollisionMesh(){
+	// 	if(collisionMesh->type != CollisionMesh::Type::Convex) 
+	// 		throw std::runtime_error("Attempted to convert a concave collision mesh to a convex collision mesh");
 
-		return *(std::unique_ptr<ConvexCollisionMesh>*) &collisionMesh;
-	}
+	// 	return *(std::unique_ptr<ConvexCollisionMesh>*) &collisionMesh;
+	// }
 
 protected:
 	glm::mat4 model = glm::mat4(1);
@@ -133,15 +133,15 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	std::unique_ptr<CollisionMesh> collisionMesh = nullptr;
+	// std::unique_ptr<CollisionMesh> collisionMesh = nullptr;
 
 	GLuint VB;
 	GLuint IB;
 	GLuint tex = -1;
 
 	// Physics rigidbody
-	rp3d::RigidBody* rigidBody = nullptr;
-	rp3d::Collider* collider = nullptr;
+	// rp3d::RigidBody* rigidBody = nullptr;
+	// rp3d::Collider* collider = nullptr;
 
 	Object* parent;
 	std::vector<Object::ptr> children;
