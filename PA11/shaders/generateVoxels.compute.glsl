@@ -145,13 +145,6 @@ void main() {
     frequency *= lacunarity;
   }
 
-
-	// float heightMap = 0;
-  // for(int i = 1; i <= 4; i++){
-  //   heightMap += (simplex(vec2((x + 16 * chunkX) / 1000.0 * i, (z + 16 * chunkZ) / 1000.0 * i), NOISE_SEED * i) + 1) * 100 / i - 100 / i;
-  // }
-
-
   heightMap = pow(abs(heightMap) / 30, 6);
 
   // float terrace = smoothTerrace(heightMap / 10) * 10;
@@ -160,7 +153,7 @@ void main() {
   // heightMap += terrace;
   // heightMap /= 3;
 
-  // heightMap = clamp(heightMap + 20, -257, 257);
+  heightMap = clamp(heightMap + 60, -257, 257);
 
   
   
@@ -169,10 +162,16 @@ void main() {
 	// if(y < heightMap) factor = smoothstep(heightMap - 50, heightMap, vec2(y)).x;
 	// else factor = 1 - smoothstep(heightMap, heightMap + 5, vec2(y)).x;
 
-	// float noiseFunction = simplex(vec3((x + 16 * chunkX) / 20.0, y / 20.0, (z + 16 * chunkZ) / 20.0), NOISE_SEED * 20) * 5;
+  float caveSize = 48.0f;
 
 	// float function = factor * noiseFunction + (1 - factor) * (y - heightMap);
-  float function = y - heightMap;
+
+  bool aboveGround = y - heightMap > 0.0f;
+	float noiseFunction = simplex(vec3((x + 16 * chunkX) / caveSize, y / caveSize, (z + 16 * chunkZ) / caveSize), NOISE_SEED * 20);
+
+  float function = (y - heightMap) * (aboveGround ? 1.0f : noiseFunction);
+
+  // function = noiseFunction;
 
 
 	voxels[x][y][z].isoLevel = function;
