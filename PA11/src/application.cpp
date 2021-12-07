@@ -103,20 +103,25 @@ void Application::update(float dt) {
 	glm::vec3 noYVel = glm::vec3(velocity.x, 0, velocity.z);
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
 
-	// Create NPCs if not enough NPCs in proximity
-	if (npcs.size() < 20) {
+	// Create NPCs at a radius around the UFO if not enough NPCs in proximity
+	float proximity = 100;
+	if (npcs.size() < proximity) {
 		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 		getSceneRoot()->addChild(npc);
-		npc->setPosition(ufo->getPosition());
+		// Set position to somewhere in a circle around the UFO
+		float angle = (float) (rand() % 360);
+		float innerRadiusPercentage = 0.49;
+		npc->setPosition(ufo->getPosition() + glm::vec3(glm::sin(glm::radians(angle)) * proximity * innerRadiusPercentage, 0, glm::cos(glm::radians(angle)) * proximity * innerRadiusPercentage));
 		npc->initializeGraphics(args, "cube.obj");
 
 		npcs.push_back(npc);
 	}
 
 	// Destroy NPCs if they go out of range from UFO
-	for (std::shared_ptr<NPC> npc : npcs) {
-		if (glm::distance(npc->getPosition(), ufo->getPosition()) > 10) {
-			// delete npc;
+	for (int i = 0; i < npcs.size(); i++) {
+		if (glm::distance(npcs[i]->getPosition(), ufo->getPosition()) > proximity) {
+			npcs[i].get()->Object::~Object();
+			npcs.erase(npcs.begin() + i);
 		}
 	}
 }

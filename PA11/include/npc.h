@@ -10,7 +10,6 @@
 class NPC : public Object {
 public:
 	NPC();
-	~NPC();
 
 	void update(float dt);
 

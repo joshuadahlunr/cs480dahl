@@ -2,8 +2,6 @@
 
 NPC::NPC() {}
 
-NPC::~NPC() {}
-
 void NPC::update(float dt) {
 	// Add waypoints if none
 	if (waypoints.size() < 1) {
