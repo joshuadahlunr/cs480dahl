@@ -2,30 +2,33 @@
 #define PHYSICS_H
 
 #include "arguments.h"
-// #include <reactphysics3d/reactphysics3d.h>
 #include <btBulletDynamicsCommon.h>
 #include "graphics_headers.h"
 #include <map>
 #include <functional>
 
+
 // Uncomment to enable physics debug rendering
 // #define PHYSICS_DEBUG
+
 
 // Forward declarations
 class Engine;
 class Object;
 class Shader;
 class Camera;
+#ifdef PHYSICS_DEBUG
+class BulletDebugDrawer_OpenGL;
+#endif // PHYSICS_DEBUG
 
 // Class which provides the physics engine
-class Physics {//: public rp3d::EventListener {
+class Physics {//: public btEventListener {
 public:
-	//using ContactEvent = void (*)(const rp3d::CollisionCallback::ContactPair&);
-	// using ContactEvent = std::function<void(const rp3d::CollisionCallback::ContactPair&)>;
+	// using ContactEvent = std::function<void(const btCollisionCallback::ContactPair&)>;
 	using ContactEvent = std::function<void()>;
 
 	// Gets the singleton
-	static Physics* getSingleton();
+	static Physics& getSingleton();
 
 public:
 	Physics(std::shared_ptr<Object>& sceneRoot);
@@ -36,12 +39,10 @@ public:
 	void render(Camera* camera);
 #endif
 
-	// virtual void onContact(const rp3d::CollisionCallback::CallbackData& callbackData) override;
+	// virtual void onContact(const btCollisionCallback::CallbackData& callbackData) override;
 
-	// // Get the factory object
-	// rp3d::PhysicsCommon& getFactory() { return factory; }
-	// // Get the world
-	// rp3d::PhysicsWorld& getWorld() { return *world; }
+	// Get the world
+	btDiscreteDynamicsWorld& getWorld() { return world; }
 
 	void addContactCallback(std::shared_ptr<Object>& obj, ContactEvent e);
 	void addContactCallback(std::shared_ptr<Object>&& obj, ContactEvent e) { addContactCallback(obj, e); }
@@ -50,67 +51,89 @@ protected:
 	// Singleton
 	static Physics* singleton;
 
-protected:
+	// Scene root
 	std::shared_ptr<Object>& sceneRoot;
 
-	// Factory object
-	// rp3d::PhysicsCommon factory;
-	// // Scene's world
-	// rp3d::PhysicsWorld* world;
+protected:
+	// Bullet Variables
+	btDefaultCollisionConfiguration config;
+	btCollisionDispatcher dispatcher;
+	btDbvtBroadphase broadphase;
+	btSequentialImpulseConstraintSolver solver;
+	btDiscreteDynamicsWorld world;
 
-	std::map<uint32_t, ContactEvent> contactEvents;
+	// std::map<uint32_t, ContactEvent> contactEvents;
 
 #ifdef PHYSICS_DEBUG
 	// Debug rendering variables
-	GLuint debugLineBuffer;
-	Shader* debugShader;
+	Shader* lineShader;
+	std::unique_ptr<BulletDebugDrawer_OpenGL> debugDrawer;
 #endif
 };
 
+#ifdef PHYSICS_DEBUG
 
-// -- React Interop --
+// Helper class; draws the world as seen by Bullet.
+// This is very handy to see it Bullet's world matches yours
+// How to use this class :
+// Declare an instance of the class :
+// 
+// dynamicsWorld->setDebugDrawer(&mydebugdrawer);
+// Each frame, call it :
+//
+// mydebugdrawer.setMatrices(ViewMatrix, ProjectionMatrix);
+// dynamicsWorld->debugDrawWorld();
+class BulletDebugDrawer_OpenGL : public btIDebugDraw {
+	static GLuint VBO, VAO;
+
+	std::vector<std::pair<glm::vec3, glm::vec3>> lines;
+	
+public:
+	BulletDebugDrawer_OpenGL();
+
+	void render(Shader* lineShader, glm::mat4 pViewMatrix, glm::mat4 pProjectionMatrix);
+	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
+	virtual void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int, const btVector3 &) {}
+	virtual void reportErrorWarning(const char* warning) { std::cerr << warning << std::endl; }
+	virtual void draw3dText(const btVector3 &, const char *) {}
+	virtual void setDebugMode(int p) { m = p; }
+	int getDebugMode(void) const { return m; }
+	int m;
+};
+#endif
 
 
-// // Convert vector3s
-// static rp3d::Vector3 toReact(const glm::vec3& v) { return rp3d::Vector3(v.x, v.y, v.z); }
-// static rp3d::Vector3 toReact(const glm::vec3&& v) { return toReact(v); }
-// // Convert quaternions
-// static rp3d::Quaternion toReact(const glm::quat& q) {
-// 	auto rotationMat = glm::mat3_cast(q);
-// 	float* rot = glm::value_ptr(rotationMat);
-// 	return { rp3d::Matrix3x3(rot[0], rot[1], rot[2], rot[3], rot[4], rot[5], rot[6], rot[7], rot[8]) };
-// }
-// static rp3d::Quaternion toReact(const glm::quat&& q) { return toReact(q); }
-// // Convert vec3 and quaternion to transform
-// static rp3d::Transform toReact(const glm::vec3 pos, const glm::quat rotation){
-// 	rp3d::Transform out;
-// 	out.setPosition(toReact(pos));
-// 	out.setOrientation(toReact(rotation));
-// 	return out;
-// }
-// // Convert mat4 to transform
-// static rp3d::Transform toReact(const glm::mat4& mat){
-// 	rp3d::Transform out;
-// 	out.setFromOpenGL((rp3d::decimal*) glm::value_ptr(mat));
-// 	return out;
-// }
-// static rp3d::Transform toReact(const glm::mat4&& mat){ return toReact(mat); }
+// -- Bullet Interop --
 
-// // Convert vector3s
-// static glm::vec3 toGLM(const rp3d::Vector3& v) { return {v.x, v.y, v.z}; }
-// static glm::vec3 toGLM(const rp3d::Vector3&& v) { return toGLM(v); }
-// // Convert quaternions
-// static glm::quat toGLM(const rp3d::Quaternion& q){
-// 	auto mat = q.getMatrix();
-// 	return glm::quat_cast(glm::mat3(mat[0][0], mat[0][1], mat[0][2], mat[1][0], mat[1][1], mat[1][2], mat[2][0], mat[2][1], mat[2][2]));
-// }
-// static glm::quat toGLM(const rp3d::Quaternion&& q){ return toGLM(q); }
-// // Convert transform to mat4
-// static glm::mat4 toGLM(const rp3d::Transform& t){
-// 	glm::mat4 out;
-// 	t.getOpenGLMatrix(glm::value_ptr(out));
-// 	return out;
-// }
-// static glm::mat4 toGLM(const rp3d::Transform&& t){ return toGLM(t); }
+
+// Convert vector3s
+static btVector3 toBullet(const glm::vec3& v) { return { v.x, v.y, v.z }; }
+static btVector3 toBullet(const glm::vec3&& v) { return toBullet(v); }
+// Convert quaternions
+static btQuaternion toBullet(const glm::quat& q) { return { q.x, q.y, q.z, q.w }; }
+static btQuaternion toBullet(const glm::quat&& q) { return toBullet(q); }
+// Convert vec3 and quaternion to transform
+static btTransform toBullet(const glm::vec3 pos, const glm::quat rotation){ return btTransform(toBullet(rotation), toBullet(pos)); }
+// Convert mat4 to transform
+static btTransform toBullet(const glm::mat4& mat){
+	btTransform out;
+	out.setFromOpenGLMatrix(glm::value_ptr(mat));
+	return btTransform(out);
+}
+static btTransform toBullet(const glm::mat4&& mat){ return toBullet(mat); }
+
+// Convert vector3s
+static glm::vec3 toGLM(const btVector3& v) { return {v.getX(), v.getY(), v.getZ()}; }
+static glm::vec3 toGLM(const btVector3&& v) { return toGLM(v); }
+// Convert quaternions
+static glm::quat toGLM(const btQuaternion& q){ return { q.getX(), q.getY(), q.getZ(), q.getW() }; }
+static glm::quat toGLM(const btQuaternion&& q){ return toGLM(q); }
+// Convert transform to mat4
+static glm::mat4 toGLM(const btTransform& t){
+	glm::mat4 out;
+	t.getOpenGLMatrix(glm::value_ptr(out));
+	return out;
+}
+static glm::mat4 toGLM(const btTransform&& t){ return toGLM(t); }
 
 #endif /* PHYSICS_H */

@@ -21,7 +21,7 @@ public:
 	Object();
 	~Object();
 	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
-	virtual bool initializePhysics(const Arguments& args, Physics& physics, bool _static);
+	virtual bool initializePhysics(const Arguments& args, Physics& physics, bool _static, float mass = 1);
 	virtual void update(float dt);
 	virtual void render(Shader* boundShader);
 
@@ -30,19 +30,22 @@ public:
 	virtual void mouseButton(const SDL_MouseButtonEvent& e);
 
 	// Physics functions
-	// rp3d::RigidBody& getRigidBody() { return *rigidBody; }
-	// rp3d::Collider& getCollider() { return *collider; }
-	void applyForce(glm::vec3 force);// { if(rigidBody) rigidBody->applyForceToCenterOfMass( toReact(force) ); } 	// Applies force to center of mass
-	void applyForceAtLocalPosition(glm::vec3 force, glm::vec3 point);// { if(rigidBody) rigidBody->applyForceAtLocalPosition( toReact(force), toReact(point) ); }
-	void applyForceAtWorldPosition(glm::vec3 force, glm::vec3 point);// { if(rigidBody) rigidBody->applyForceAtWorldPosition( toReact(force), toReact(point) ); }
-	void applyTorque(glm::vec3 torque);// { if(rigidBody) rigidBody->applyTorque( toReact(torque) ); }
-	void addCollisionCallback(Physics::ContactEvent event);// { if(Physics::getSingleton()) Physics::getSingleton()->addContactCallback(shared_from_this(), event); }
+	bool isPhysicsInitalized() { return rigidBody != nullptr; }
+	btRigidBody& getRigidBody() { return *rigidBody; }
+	void makeDynamic(bool recursive = true);
+	void makeStatic(bool recursive = true);
+	void makeKinematic(bool recursive = true);
+	void applyForce(glm::vec3 force){ if(rigidBody) rigidBody->applyCentralForce( toBullet(force) ); } 	// Applies force to center of mass
+	void applyForceAtLocalPosition(glm::vec3 force, glm::vec3 point) { if(rigidBody) rigidBody->applyForce( toBullet(force), toBullet(point) ); }
+	void applyForceAtWorldPosition(glm::vec3 force, glm::vec3 point) { if(rigidBody) rigidBody->applyForce( toBullet(force), toBullet(point - getPosition()) ); }
+	void applyTorque(glm::vec3 torque) { if(rigidBody) rigidBody->applyTorque( toBullet(torque) ); }
+	// void addCollisionCallback(Physics::ContactEvent event);// { if(Physics::getSingleton()) Physics::getSingleton()->addContactCallback(shared_from_this(), event); }
 
 	// Physics Collider adding functions
-	void addCapsuleCollider(float radius, float height, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
-	void addBoxCollider(glm::vec3 halfExtents, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
-	void addSphereCollider(float radius, glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
-	bool addMeshCollider(const Arguments& args, Physics& physics, size_t maxHulls = CONVEX_MESH, std::string path = "", glm::vec3 translation = glm::vec3(0), glm::quat rotation = glm::quat_identity());
+	void createCapsuleCollider(float radius, float height);
+	void createBoxCollider(glm::vec3 halfExtents);
+	void createSphereCollider(float radius);
+	virtual bool createMeshCollider(const Arguments& args, Physics& physics, size_t maxHulls = CONVEX_MESH, std::string path = "");
 
 	// Scene tree management
 	Object::ptr setParent(Object::ptr p);
@@ -72,16 +75,16 @@ public:
 	void setScale(glm::vec3 scale, bool relativeToParent = false);
 	glm::vec3 getScale();
 	void scale(glm::vec3 scale) { setModel(glm::scale(model, scale)); }
-	void setLinearVelocity(glm::vec3 velocity);//{ if(rigidBody) rigidBody->setLinearVelocity( toReact(velocity) ); } // TODO: Does linear velocity need to propagate through the scene tree?
-	glm::vec3 getLinearVelocity();//{
-	// 	if(rigidBody) return toGLM( rigidBody->getLinearVelocity() );
-	// 	return glm::vec3(0);
-	// }
-	void setAngularVelocity(glm::vec3 velocity);//{ if(rigidBody) rigidBody->setAngularVelocity( toReact(velocity) ); }
-	glm::vec3 getAngularVelocity();//{
-	// 	if(rigidBody) return toGLM( rigidBody->getAngularVelocity() );
-	// 	return glm::vec3(0);
-	// }
+	void setLinearVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setLinearVelocity( toBullet(velocity) ); } // TODO: Does linear velocity need to propagate through the scene tree?
+	glm::vec3 getLinearVelocity(){
+		if(rigidBody) return toGLM( rigidBody->getLinearVelocity() );
+		return glm::vec3(0);
+	}
+	void setAngularVelocity(glm::vec3 velocity){ if(rigidBody) rigidBody->setAngularVelocity( toBullet(velocity) ); }
+	glm::vec3 getAngularVelocity(){
+		if(rigidBody) return toGLM( rigidBody->getAngularVelocity() );
+		return glm::vec3(0);
+	}
 
 	// The depth in the scene tree of this object
 	const uint sceneDepth = 0;
@@ -95,9 +98,15 @@ protected:
 	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
 
 	// Physics functions
-	// void setPhysicsTransform(rp3d::Transform t) { if(rigidBody) rigidBody->setTransform(t); }
-	void syncPhysicsWithGraphics();// { setPhysicsTransform( toReact(getModel()) ); }
-	void syncGraphicsWithPhysics();// { if(rigidBody) setModel( toGLM(rigidBody->getTransform()) ); }
+	void setPhysicsTransform(btTransform&& t) {
+		if(rigidBody) { 
+			rigidBody->setWorldTransform(t);
+			rigidBody->activate(); // Make sure the body is awake and checking for collisions when we move it
+		}
+	}
+	void syncPhysicsWithGraphics(){ setPhysicsTransform( toBullet(getModel()) ); }
+	void syncGraphicsWithPhysics(){ if(rigidBody) setModel( toGLM(rigidBody->getWorldTransform()) ); }
+		
 
 	// Decompose the model matrix
 	void decomposeModelMatrix(glm::vec3& translate, glm::quat& rotate, glm::vec3& scale){
@@ -140,7 +149,10 @@ protected:
 	GLuint tex = -1;
 
 	// Physics rigidbody
-	// rp3d::RigidBody* rigidBody = nullptr;
+	std::unique_ptr<btDefaultMotionState> motionState = nullptr;
+	std::unique_ptr<btRigidBody> rigidBody = nullptr;
+	std::unique_ptr<btCollisionShape> collisionShape = nullptr;
+
 	// rp3d::Collider* collider = nullptr;
 
 	Object* parent;
