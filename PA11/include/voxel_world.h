@@ -22,7 +22,10 @@ struct ModifiablePriorityQueue : public std::priority_queue<T, Container, Compar
 
 struct VoxelWorld {
 	VoxelWorld(Arguments& args): args(args) {}
-	~VoxelWorld() { shouldMeshingThreadRun = false; meshingThread.join(); }
+	~VoxelWorld() {
+		shouldMeshingThreadRun = false; meshingThread.join();
+		shouldCollisionThreadRun = false; collisionThread.join();
+	}
 
 	void initialize(glm::ivec2 playerChunk = {0, 0});
     void update(float dt);
@@ -44,6 +47,12 @@ struct VoxelWorld {
 	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
 
 	// Function which determines the highest Y of the world value given its X and Z coordinate
+	btDiscreteDynamicsWorld::ClosestRayResultCallback raycast(std::pair<glm::vec3, glm::vec3> startEnd){ return raycast(startEnd.first, startEnd.second); }
+	btDiscreteDynamicsWorld::ClosestRayResultCallback raycast(glm::vec3 start, glm::vec3 end){
+		btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
+		Physics::getSingleton().getWorld().rayTest(toBullet(start), toBullet(end), callback);
+		return callback;
+	}
 	float getWorldHeight(glm::ivec2 worldPos);
 	float getWorldHeight(glm::ivec3 worldPos) { return getWorldHeight({worldPos.x, worldPos.z}); }
 
@@ -83,11 +92,11 @@ protected:
 	static ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair<Chunk::ptr, glm::ivec2>>, MeshingSort> generationQueue;
 
 	// Queue of chunks that need to be meshed
-	monitor<ModifiablePriorityQueue<Chunk::ptr, std::vector<Chunk::ptr>, MeshingSort>> meshingQueue;
+	monitor<ModifiablePriorityQueue<Chunk::ptr, std::vector<Chunk::ptr>, MeshingSort>> meshingQueue, collisionQueue;
 	// Thread responsible for meshing chunks
-	std::thread meshingThread;
+	std::thread meshingThread, collisionThread;
 	// Bool which checks if the meshing thread should keep running
-	bool shouldMeshingThreadRun = true;
+	bool shouldMeshingThreadRun = true, shouldCollisionThreadRun = true;
 
 	// Queue of chunks which need to be uploaded to the gpu
 	std::queue<Chunk::ptr> uploadQueue;
