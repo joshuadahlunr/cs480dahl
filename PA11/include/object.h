@@ -11,6 +11,7 @@
 
 #define RELATIVE_TO_PARENT true
 #define CONVEX_MESH 32
+#define CONCAVE_MESH 0
 
 // Base class for objects in the scene tree, provides basic mouse, keyboard, and
 // tick event propagation, along with managing the model, texture, and position in the scene tree of the object

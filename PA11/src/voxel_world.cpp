@@ -13,6 +13,7 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	this->playerChunk = playerChunk;
 	generationQueue.getCompare().playerChunk = &this->playerChunk;
 	meshingQueue->getCompare().playerChunk = &this->playerChunk;
+	collisionQueue->getCompare().playerChunk = &this->playerChunk;
 
 	for(int z = Z(playerChunk) - WORLD_RADIUS; z <= Z(playerChunk) + WORLD_RADIUS; z++){
 		auto chunks = generateChunksZ(args, X(playerChunk) - WORLD_RADIUS, z);
@@ -42,15 +43,45 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				auto nextMesh = meshingQueue.read_lock()->top();
 				meshingQueue->pop();
 				nextMesh->rebuildMesh(args);
+
 				nextMesh->state = Chunk::GenerateState::Meshed;
 
 				// Upload the meshed data to the gpu
 				uploadQueue.push(nextMesh);
+				// Prep the mesh for collisions
+				collisionQueue->push(nextMesh);
 
 			// If there aren't chunks to generate... sleep for 5 milliseconds
 			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		}
 	});
+
+	// Start a new collision thread which just generates colliders for chunks while there are chunks without colliders
+	collisionThread = std::thread([this](){
+		while(shouldCollisionThreadRun){
+			// If there are chunks which need colliders generated for them... generate a collider for those chunks
+			if(!collisionQueue.unsafe().empty()){
+				auto nextMesh = collisionQueue.read_lock()->top();
+				collisionQueue->pop();
+
+				// Sleep until the mesh has been uploaded to the gpu
+				while(nextMesh->state != Chunk::GenerateState::Finalized)
+					std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+				// Generate the chunk's collision mesh
+				nextMesh->initializePhysics(args, Physics::getSingleton(), true, 1'000'000);
+				nextMesh->createMeshCollider(args, Physics::getSingleton(), CONCAVE_MESH);
+				nextMesh->makeStatic();
+
+				// Wait a moment
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+			// If there aren't colliders to generate... sleep for 5 milliseconds
+			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		}
+	});
+
+
 }
 
 void VoxelWorld::update(float dt){

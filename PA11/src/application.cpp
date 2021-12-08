@@ -29,12 +29,14 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({0, 0, 0});
-	// ufo->initializeGraphics(args, "ufo.obj");
+	ufo->setPosition({8, -100, 8});
+	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 	ufo->initializePhysics(args, Engine::getPhysics(), /*static*/false, /*mass*/ 100);
 	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
 	ufo->makeDynamic();
+	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
+	// ufo->getRigidBody().setActivationState(DISABLE_DEACTIVATION);
 
 	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 	getSceneRoot()->addChild(npc);
