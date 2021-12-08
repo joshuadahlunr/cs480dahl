@@ -86,7 +86,7 @@ void Application::update(float dt) {
     glm::vec3 diff = desiredVelocity - velocity;
     velocity += diff * accelerationRate * dt;
 
-    ufo->setPosition(ufo->getPosition() + (velocity * dt));
+	ufo->setLinearVelocity(velocity);
 
 	
 	// If the UFO is outside a 4 unit extension of the chunk...
@@ -107,22 +107,11 @@ void Application::update(float dt) {
     // Tilt the ufo relative to velocity
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + velocity)), true);
 
-	// btTransform t;
-	// ufo->getRigidBody().getMotionState()->getWorldTransform(t);
-	// std::cout << glm::to_string(toGLM(t)) << std::endl;
-
-	auto underChunk = world.getChunk((glm::ivec3) ufo->getPosition());
-	if(underChunk->state == Chunk::GenerateState::Finalized && !underChunk->isPhysicsInitalized()){
-		underChunk->initializePhysics(args, Engine::getPhysics(), true, 1'000'000);
-		underChunk->createMeshCollider(args, Engine::getPhysics());
-		underChunk->makeStatic();
-	}
-
-
-
-
+	
 	// Print world height under ufo
-	// std::cout << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
+	auto result = world.raycast( dir2end(ufo->getPosition() - glm::vec3{0, 3, 0}, {0, -1, 0}) );
+	if(result)
+		std::cout << "Height: " << result->point.y << std::endl;
 }
 
 void Application::render(Shader* boundShader){

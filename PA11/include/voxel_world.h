@@ -21,6 +21,13 @@ struct ModifiablePriorityQueue : public std::priority_queue<T, Container, Compar
 };
 
 struct VoxelWorld {
+	struct RaycastResult {
+		float closestHitFraction;
+		const btCollisionObject* collisionObject;
+		int collisionFilterGroup, collisionFilterMask;
+		glm::vec3 point, normal;
+	};
+
 	VoxelWorld(Arguments& args): args(args) {}
 	~VoxelWorld() {
 		shouldMeshingThreadRun = false; meshingThread.join();
@@ -47,11 +54,12 @@ struct VoxelWorld {
 	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
 
 	// Function which determines the highest Y of the world value given its X and Z coordinate
-	btDiscreteDynamicsWorld::ClosestRayResultCallback raycast(std::pair<glm::vec3, glm::vec3> startEnd){ return raycast(startEnd.first, startEnd.second); }
-	btDiscreteDynamicsWorld::ClosestRayResultCallback raycast(glm::vec3 start, glm::vec3 end){
+	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd){ return raycast(startEnd.first, startEnd.second); }
+	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end){
 		btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
 		Physics::getSingleton().getWorld().rayTest(toBullet(start), toBullet(end), callback);
-		return callback;
+		if(!callback.hasHit()) return {};
+		return RaycastResult{callback.m_closestHitFraction, callback.m_collisionObject, callback.m_collisionFilterGroup, callback.m_collisionFilterMask, toGLM(callback.m_hitPointWorld), toGLM(callback.m_hitNormalWorld)};
 	}
 	float getWorldHeight(glm::ivec2 worldPos);
 	float getWorldHeight(glm::ivec3 worldPos) { return getWorldHeight({worldPos.x, worldPos.z}); }
