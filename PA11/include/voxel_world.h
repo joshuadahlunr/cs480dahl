@@ -10,7 +10,7 @@
 #include <thread>
 #include <optional>
 
-#define WORLD_RADIUS 10
+#define WORLD_RADIUS 16
 
 // Class which extends a priority queue to allow access to its comparision object
 template<class T, class Container = std::vector<T>, class Compare = std::less<typename Container::value_type>>
@@ -54,9 +54,11 @@ struct VoxelWorld {
 	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
 
 	// Function which determines the highest Y of the world value given its X and Z coordinate
-	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd){ return raycast(startEnd.first, startEnd.second); }
-	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end){
+	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd, int collisionMask = CollisionGroups::All){ return raycast(startEnd.first, startEnd.second, collisionMask); }
+	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end, int collisionMask = CollisionGroups::All){
 		btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
+		callback.m_collisionFilterMask = collisionMask; // Apply collision mask
+		// callback.m_collisionFilterGroup = ~CollisionGroups::All;
 		Physics::getSingleton().getWorld().rayTest(toBullet(start), toBullet(end), callback);
 		if(!callback.hasHit()) return {};
 		return RaycastResult{callback.m_closestHitFraction, callback.m_collisionObject, callback.m_collisionFilterGroup, callback.m_collisionFilterMask, toGLM(callback.m_hitPointWorld), toGLM(callback.m_hitNormalWorld)};

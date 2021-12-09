@@ -71,18 +71,14 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 	return success;
 }
 
-bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _static, float mass /*= 1*/) {
+bool Object::initializePhysics(const Arguments& args, Physics& physics, int collisionGroup /*= 0*/, float mass /*= 1*/) {
 	// Create a physics rigid body with the initial transform from the model matrix
 	motionState = std::make_unique<btDefaultMotionState>();
 	collisionShape = std::make_unique<btEmptyShape>();
 	rigidBody = std::make_unique<btRigidBody>(mass, motionState.get(), collisionShape.get());
 
-	// Set whether the object is static or dynamic
-	if(_static) makeStatic();
-	else makeDynamic();
-
 	// Add the new rigid body to the simulation
-	physics.getWorld().addRigidBody(rigidBody.get());
+	physics.getWorld().addRigidBody(rigidBody.get(), collisionGroup, CollisionGroups::All);
 	// Update the postion of the physics engine
 	syncPhysicsWithGraphics();
 

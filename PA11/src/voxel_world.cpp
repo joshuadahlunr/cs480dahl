@@ -72,7 +72,7 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 				// Generate the chunk's collision mesh
-				nextMesh->initializePhysics(args, Physics::getSingleton(), true, 1'000'000);
+				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment, 1'000'000);
 				nextMesh->createMeshCollider(args, Physics::getSingleton(), CONCAVE_MESH);
 				nextMesh->makeStatic();
 
@@ -246,19 +246,10 @@ std::optional<std::reference_wrapper<Chunk::Voxel>> VoxelWorld::getVoxel(glm::iv
 
 // Function which determines the highest Y of the world value given its X and Z coordinate
 float VoxelWorld::getWorldHeight(glm::ivec2 worldPos){
-	auto columnOpt = getColumn(worldPos);
-	if(!columnOpt) return 0;
-	auto column = std::move(columnOpt.value());
-
-	size_t top = 255;
-	Chunk::Voxel* voxel;
-	for( ; top > 0; top--)
-		if(voxel = &column[top].get(); voxel->type != Chunk::Voxel::Type::Air)
-			break;
+	auto result = raycast( dir2end({X(worldPos), 255, Z(worldPos)}, {0, -1, 0}), CollisionGroups::Enviornment );
+	if(!result) return NAN;
 	
-	float level = top - voxel->isoLevel;	// The loop will get us the bottom of the voxel, then we need to subtract its ISO level to get the surface level
-	level -= CHUNK_HEIGHT / 2;				// The whole world is shifted by half (y = 0 in chunks = y = -128 in world)
-	return level;
+	return result->point.y;
 }
 
 

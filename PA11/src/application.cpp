@@ -32,7 +32,7 @@ bool Application::initialize(const Arguments& args) {
 	ufo->setPosition({8, 0, 8});
 	ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
-	ufo->initializePhysics(args, Engine::getPhysics(), /*static*/false, /*mass*/ 100);
+	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
 	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
 	ufo->makeDynamic();
 	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
@@ -131,9 +131,7 @@ void Application::update(float dt) {
 	}
 	
 	// Print world height under ufo
-	auto result = world.raycast( dir2end(ufo->getPosition() - glm::vec3{0, 3, 0}, {0, -1, 0}) );
-	if(result)
-		std::cout << "Height: " << result->point.y << std::endl;
+	std::cout << "Height: " << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
 }
 
 void Application::render(Shader* boundShader){

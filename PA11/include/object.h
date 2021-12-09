@@ -8,6 +8,7 @@
 #include "physics.h"
 #include "graphics_headers.h"
 #include "arguments.h"
+#include "defs.h"
 
 #define RELATIVE_TO_PARENT true
 #define CONVEX_MESH 32
@@ -22,7 +23,7 @@ public:
 	Object();
 	~Object();
 	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
-	virtual bool initializePhysics(const Arguments& args, Physics& physics, bool _static, float mass = 1);
+	virtual bool initializePhysics(const Arguments& args, Physics& physics, int collisionGroup = CollisionGroups::None, float mass = 1);
 	virtual void update(float dt);
 	virtual void render(Shader* boundShader);
 
