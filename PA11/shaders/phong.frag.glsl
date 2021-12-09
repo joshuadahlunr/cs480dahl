@@ -13,23 +13,23 @@
 
 struct Light
 {
-    uint type;
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    vec4 position;
-    vec3 direction;
-    float cutoffAngleCosine;
-    float intensity;
-    float falloff;
+	uint type;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	vec4 position;
+	vec3 direction;
+	float cutoffAngleCosine;
+	float intensity;
+	float falloff;
 };
 
 struct Material
 {
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    float shininess;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
 };
 
 // defines
@@ -46,16 +46,21 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
+// Fog variables
+uniform vec3 playerPosition;
+uniform float worldRadius;
+
 // ins
 flat in vec3 varyingColor;
 in vec2 varyingUV;
 in vec3 varyingN;
 in vec3 varyingP;
-in vec4 rawPosition;
+in vec4 worldPosition;
 flat in mat4 mv_matrix;
 
 out vec4 fragColor;
 
+// Function which preforms lighting calculations
 vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 	// Disabled lights contribute nothing
 	if(light.type == TYPE_DISABLED)
@@ -63,32 +68,40 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 
 	vec3 ambient = (light.ambient * material.ambient).xyz;
 	vec3 L = vec3(0);
-    float spotlightFalloff = 1;
+	float spotlightFalloff = 1;
 
-    if(light.type == TYPE_AMBIENT){
-        return ambient;
-    } else if (light.type == TYPE_DIRECTIONAL){
-        L = normalize(light.direction);
-    } else if(light.type == TYPE_POINT || light.type == TYPE_SPOT){
-        L = normalize(viewMatrix * light.position - P).xyz;
+	if(light.type == TYPE_AMBIENT){
+		return ambient;
+	} else if (light.type == TYPE_DIRECTIONAL){
+		L = normalize(light.direction);
+	} else if(light.type == TYPE_POINT || light.type == TYPE_SPOT){
+		L = normalize(viewMatrix * light.position - P).xyz;
 
-        if(light.type == TYPE_SPOT){
-            float phi = dot(normalize(-light.direction), normalize((light.position - modelMatrix * rawPosition).xyz));
-            float intensityFactor = pow(phi, light.intensity);
+		if(light.type == TYPE_SPOT){
+			float phi = dot(normalize(-light.direction), normalize((light.position - worldPosition).xyz));
+			float intensityFactor = pow(phi, light.intensity);
 
-            spotlightFalloff = smoothstep(light.cutoffAngleCosine, light.cutoffAngleCosine + light.falloff, intensityFactor);
-        }
-    }
+			spotlightFalloff = smoothstep(light.cutoffAngleCosine, light.cutoffAngleCosine + light.falloff, intensityFactor);
+		}
+	}
 
-    vec3 R = normalize(reflect(-L,N));
+	vec3 R = normalize(reflect(-L,N));
 
-    vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * spotlightFalloff;
-    vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
+	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * spotlightFalloff;
+	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
 	if(max(dot(N,L), 0.0) == 0) specular = vec3(0);
 
-    return ambient + diffuse + specular;
+	return ambient + diffuse + specular;
 }
 
+// Function which returns 0 when there shouldn't be fog, 1 when there should be and smoothly blends between them
+float fogMask(){
+	float distSq = dot(worldPosition.xyz - playerPosition, worldPosition.xyz - playerPosition);
+
+	return smoothstep((worldRadius - 32) * (worldRadius - 32), worldRadius * worldRadius, distSq);
+}
+
+// Function which converts a voxel type to a color
 vec3 typeToColor(int type){
 	switch(type){
 	case VOXEL_TYPE_GRASS: return vec3(.1, 1, .1);
@@ -98,13 +111,17 @@ vec3 typeToColor(int type){
 }
 
 void main(void) {
-    vec3 N = normalize(varyingN);
-    vec3 V = normalize(-varyingP);
+	vec3 N = normalize(varyingN);
+	vec3 V = normalize(-varyingP);
 
-    vec3 color = vec3(0);
-    for(uint i = 0u; i < num_lights; i++)
-       color += calculateLighting(lights[i], mv_matrix * rawPosition, N, V);
+	vec3 color = vec3(0);
+	for(uint i = 0u; i < num_lights; i++)
+	   color += calculateLighting(lights[i], viewMatrix * worldPosition, N, V);
 
-    if(varyingColor.x > 0) color *= texture2D(sampler, varyingUV).rgb;
-    fragColor = vec4(color * typeToColor( int(varyingColor.y)), 1);
+	if(varyingColor.x > 0) color *= texture2D(sampler, varyingUV).rgb;
+	fragColor = vec4(color * typeToColor( int(varyingColor.y)), 1);
+
+	/// Apply fog
+	float mask = fogMask();
+	fragColor = mask * vec4(.7, .7, .7, 1) + (1 - mask) * fragColor;
 }

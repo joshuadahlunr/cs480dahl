@@ -135,6 +135,11 @@ void Application::update(float dt) {
 }
 
 void Application::render(Shader* boundShader){
+	// Set the player's position
+	glUniform3fv(boundShader->getUniformLocation("playerPosition"), 1, glm::value_ptr(ufo->getPosition()));
+	// Set the radius of the world
+	glUniform1f(boundShader->getUniformLocation("worldRadius"), (WORLD_RADIUS - 1) * 16);
+
 	world.render(boundShader);
 }
 

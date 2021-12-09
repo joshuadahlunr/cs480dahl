@@ -7,7 +7,7 @@
 #include "camera.h"
 
 #ifndef SKYBOX_TEXTURE
-#define SKYBOX_TEXTURE "skyboxs/axis_walls"
+#define SKYBOX_TEXTURE "skyboxs/grey"
 #endif
 
 class Shader;

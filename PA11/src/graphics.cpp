@@ -160,10 +160,11 @@ void Graphics::render() {
 
 	glUniform1ui(boundShader->getUniformLocation("num_lights"), Light::count);
 
+	// Preform custom rendering
+	engine->render(boundShader);
+
 	// render the object
 	sceneRoot->render(boundShader);
-
-	engine->render(boundShader);
 
 	// render the GUI
 	gui->render();

@@ -52,6 +52,7 @@ uniform mat4 modelMatrix;
 out vec3 lightingColor;
 flat out vec3 varyingColor;
 out vec2 varyingUV;
+out vec4 worldPosition;
 
 vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V, mat4 mv_matrix){
 	// Disabled lights contribute nothing
@@ -98,6 +99,7 @@ void main(void) {
        lightingColor += calculateLighting(lights[i], P, N, V, mv_matrix);
 
     gl_Position = projectionMatrix * P;
+    worldPosition = modelMatrix * vec4(v_position, 1);
     varyingColor = v_color;
 	varyingUV = v_uv;
 }

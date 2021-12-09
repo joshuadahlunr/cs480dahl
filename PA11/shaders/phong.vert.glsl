@@ -52,7 +52,7 @@ flat out vec3 varyingColor;
 out vec2 varyingUV;
 out vec3 varyingP;
 out vec3 varyingN;
-out vec4 rawPosition;
+out vec4 worldPosition;
 flat out mat4 mv_matrix;
 
 void main(void) {
@@ -64,7 +64,7 @@ void main(void) {
     varyingN = (norm_matrix * vec4(v_normal,1.0)).xyz;
 
     gl_Position = projectionMatrix * mv_matrix * vec4(v_position,1.0);
-    rawPosition = vec4(v_position, 1);
+    worldPosition = modelMatrix * vec4(v_position, 1);
 
 	varyingColor = v_color;
 	varyingUV = v_uv;
