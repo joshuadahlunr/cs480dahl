@@ -66,7 +66,7 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V, mat4 mv_matrix){
     if(light.type == TYPE_AMBIENT){
         return ambient;
     } else if (light.type == TYPE_DIRECTIONAL){
-        L = normalize(light.direction);
+        L = -normalize(light.direction);
     } else if(light.type == TYPE_POINT || light.type == TYPE_SPOT){
         L = normalize((mv_matrix * light.position).xyz - P.xyz);
 

@@ -26,7 +26,7 @@ public:
 	void setAmbient(glm::vec4 color) {lightAmbient = color;}
 	void setDiffuse(glm::vec4 color) {lightDiffuse = color;}
 	void setSpecular(glm::vec4 color) {lightSpecular = color;}
-	void setDirection(glm::vec3 direction) {lightDirection = direction;}
+	void setDirection(glm::vec3 direction) {lightDirection = glm::normalize(direction);}
 	void setCutoffAngle(float angle) { setCutoffAngleCosine(glm::cos(angle)); }
 	void setCutoffAngleCosine(float cos) { lightCutoffAngleCosine = cos; }
 	void setIntensity(float intensity) { lightIntensity = intensity; }

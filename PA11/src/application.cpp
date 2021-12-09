@@ -20,10 +20,10 @@ bool Application::initialize(const Arguments& args) {
 	getSceneRoot()->addChild(ambient);
 	ambient->setAmbient({.5, .5, .5, 1});
 
-	auto point = std::make_shared<PointLight>();
-	getSceneRoot()->addChild(point);
-	point->setPosition({0, 15, 0});
-	point->setDiffuse({1, 1, 1, 1});
+	auto light = std::make_shared<DirectionalLight>();
+	getSceneRoot()->addChild(light);
+	light->setDirection({-.5, -1, -.3});
+	light->setDiffuse({1, 1, 1, 1});
 
 	world.initialize();
 
