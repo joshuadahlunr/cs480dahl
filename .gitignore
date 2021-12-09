@@ -29,3 +29,6 @@
 build/
 
 !/*/models/*.obj
+
+# Visual studio settings
+/*/.vscode/

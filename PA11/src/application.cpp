@@ -30,10 +30,11 @@ bool Application::initialize(const Arguments& args) {
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
 	ufo->setPosition({0, 0, 0});
-	ufo->initializeGraphics(args, "ufo.obj");
+	// ufo->initializeGraphics(args, "ufo.obj");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
-	ufo->initializePhysics(args, *Engine::getPhysics(), /*static*/false);
-	ufo->addMeshCollider(args, *Engine::getPhysics());
+	ufo->initializePhysics(args, Engine::getPhysics(), /*static*/false, /*mass*/ 100);
+	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
+	ufo->makeDynamic();
 
 	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 	getSceneRoot()->addChild(npc);
@@ -125,6 +126,17 @@ void Application::update(float dt) {
 			npcs[i].get()->Object::~Object();
 			npcs.erase(npcs.begin() + i);
 		}
+	}
+
+	// btTransform t;
+	// ufo->getRigidBody().getMotionState()->getWorldTransform(t);
+	// std::cout << glm::to_string(toGLM(t)) << std::endl;
+
+	auto underChunk = world.getChunk((glm::ivec3) ufo->getPosition());
+	if(underChunk->state == Chunk::GenerateState::Finalized && !underChunk->isPhysicsInitalized()){
+		underChunk->initializePhysics(args, Engine::getPhysics(), true, 1'000'000);
+		underChunk->createMeshCollider(args, Engine::getPhysics());
+		underChunk->makeStatic();
 	}
 }
 

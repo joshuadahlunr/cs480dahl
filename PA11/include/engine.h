@@ -43,7 +43,7 @@ public:
 
 	Window* getWindow() const { return window; }
 	Graphics* getGraphics() const { return graphics; }
-	Physics* getPhysics() const { return physics; }
+	Physics& getPhysics() const { return *physics; }
 	Sound* getSound() const { return sound; }
 	std::shared_ptr<Object> getSceneRoot() const { return sceneRoot; }
 

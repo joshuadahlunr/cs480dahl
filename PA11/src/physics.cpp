@@ -6,43 +6,49 @@
 
 // Backing/access for the singleton
 Physics* Physics::singleton;
-Physics* Physics::getSingleton() { return singleton; }
+Physics& Physics::getSingleton() { return *singleton; }
 
-Physics::Physics(Object::ptr& sceneRoot) : sceneRoot(sceneRoot) { }
-Physics::~Physics() { }
+Physics::Physics(Object::ptr& sceneRoot) : sceneRoot(sceneRoot), dispatcher(&config), world(&dispatcher, &broadphase, &solver, &config) { }
+Physics::~Physics() {
+#ifdef PHYSICS_DEBUG
+	delete lineShader;
+#endif
+}
 
-// bool Physics::initialize(Engine* engine, const Arguments& args) {
-// 	// Setup the singleton
-// 	singleton = this;
+bool Physics::initialize(Engine* engine, const Arguments& args) {
+	// Setup the singleton
+	singleton = this;
 
-// 	// Create the physics world
-// 	rp3d::PhysicsWorld::WorldSettings settings;
-// 	world = factory.createPhysicsWorld(settings);
-// 	world->setEventListener(this);
+	// Initalize Bullet
+	// btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
+	// btCollisionDispatcher* dispatcher = new btCollisionDispatcher(config);
+	// btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+	// btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	// btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config); 
 
-// 	// Debug Rendering
-// #ifdef PHYSICS_DEBUG
-// 	// Enable debug in the world
-// 	world->setIsDebugRenderingEnabled(true);
+	// Set gravity
+	world.setGravity({0, -9.8, 0});
 
-// 	// Generate the vertex buffer
-// 	glGenBuffers(1, &debugLineBuffer);
+	// Debug Rendering
+#ifdef PHYSICS_DEBUG
+	lineShader = new Shader; // TODO: memory leak
+	lineShader->initialize();
+	lineShader->addShader(GL_VERTEX_SHADER, "physics.vert.glsl", args);
+	lineShader->addShader(GL_FRAGMENT_SHADER, "physics.frag.glsl", args);
+	lineShader->finalize();
 
-// 	// Generate the shader
-// 	debugShader = new Shader();
-// 	debugShader->initialize();
-// 	debugShader->addShader(GL_VERTEX_SHADER, "physics.vert.glsl", args);
-// 	debugShader->addShader(GL_FRAGMENT_SHADER, "physics.frag.glsl", args);
-// 	debugShader->finalize();
-// #endif
+	debugDrawer = std::make_unique<BulletDebugDrawer_OpenGL>();
+	world.setDebugDrawer(debugDrawer.get());
+	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe); //| btIDebugDraw::DBG_DrawAabb);
+#endif
 
-// 	return true;
-// }
+	return true;
+}
 
-// void Physics::update(float dt) {
-// 	// Update the physics simulation
-// 	world->update(dt);
-// }
+void Physics::update(float dt) {
+	// Update the physics simulation
+	world.stepSimulation(dt);
+}
 
 // void Physics::addContactCallback(Object::ptr& obj, ContactEvent e) { contactEvents[obj->getCollider().getEntity().id] = e; }
 
@@ -54,89 +60,64 @@ Physics::~Physics() { }
 // 					idEvent.second(callbackData.getContactPair(i));
 // }
 
+
 #ifdef PHYSICS_DEBUG
 
-// // Function which converts a uint32 color into a glm::vec3
-// glm::vec3 fromUint(uint32_t color) {
-// 	glm::vec3 out;
-// 	float a;
+// Render the world as seen by bullet
+void Physics::render(Camera* camera) {
+	// Bind the shader
+	lineShader->enable();
 
-// 	a = float(0x000000ff & color) / 0xff;
-// 	out.b = float(0x000000ff & (color >> 4)) / 0xff;
-// 	out.g = float(0x000000ff & (color >> 8)) / 0xff;
-// 	out.r = float(0x000000ff & (color >> 12)) / 0xff;
-// 	return out;
-// }
-
-// void Physics::render(Camera* camera) {
-// 	// Get a reference to the debug renderer and set what we would like to see
-// 	rp3d::DebugRenderer& debugRenderer = getWorld().getDebugRenderer();
-// 	debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLISION_SHAPE, true);
-// 	debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
-// 	// debugRenderer.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_BROADPHASE_AABB, true);
+	// Update matricies and draw
+	world.debugDrawWorld();
+	debugDrawer->render(lineShader, camera->getView(), camera->getProjection());
+}
 
 
-// 	// Get the vertices for each debug triangle
-// 	std::vector<Vertex> lineVerts;
-// 	for(rp3d::DebugRenderer::DebugTriangle& tri: debugRenderer.getTriangles()) {
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0), glm::vec3(0));
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0), glm::vec3(0));
-
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point2)), fromUint(tri.color2), glm::vec2(0), glm::vec3(0));
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0), glm::vec3(0));
-
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point3)), fromUint(tri.color3), glm::vec2(0), glm::vec3(0));
-// 		lineVerts.emplace_back(*((glm::vec3*)(&tri.point1)), fromUint(tri.color1), glm::vec2(0), glm::vec3(0));
-// 	}
-
-// 	// Get the vertices for each debug line
-// 	for(rp3d::DebugRenderer::DebugLine& line: debugRenderer.getLines()) {
-// 		lineVerts.emplace_back(*((glm::vec3*)(&line.point1)), fromUint(line.color1), glm::vec2(0), glm::vec3(0));
-// 		lineVerts.emplace_back(*((glm::vec3*)(&line.point2)), fromUint(line.color2), glm::vec2(0), glm::vec3(0));
-// 	}
-
-// 	// Upload the debug vertices to the GPU
-// 	glBindBuffer(GL_ARRAY_BUFFER, debugLineBuffer);
-// 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * lineVerts.size(), &lineVerts[0], GL_STATIC_DRAW);
+// -- Bullet Debug Drawing Implementation --
 
 
-// 	// enable the physics debug shader
-// 	debugShader->enable();
+// Backing for the vertex buffer and attributes
+GLuint BulletDebugDrawer_OpenGL::VBO;
+GLuint BulletDebugDrawer_OpenGL::VAO;
 
-// 	// Set the view and projection matrix
-// 	glUniformMatrix4fv(debugShader->getUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(camera->getProjection()));
-// 	glUniformMatrix4fv(debugShader->getUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(camera->getView()));
+BulletDebugDrawer_OpenGL::BulletDebugDrawer_OpenGL() {
+	glGenBuffers(1, &VBO);
+	glGenVertexArrays(1, &VAO);
+}
 
-// 	// Disable depth testing
-// 	glDepthMask(GL_FALSE);
+void BulletDebugDrawer_OpenGL::render(Shader* lineShader, glm::mat4 pViewMatrix, glm::mat4 pProjectionMatrix)  {
+	glUniformMatrix4fv(lineShader->getUniformLocation("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(pProjectionMatrix));
+	glUniformMatrix4fv(lineShader->getUniformLocation("viewMatrix"), 1, GL_FALSE, glm::value_ptr(pViewMatrix));
 
-// 	// Enable 3 vertex attributes
-// 	glEnableVertexAttribArray(0);
-// 	glEnableVertexAttribArray(1);
-// 	glEnableVertexAttribArray(2);
-// 	glEnableVertexAttribArray(3);
+	// Disable depth buffer
+	glDepthMask(GL_FALSE);
 
-// 	// Specify where in the vertex buffer we can find position, color, and UVs
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
-// 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
-// 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
+	// Upload the lines
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(glm::vec3) * lines.size(), lines.data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 
-// 	// Draw the lines
-// 	glBindBuffer(GL_ARRAY_BUFFER, debugLineBuffer);
-// 	glLineWidth(2.5); // Making sure they are wide enough to be sean
-// 	glDrawArrays(GL_LINES, 0, lineVerts.size());
+	// Draw the lines
+	glDrawArrays(GL_LINES, 0, lines.size());
 
-// 	// Disable the attributes
-// 	glDisableVertexAttribArray(0);
-// 	glDisableVertexAttribArray(1);
-// 	glDisableVertexAttribArray(2);
-// 	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 
-// 	// Enable depth testing
-// 	glDepthMask(GL_TRUE);
-// }
+	// Re-enable depth buffer
+	glDepthMask(GL_TRUE);
 
+	// Clear the lines for the next frame
+	lines.clear();
+}
 
+void BulletDebugDrawer_OpenGL::drawLine(const btVector3& from, const btVector3& to, const btVector3& color){
+	// Record the line
+	lines.emplace_back(toGLM(from), toGLM(color));
+	lines.emplace_back(toGLM(to), toGLM(color));
+}
 
 #endif // PHYSICS_DEBIG
