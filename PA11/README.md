@@ -1,4 +1,4 @@
-# PA11: Pinball
+# PA11: Beef Theif
 
 ## Extra Credit
 
@@ -31,11 +31,6 @@ The command to run the program (assuming that we compiled in a build directory o
 
 ## Operation
 - Holding right click will let you rotate the camera
-- Press A and/or D to flip the paddles.
-- Hold S to charge the plunger and launch the ball.
-- Press R to reset the ball and lose a life.
-- Spacebar toggles between per fragment and per vertex shaders
-- GUI interface to control light settings
 
 
 # Dependencies, Building, and Running
@@ -45,21 +40,30 @@ To run this project installation of these three programs are required [GLEW](htt
 
 A CMAKE version of at least 3.8 is required to build the project.
 
-## Dear ImGui and ReactPhysics3D
-The program relies on the Dear ImGui library. If git is being used these libraries are included as submodules and may be downloaded by running:
+## Bullet Physics
+
+This program uses Bullet Physics. Installation can be done through package managers.
+
 ```bash
-git submodule init
-git submodule update
+sudo apt-get install libbullet-dev
 ```
 
-If git is not being used the two libraries will need to be download from: https://github.com/ocornut/imgui  and: https://github.com/DanielChappuis/reactphysics3d respectively.
-The code zip for both must then be extracted into `PA11/thirdparty` (The symbolic-links must be overwritten).
+[Bullet Physics build install instructions](https://github.com/bulletphysics/bullet3)
 
 ## Assimp Model Loading
 
 The program also relies on the Assimp library for model loading. See the assimp build install page for getting assimp installed.
 
-[Assimp build install](https://github.com/assimp/assimp/blob/master/Build.md)
+[Assimp build install instructions](https://github.com/assimp/assimp/blob/master/Build.md)
+
+## All Other Libraries
+If git is being used all other libraries are included as submodules and may be downloaded by running:
+```bash
+git submodule init
+git submodule update
+```
+
+If git is not being used libraries will need to be download manually and then must then be extracted into `PA11/thirdparty` (The symbolic-links must be overwritten).
 
 ## CMake Instructions
 The building of the project is done using CMake (at least version 3.8), installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).
