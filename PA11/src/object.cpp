@@ -90,24 +90,21 @@ bool Object::initializePhysics(const Arguments& args, Physics& physics, bool _st
 }
 
 void Object::makeDynamic(bool recursive /*= true*/) {
-	rigidBody->setCollisionFlags( (rigidBody->getCollisionFlags() | 
-		btCollisionObject::CF_DYNAMIC_OBJECT) & ~btCollisionObject::CF_STATIC_OBJECT & ~btCollisionObject::CF_KINEMATIC_OBJECT );  
+	rigidBody->setCollisionFlags( rigidBody->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT & ~btCollisionObject::CF_KINEMATIC_OBJECT );  
 	// rigidBody->setActivationState(ACTIVE_TAG);
 
 	// Recursively update the children if requested
 	if(recursive) for(auto& child: children) child->makeDynamic(true);
 }
 void Object::makeStatic(bool recursive /*= true*/) {
-	rigidBody->setCollisionFlags( (rigidBody->getCollisionFlags() | 
-		btCollisionObject::CF_STATIC_OBJECT) & ~btCollisionObject::CF_DYNAMIC_OBJECT & ~btCollisionObject::CF_KINEMATIC_OBJECT ); 
+	rigidBody->setCollisionFlags( (rigidBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT) & ~btCollisionObject::CF_KINEMATIC_OBJECT ); 
 	// rigidBody->setActivationState(ACTIVE_TAG);
 
 	// Recursively update the children if requested
 	if(recursive) for(auto& child: children) child->makeStatic(true);
 }
 void Object::makeKinematic(bool recursive /*= true*/) {
-	rigidBody->setCollisionFlags( (rigidBody->getCollisionFlags() | 
-		btCollisionObject::CF_KINEMATIC_OBJECT) & ~btCollisionObject::CF_STATIC_OBJECT & ~btCollisionObject::CF_DYNAMIC_OBJECT ); 
+	rigidBody->setCollisionFlags( (rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT) & ~btCollisionObject::CF_STATIC_OBJECT); 
 	rigidBody->setActivationState(DISABLE_DEACTIVATION);
 
 	// Recursively update the children if requested
