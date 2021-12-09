@@ -25,6 +25,7 @@ struct Chunk : public Object {
     // Enum tracking the current generation state
     enum GenerateState {
         NotStarted,
+        Freed,
         Generated,
         Meshed,
         Finalized

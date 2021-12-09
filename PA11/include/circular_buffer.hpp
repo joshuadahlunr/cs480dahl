@@ -278,8 +278,8 @@ struct circular_buffer_explicit : public circular_buffer_base<T, Container, Allo
 
 
 // Version of the secure buffer which ensures that any element not actively in use is set to a reset value
-template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<typename Container::value_type>>
-struct secure_circular_buffer_base : public circular_buffer_base<T, Container, Allocator> {
+template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<typename Container::value_type>, bool closureSupport = false>
+struct finalizeable_circular_buffer_base : public circular_buffer_base<T, Container, Allocator> {
 	using Base = circular_buffer_base<T, Container, Allocator>;
 	using container_type = typename Base::container_type;
 	using allocator_type = typename Base::allocator_type;;
@@ -295,28 +295,35 @@ struct secure_circular_buffer_base : public circular_buffer_base<T, Container, A
 	using reverse_iterator = typename Base::reverse_iterator;
 	using const_reverse_iterator = typename Base::const_reverse_iterator;
 
+	using finalizer_function = typename std::conditional<closureSupport, std::function<void(T&)>, void(*)(T&)>::type;
+
 protected:
-	T resetValue;
+	finalizer_function finalizer;
 
 public:
-	secure_circular_buffer_base() : resetValue(resetValue) { clear(); }
-	secure_circular_buffer_base(const Container& c, size_t start = 0) : Base(c, start) { clear(); }
-	secure_circular_buffer_base(const Container&& c, size_t start = 0) : Base(std::move(c), start) { clear(); }
-	secure_circular_buffer_base(const Base& b) : Base(b) { clear(); }
-	secure_circular_buffer_base(const Base&& b) : Base(std::move(b)) { clear(); }
+	finalizeable_circular_buffer_base() : finalizer([](T&){ throw std::runtime_error("Invalid finalizer!"); }) {}
+	finalizeable_circular_buffer_base(finalizer_function f) : finalizer(f) { }
+	finalizeable_circular_buffer_base(const Container& c, finalizer_function f, size_t start = 0) : Base(c, start), finalizer(f) { }
+	finalizeable_circular_buffer_base(const Container&& c, finalizer_function f, size_t start = 0) : Base(std::move(c), start), finalizer(f) { }
+	finalizeable_circular_buffer_base(const Base& b) : Base(b), finalizer(b.finalizer) { }
+	finalizeable_circular_buffer_base(const Base&& b) : Base(std::move(b)), finalizer(std::move(b.finalizer)) { }
+	finalizeable_circular_buffer_base(const Base& b, finalizer_function f) : Base(b), finalizer(f) { }
+	finalizeable_circular_buffer_base(const Base&& b, finalizer_function f) : Base(std::move(b)), finalizer(std::move(f)) { }
+	// Ensure every element in the buffer has been finalized when the buffer goes out of scope
+	~finalizeable_circular_buffer_base() { clear(); }
 
-	void setResetValue(T resetValue) { this->resetValue = resetValue; }
+	// Function which updates the finalizer function
+	void setFinalizer(finalizer_function f) { finalizer = f; }
 
-	// Function which makes sure every element is set to the reset value
-	void clear(){
-		Container& self = *this;
-		for(auto& e: self)
-			e = resetValue;
+	// Function which makes sure every element has the finalizer called on it
+	void finalize_all(){
+		for(auto& e: *this)
+			finalizer(e);
 	}
 
-	// Function which makes sure every element is set to the reset value, and resets the size and start of the buffer
-	void reset(){
-		clear();
+	// Function which makes sure every element has the finalizer called on it, and resets the size and start of the buffer
+	void clear(){
+		finalize_all();
 		Base::start = 0;
 		Base::_size = 0;
 	}
@@ -329,7 +336,7 @@ public:
 			Base::_size++;
 		} else {
 			Base::decrement(Base::start);
-			Container::operator[](Base::start - 1) = resetValue; // Reset the value in the empty slot
+			finalizer(Container::operator[](Base::start)); // Finalize the value we are about to overwrite
 		}
 
 		Base::get_allocator().construct(&Container::operator[](Base::start), std::forward<Args>(args)...);
@@ -343,7 +350,7 @@ public:
 			Base::_size++;
 		} else {
 			Base::decrement(Base::start);
-			Container::operator[](Base::start - 1) = resetValue; // Reset the value in the empty slot
+			finalizer(Container::operator[](Base::start)); // Finalize the value we are about to overwrite
 		}
 
 		Container::operator[](Base::start) = r;
@@ -353,7 +360,7 @@ public:
 	// Function which removes an element from the front of the buffer
 	void pop_front() {
 		if(Base::size() > 0){
-			Container::operator[](Base::start) = resetValue; // Reset the value in the empty slot
+			finalizer(Container::operator[](Base::start)); // Finalize the value in the empty slot
 			Base::increment(Base::start);
 			Base::_size--;
 		}
@@ -362,56 +369,52 @@ public:
 	// Function which constructs a new element at the end of the buffer, returns an iterator to it
 	template<typename... Args>
 	iterator emplace_back(Args&&... args){
+		if(Base::size() >= Base::capacity()) finalizer(Container::operator[](Base::_end())); // Finalize the value we are about to overwrite (if we are indeed overwriting it)
 		Base::get_allocator().construct(&Container::operator[](Base::_end()), std::forward<Args>(args)...);
 
 		if(Base::size() < Base::capacity()) Base::_size++;
-		else {
-			Container::operator[](Base::start) = resetValue; // Reset the value in the empty slot
-			Base::increment(Base::start);
-		}
+		else Base::increment(Base::start);
 
 		return iterator(*this, Base::_end() - 1);
 	}
 
 	// Function which adds an element to the end of the buffer
 	void push_back(const_reference r){
+		if(Base::size() >= Base::capacity()) finalizer(Container::operator[](Base::_end())); // Finalize the value we are about to overwrite (if we are indeed overwriting it)
 		Container::operator[](Base::_end()) = r;
 
 		if(Base::size() < Base::capacity()) Base::_size++;
-		else {
-			Container::operator[](Base::start) = resetValue; // Reset the value in the empty slot
-			Base::increment(Base::start);
-		}
+		else Base::increment(Base::start);
 	}
 	void push_back(const value_type&& r){ push_back(r); }
 
 	// Function which removes an element from the end of the buffer
 	void pop_back() {
-		if(Base::size() > 0)
+		if(Base::size() > 0){
 			Base::_size--;
-
-		Container::operator[](Base::_end()) = resetValue; // Reset the value in the empty slot
+			finalizer(Container::operator[](Base::_end())); // Finalize the value in the empty slot
+		}
 	}
 };
 
 // Secure buffer based on a container
-template<typename Container>
-struct secure_circular_buffer : public secure_circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type> {
-	using Base = secure_circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type>;
+template<typename Container, bool closureSupport = false>
+struct finalizeable_circular_buffer : public finalizeable_circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type, closureSupport> {
+	using Base = finalizeable_circular_buffer_base<typename Container::value_type, Container, typename Container::allocator_type, closureSupport>;
 	using Base::Base;
 };
 
 // Secure buffer based on a std::array
-template<typename T, size_t N>
-struct secure_circular_buffer_array : public secure_circular_buffer_base<T, std::array<T, N>, std::allocator<T>> {
-	using Base = secure_circular_buffer_base<T, std::array<T, N>, std::allocator<T>>;
+template<typename T, size_t N, bool closureSupport = false>
+struct finalizeable_circular_buffer_array : public finalizeable_circular_buffer_base<T, std::array<T, N>, std::allocator<T>, closureSupport> {
+	using Base = finalizeable_circular_buffer_base<T, std::array<T, N>, std::allocator<T>, closureSupport>;
 	using Base::Base;
 };
 
 // Secure buffer with explicit controls
-template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<T>>
-struct secure_circular_buffer_explicit : public secure_circular_buffer_base<T, Container, Allocator> {
-	using Base = secure_circular_buffer_base<T, Container, Allocator>;
+template<typename T, typename Container = std::array<T, 10>, typename Allocator = std::allocator<T>, bool closureSupport = false>
+struct finalizeable_circular_buffer_explicit : public finalizeable_circular_buffer_base<T, Container, Allocator, closureSupport> {
+	using Base = finalizeable_circular_buffer_base<T, Container, Allocator, closureSupport>;
 	using Base::Base;
 };
 

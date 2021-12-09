@@ -9,6 +9,16 @@ ModifiablePriorityQueue<std::pair<Chunk::ptr, glm::ivec2>, std::vector<std::pair
 
 // Outer = X, Inner = Z
 
+// Helper function which returns the top element of a queue, and pops it, all under a monitor's write locker 
+template<class Queue>
+auto topNPop(Queue& q){
+	auto lock = q.write_lock();
+	auto out = lock->top();
+	lock->pop();
+
+	return out;
+}
+
 void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	this->playerChunk = playerChunk;
 	generationQueue.getCompare().playerChunk = &this->playerChunk;
@@ -38,12 +48,14 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	// Start a new meshing thread which just meshes chunks while there are chunks to be meshed
 	meshingThread = std::thread([this](){
 		while(shouldMeshingThreadRun){
-			// If there are chunks which need meshes generated for them... generate a mesh for those chunks
+			// If there are chunks which need meshes generated for them... generate a mesh for one
 			if(!meshingQueue.unsafe().empty()){
-				auto nextMesh = meshingQueue.read_lock()->top();
-				meshingQueue->pop();
+				auto nextMesh = topNPop(meshingQueue);
+				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
+
 				nextMesh->rebuildMesh(args);
 
+				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 				nextMesh->state = Chunk::GenerateState::Meshed;
 
 				// Upload the meshed data to the gpu
@@ -59,17 +71,21 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 	// Start a new collision thread which just generates colliders for chunks while there are chunks without colliders
 	collisionThread = std::thread([this](){
 		while(shouldCollisionThreadRun){
-			// If there are chunks which need colliders generated for them... generate a collider for those chunks
+			// If there are chunks which need colliders generated for them... generate a collider for one
 			if(!collisionQueue.unsafe().empty()){
-				auto nextMesh = collisionQueue.read_lock()->top();
-				collisionQueue->pop();
+				auto nextMesh = topNPop(collisionQueue);
+				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
-				// Sleep until the mesh has been uploaded to the gpu
-				while(nextMesh->state != Chunk::GenerateState::Finalized)
+				// Sleep until the mesh has been uploaded to the gpu (or freed)
+				while( !(nextMesh->state == Chunk::GenerateState::Finalized || nextMesh->state == Chunk::GenerateState::Freed) )
 					std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
 				// Wait a moment
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
 				// Generate the chunk's collision mesh
 				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment, 1'000'000);
@@ -93,21 +109,30 @@ void VoxelWorld::update(float dt){
 	if(!generationQueue.empty()){
 		auto& nextGeneration = generationQueue.top();
 		generationQueue.pop();
-		nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
-		nextGeneration.first->state = Chunk::GenerateState::Generated;
+		if(nextGeneration.first->state != Chunk::GenerateState::Freed){ // Ignore anything that has already been freed
 
-		// Add this chunk to the meshing queue
-		meshingQueue->push(nextGeneration.first);
+			nextGeneration.first->generateVoxels(args, nextGeneration.second.x, nextGeneration.second.y);
+
+			if(nextGeneration.first->state != Chunk::GenerateState::Freed){ // Ignore anything that has already been freed
+				nextGeneration.first->state = Chunk::GenerateState::Generated;
+
+				// Add this chunk to the meshing queue
+				meshingQueue->push(nextGeneration.first);
+			}
+		}
 	}
 
 	// If there are meshed chunks which need to be uploaded to the gpu... upload them
 	while(!uploadQueue.empty()){
 		auto nextMesh = uploadQueue.front();
 		uploadQueue.pop();
+		if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
 		// Upload the model to the gpu
 		nextMesh->finalizeModel(); // TODO: Do we need to clear the current model?
 		nextMesh->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
+
+		if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 		nextMesh->state = Chunk::GenerateState::Finalized;
 	}
 }
@@ -276,14 +301,22 @@ std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> VoxelWorld::generateChunksX(const A
     return out;
 }
 
+
+// Finalizer function which ensures that all of the chunks are marked as freed when they are cycled out of the buffer
+void finalizeChunk(Chunk::ptr& chunk){
+	chunk->state = Chunk::GenerateState::Freed;
+	// std::cout << "Freed chunk at " << glm::to_string(chunk->getPosition()) << std::endl;
+	chunk = nullptr;
+}
+
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddPosZ(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1>& chunks) {
-    this->chunks.emplace_back(chunks);
+    this->chunks.emplace_back(chunks, finalizeChunk);
 }
 
 // NOTE: Expects the last element of the array to be null
 void VoxelWorld::AddNegZ(const std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1>& chunks) {
-    this->chunks.emplace_front(chunks);
+    this->chunks.emplace_front(chunks, finalizeChunk);
 }
 
 std::array<Chunk::ptr, WORLD_RADIUS * 2 + 1> VoxelWorld::generateChunksZ(const Arguments& args, size_t startX, size_t Z) {

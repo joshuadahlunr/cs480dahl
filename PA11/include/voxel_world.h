@@ -93,7 +93,7 @@ protected:
 	// Circular Buffer of Circular Buffers of Chunks
 	// Need +1 on the radius to include 0,0
 	// Outer = X, Inner = Z
-    circular_buffer_array<circular_buffer_array<Chunk::ptr, WORLD_RADIUS * 2 + 1>, WORLD_RADIUS * 2 + 1> chunks; // Outer = X, Inner = Z
+    circular_buffer_array<finalizeable_circular_buffer_array<Chunk::ptr, WORLD_RADIUS * 2 + 1>, WORLD_RADIUS * 2 + 1> chunks; // Outer = X, Inner = Z
 
 	// Vec2 storing the chunk the player is currently in
 	glm::ivec2 playerChunk = {0, 0};
