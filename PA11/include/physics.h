@@ -2,14 +2,19 @@
 #define PHYSICS_H
 
 #include "arguments.h"
-#include <btBulletDynamicsCommon.h>
 #include "graphics_headers.h"
+
 #include <map>
 #include <functional>
+#include <btBulletDynamicsCommon.h>
 
 
 // Uncomment to enable physics debug rendering
 // #define PHYSICS_DEBUG
+
+
+// Function which converts an origin and directection, to a start and end point
+inline std::pair<glm::vec3, glm::vec3> dir2end(glm::vec3 origin, glm::vec3 direction, float length = 1024) { return { origin, origin + glm::normalize(direction) * length }; }
 
 
 // Forward declarations
