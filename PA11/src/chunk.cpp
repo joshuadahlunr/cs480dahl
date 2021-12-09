@@ -30,26 +30,44 @@ void Chunk::generateVoxels(const Arguments& args, int X, int Z) {
 	Linearly interpolate the position where an isosurface cuts
 	an edge between two vertices, each with their own scalar value
 */
-std::pair<glm::vec3, Chunk::Voxel::Type> vertexInterp(float isolevel, glm::vec3 p1, glm::vec3 p2, Chunk::Voxel valp1, Chunk::Voxel valp2) {
-	if (std::abs(isolevel - valp1.isoLevel) < 0.00001)
-		return {p1, valp1.type};
-	if (std::abs(isolevel - valp2.isoLevel) < 0.00001)
-		return {p2, valp2.type};
-	if (std::abs(valp1.isoLevel - valp2.isoLevel) < 0.00001)
-		return {p1, valp1.type};
+std::pair<glm::vec3, Chunk::Voxel::Type> vertexInterp(float isoLevel, glm::vec4 p1, glm::vec4 p2, Chunk::Voxel::Type t1, Chunk::Voxel::Type t2) {
+	static auto less = [](const glm::vec4& a, const glm::vec4& b) -> bool {
+		if (a.x < b.x)
+			return true;
+		else if (a.x > b.x)
+			return false;
 
-	// Calculate where the vertex should be
-	float mu = (isolevel - valp1.isoLevel) / (valp2.isoLevel - valp1.isoLevel);
-	glm::vec3 p;
-	p.x = p1.x + mu * (p2.x - p1.x);
-	p.y = p1.y + mu * (p2.y - p1.y);
-	p.z = p1.z + mu * (p2.z - p1.z);
+		if (a.y < b.y)
+			return true;
+		else if (a.y > b.y)
+			return false;
 
-	// Determine its type
-	Chunk::Voxel::Type type = valp1.type;
-	if((mu > .5 && valp2.type != Chunk::Voxel::Type::Air) || type == Chunk::Voxel::Type::Air) type = valp2.type;
+		if (a.z < b.z)
+			return true;
+		else if (a.z > b.z)
+			return false;
 
-	return { p, type };
+		return false;
+	};
+
+    if (less(p2, p1)) {
+        glm::vec4 temp;
+        temp = p1;
+        p1 = p2;
+        p2 = temp;    
+    }
+
+    glm::vec3 p;
+	bool type1 = true;
+    if(fabs(p1.w - p2.w) > 0.00001) 
+        p = (glm::vec3)p1 + ((glm::vec3)p2 - (glm::vec3)p1)/(p2.w - p1.w)*(isoLevel - p1.w);
+    else
+        p = (glm::vec3)p1;
+
+	Chunk::Voxel::Type t = t1;
+	if( ((isoLevel - p1.w) / (p2.w - p1.w) > .5 && t2 != Chunk::Voxel::Type::Air) || t == Chunk::Voxel::Type::Air) t = t2;
+
+    return { p, t };
 }
 
 // Structure holding 8 voxel samples we create our mesh from
@@ -376,29 +394,29 @@ std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> calculateMarchingCubes(con
 
 	/* Find the vertices where the surface intersects the cube */
 	if (edgeTable[cubeindex] & 1)
-		vertlist[0] = vertexInterp(isolevel, grid.points[0], grid.points[1], grid.values[0], grid.values[1]);
+		vertlist[0] = vertexInterp(isolevel, {grid.points[0], grid.values[0].isoLevel}, {grid.points[1], grid.values[1].isoLevel}, grid.values[0].type, grid.values[1].type);
 	if (edgeTable[cubeindex] & 2)
-		vertlist[1] = vertexInterp(isolevel, grid.points[1], grid.points[2], grid.values[1], grid.values[2]);
+		vertlist[1] = vertexInterp(isolevel, {grid.points[1], grid.values[1].isoLevel}, {grid.points[2], grid.values[2].isoLevel}, grid.values[1].type, grid.values[2].type);
 	if (edgeTable[cubeindex] & 4)
-		vertlist[2] = vertexInterp(isolevel, grid.points[2], grid.points[3], grid.values[2], grid.values[3]);
+		vertlist[2] = vertexInterp(isolevel, {grid.points[2], grid.values[2].isoLevel}, {grid.points[3], grid.values[3].isoLevel}, grid.values[2].type, grid.values[3].type);
 	if (edgeTable[cubeindex] & 8)
-		vertlist[3] = vertexInterp(isolevel, grid.points[3], grid.points[0], grid.values[3], grid.values[0]);
+		vertlist[3] = vertexInterp(isolevel, {grid.points[3], grid.values[3].isoLevel}, {grid.points[0], grid.values[0].isoLevel}, grid.values[3].type, grid.values[0].type);
 	if (edgeTable[cubeindex] & 16)
-		vertlist[4] = vertexInterp(isolevel, grid.points[4], grid.points[5], grid.values[4], grid.values[5]);
+		vertlist[4] = vertexInterp(isolevel, {grid.points[4], grid.values[4].isoLevel}, {grid.points[5], grid.values[5].isoLevel}, grid.values[4].type, grid.values[5].type);
 	if (edgeTable[cubeindex] & 32)
-		vertlist[5] = vertexInterp(isolevel, grid.points[5], grid.points[6], grid.values[5], grid.values[6]);
+		vertlist[5] = vertexInterp(isolevel, {grid.points[5], grid.values[5].isoLevel}, {grid.points[6], grid.values[6].isoLevel}, grid.values[5].type, grid.values[6].type);
 	if (edgeTable[cubeindex] & 64)
-		vertlist[6] = vertexInterp(isolevel, grid.points[6], grid.points[7], grid.values[6], grid.values[7]);
+		vertlist[6] = vertexInterp(isolevel, {grid.points[6], grid.values[6].isoLevel}, {grid.points[7], grid.values[7].isoLevel}, grid.values[6].type, grid.values[7].type);
 	if (edgeTable[cubeindex] & 128)
-		vertlist[7] = vertexInterp(isolevel, grid.points[7], grid.points[4], grid.values[7], grid.values[4]);
+		vertlist[7] = vertexInterp(isolevel, {grid.points[7], grid.values[7].isoLevel}, {grid.points[4], grid.values[4].isoLevel}, grid.values[7].type, grid.values[4].type);
 	if (edgeTable[cubeindex] & 256)
-		vertlist[8] = vertexInterp(isolevel, grid.points[0], grid.points[4], grid.values[0], grid.values[4]);
+		vertlist[8] = vertexInterp(isolevel, {grid.points[0], grid.values[0].isoLevel}, {grid.points[4], grid.values[4].isoLevel}, grid.values[0].type, grid.values[4].type);
 	if (edgeTable[cubeindex] & 512)
-		vertlist[9] = vertexInterp(isolevel, grid.points[1], grid.points[5], grid.values[1], grid.values[5]);
+		vertlist[9] = vertexInterp(isolevel, {grid.points[1], grid.values[1].isoLevel}, {grid.points[5], grid.values[5].isoLevel}, grid.values[1].type, grid.values[5].type);
 	if (edgeTable[cubeindex] & 1024)
-		vertlist[10] = vertexInterp(isolevel, grid.points[2], grid.points[6], grid.values[2], grid.values[6]);
+		vertlist[10] = vertexInterp(isolevel, {grid.points[2], grid.values[2].isoLevel}, {grid.points[6], grid.values[6].isoLevel}, grid.values[2].type, grid.values[6].type);
 	if (edgeTable[cubeindex] & 2048)
-		vertlist[11] = vertexInterp(isolevel, grid.points[3], grid.points[7], grid.values[3], grid.values[7]);
+		vertlist[11] = vertexInterp(isolevel, {grid.points[3], grid.values[3].isoLevel}, {grid.points[7], grid.values[7].isoLevel}, grid.values[3].type, grid.values[7].type);
 
 	/* Create the triangle */
 	std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> out;
