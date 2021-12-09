@@ -68,13 +68,13 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				while(nextMesh->state != Chunk::GenerateState::Finalized)
 					std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
+				// Wait a moment
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 				// Generate the chunk's collision mesh
 				nextMesh->initializePhysics(args, Physics::getSingleton(), true, 1'000'000);
 				nextMesh->createMeshCollider(args, Physics::getSingleton(), CONCAVE_MESH);
 				nextMesh->makeStatic();
-
-				// Wait a moment
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 			// If there aren't colliders to generate... sleep for 5 milliseconds
 			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -253,7 +253,7 @@ float VoxelWorld::getWorldHeight(glm::ivec2 worldPos){
 	size_t top = 255;
 	Chunk::Voxel* voxel;
 	for( ; top > 0; top--)
-		if(voxel = &column[top].get(); voxel->id != Chunk::Voxel::Type::Air)
+		if(voxel = &column[top].get(); voxel->type != Chunk::Voxel::Type::Air)
 			break;
 	
 	float level = top - voxel->isoLevel;	// The loop will get us the bottom of the voxel, then we need to subtract its ISO level to get the surface level

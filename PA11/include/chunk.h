@@ -14,10 +14,11 @@ struct Chunk : public Object {
     struct Voxel {
         enum Type : uint32_t {
             Air = 0,
-            Grass = 1
+            Grass = 1,
+            Stone = 2
         };
 
-        Type id;
+        Type type;
         float isoLevel;
     };
 
@@ -30,20 +31,15 @@ struct Chunk : public Object {
     } state = NotStarted;
 
     // Only render the chunk if it has finished being generated
-    void render(Shader* boundShader) override {
-        if(state == Finalized) Object::render(boundShader);
-    }
+    void render(Shader* boundShader) override { if(state == Finalized) Object::render(boundShader); }
 
     // TODO: Chunk width
     // TODO: See if riged perlin noise can generate caves?
 
     void generateVoxels(const Arguments& args, int x, int z);
-
     void rebuildMesh(const Arguments& args);
 
     Voxel voxels[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH]; // X, Y, Z
-
-
 };
 
 #endif // CHUNK_H

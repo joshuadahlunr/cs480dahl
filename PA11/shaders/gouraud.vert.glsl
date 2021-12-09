@@ -49,7 +49,8 @@ uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
 // outs
-out vec3 varyingColor;
+out vec3 lightingColor;
+flat out vec3 varyingColor;
 out vec2 varyingUV;
 
 vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V, mat4 mv_matrix){
@@ -92,10 +93,11 @@ void main(void) {
     vec3 N = normalize((norm_matrix * vec4(v_normal,1.0)).xyz);
     vec3 V = normalize(-P.xyz);
 
-    varyingColor = vec3(0);
+    lightingColor = vec3(0);
     for(uint i = 0u; i < num_lights; i++)
-       varyingColor += calculateLighting(lights[i], P, N, V, mv_matrix);
+       lightingColor += calculateLighting(lights[i], P, N, V, mv_matrix);
 
     gl_Position = projectionMatrix * P;
+    varyingColor = v_color;
 	varyingUV = v_uv;
 }

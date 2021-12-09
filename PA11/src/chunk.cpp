@@ -30,34 +30,37 @@ void Chunk::generateVoxels(const Arguments& args, int X, int Z) {
 	Linearly interpolate the position where an isosurface cuts
 	an edge between two vertices, each with their own scalar value
 */
-glm::vec3 vertexInterp(float isolevel, glm::vec3 p1, glm::vec3 p2, float valp1, float valp2) {
-	float mu;
+std::pair<glm::vec3, Chunk::Voxel::Type> vertexInterp(float isolevel, glm::vec3 p1, glm::vec3 p2, Chunk::Voxel valp1, Chunk::Voxel valp2) {
+	if (std::abs(isolevel - valp1.isoLevel) < 0.00001)
+		return {p1, valp1.type};
+	if (std::abs(isolevel - valp2.isoLevel) < 0.00001)
+		return {p2, valp2.type};
+	if (std::abs(valp1.isoLevel - valp2.isoLevel) < 0.00001)
+		return {p1, valp1.type};
+
+	// Calculate where the vertex should be
+	float mu = (isolevel - valp1.isoLevel) / (valp2.isoLevel - valp1.isoLevel);
 	glm::vec3 p;
-
-	if (std::abs(isolevel-valp1) < 0.00001)
-		return(p1);
-	if (std::abs(isolevel-valp2) < 0.00001)
-		return(p2);
-	if (std::abs(valp1-valp2) < 0.00001)
-		return(p1);
-
-	mu = (isolevel - valp1) / (valp2 - valp1);
 	p.x = p1.x + mu * (p2.x - p1.x);
 	p.y = p1.y + mu * (p2.y - p1.y);
 	p.z = p1.z + mu * (p2.z - p1.z);
 
-	return p;
+	// Determine its type
+	Chunk::Voxel::Type type = valp1.type;
+	if((mu > .5 && valp2.type != Chunk::Voxel::Type::Air) || type == Chunk::Voxel::Type::Air) type = valp2.type;
+
+	return { p, type };
 }
 
 // Structure holding 8 voxel samples we create our mesh from
 struct IsoGridSample {
 	glm::vec3 points[8];
-	float values[8];
+	Chunk::Voxel values[8];
 };
 
 // Calculates a marching cubes approximation of a single grid sample of a voxelized IsoFunction with a surface at <isoLevel>
 // Implementation from: https://paulbourke.net/geometry/polygonise/
-std::vector<glm::vec3> calculateMarchingCubes(const IsoGridSample& grid, float isolevel = 0) {
+std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> calculateMarchingCubes(const IsoGridSample& grid, float isolevel = 0) {
 	static int edgeTable[256]={
 	0x0 , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
 	0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -351,21 +354,21 @@ std::vector<glm::vec3> calculateMarchingCubes(const IsoGridSample& grid, float i
 
 	int i, ntriang;
 	int cubeindex;
-	glm::vec3 vertlist[12];
+	std::pair<glm::vec3, Chunk::Voxel::Type> vertlist[12];
 
 	/*
 		Determine the index into the edge table which
 		tells us which vertices are inside of the surface
 	*/
 	cubeindex = 0;
-	if (grid.values[0] < isolevel) cubeindex |= 1;
-	if (grid.values[1] < isolevel) cubeindex |= 2;
-	if (grid.values[2] < isolevel) cubeindex |= 4;
-	if (grid.values[3] < isolevel) cubeindex |= 8;
-	if (grid.values[4] < isolevel) cubeindex |= 16;
-	if (grid.values[5] < isolevel) cubeindex |= 32;
-	if (grid.values[6] < isolevel) cubeindex |= 64;
-	if (grid.values[7] < isolevel) cubeindex |= 128;
+	if (grid.values[0].isoLevel < isolevel) cubeindex |= 1;
+	if (grid.values[1].isoLevel < isolevel) cubeindex |= 2;
+	if (grid.values[2].isoLevel < isolevel) cubeindex |= 4;
+	if (grid.values[3].isoLevel < isolevel) cubeindex |= 8;
+	if (grid.values[4].isoLevel < isolevel) cubeindex |= 16;
+	if (grid.values[5].isoLevel < isolevel) cubeindex |= 32;
+	if (grid.values[6].isoLevel < isolevel) cubeindex |= 64;
+	if (grid.values[7].isoLevel < isolevel) cubeindex |= 128;
 
 	/* Cube is entirely in/out of the surface */
 	if (edgeTable[cubeindex] == 0)
@@ -398,7 +401,7 @@ std::vector<glm::vec3> calculateMarchingCubes(const IsoGridSample& grid, float i
 		vertlist[11] = vertexInterp(isolevel, grid.points[3], grid.points[7], grid.values[3], grid.values[7]);
 
 	/* Create the triangle */
-	std::vector<glm::vec3> out;
+	std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> out;
 	for (i = 0; triTable[cubeindex][i] != -1; i += 3) {
 		out.emplace_back(vertlist[triTable[cubeindex][i]]);
 		out.emplace_back(vertlist[triTable[cubeindex][i+1]]);
@@ -423,21 +426,21 @@ void Chunk::rebuildMesh(const Arguments& args) {
 				IsoGridSample cell;
 				float scale = 1; // TODO: calculate from chunk width
 				cell.points[0] = {x, y, z};
-				cell.values[0] = voxels[x][y][z].isoLevel;
+				cell.values[0] = voxels[x][y][z];
 				cell.points[1] = {x + scale, y, z};
-				cell.values[1] = voxels[x + 1][y][z].isoLevel;
+				cell.values[1] = voxels[x + 1][y][z];
 				cell.points[2] = {x + scale, y, z + scale};
-				cell.values[2] = voxels[x + 1][y][z + 1].isoLevel;
+				cell.values[2] = voxels[x + 1][y][z + 1];
 				cell.points[3] = {x, y, z + scale};
-				cell.values[3] = voxels[x][y][z + 1].isoLevel;
+				cell.values[3] = voxels[x][y][z + 1];
 				cell.points[4] = {x, y + scale, z};
-				cell.values[4] = voxels[x][y + 1][z].isoLevel;
+				cell.values[4] = voxels[x][y + 1][z];
 				cell.points[5] = {x + scale, y + scale, z};
-				cell.values[5] = voxels[x + 1][y + 1][z].isoLevel;
+				cell.values[5] = voxels[x + 1][y + 1][z];
 				cell.points[6] = {x + scale, y + scale, z + scale};
-				cell.values[6] = voxels[x + 1][y + 1][z + 1].isoLevel;
+				cell.values[6] = voxels[x + 1][y + 1][z + 1];
 				cell.points[7] = {x, y + scale, z + scale};
-				cell.values[7] = voxels[x][y + 1][z + 1].isoLevel;
+				cell.values[7] = voxels[x][y + 1][z + 1];
 
 				// Calculate marching cubes vertecies
 				auto verts = calculateMarchingCubes(cell);
@@ -446,20 +449,23 @@ void Chunk::rebuildMesh(const Arguments& args) {
 
 				// Merge the marching cubes vertecies into our existing list of vertices with index optimizations
 				for(int i = 0; i < verts.size(); i++){
-					const auto& pos = verts[i];
+					const auto& pos = verts[i].first;
+					const auto& type = verts[i].second;
 					int face = i - (i % 3);
 
 					glm::vec2 uv = {pos.x, pos.z}; // TODO: Improve UV calculations (just use triplanar projection?)
-					Vertex v(pos, glm::vec3(0), uv, glm::vec3(0));
+					Vertex v(pos, glm::vec3(0, type, 0), uv, glm::vec3(0));
+
+					// TODO: Normal calculations incorrect?
 
 					// If the vertex has already been cached... push its index back again and add this new face's normal to its normal
 					if(vertexIndicesAndNormals.find(v) != vertexIndicesAndNormals.end()){
 						indices.push_back(vertexIndicesAndNormals[v].first);
-						vertexIndicesAndNormals[v].second += glm::cross(verts[face + 1] - verts[face], verts[face + 2] - verts[face]);
+						vertexIndicesAndNormals[v].second += glm::cross(verts[face + 1].first - verts[face].first, verts[face + 2].first - verts[face].first);
 					// Otherwise add it to the list of vertecies and cache its index and base normal
 					} else {
 						vertices.emplace_back(std::move(v));
-						vertexIndicesAndNormals[v] = {index, glm::cross(verts[face + 1] - verts[face], verts[face + 2] - verts[face])};
+						vertexIndicesAndNormals[v] = {index, glm::cross(verts[face + 1].first - verts[face].first, verts[face + 2].first - verts[face].first)};
 						indices.push_back(index++);
 					}
 				}

@@ -1,5 +1,9 @@
 #version 330
 
+#define VOXEL_TYPE_AIR 0
+#define VOXEL_TYPE_GRASS 1
+#define VOXEL_TYPE_STONE 2
+
 // structs
 #define TYPE_DISABLED 0u
 #define TYPE_AMBIENT 1u
@@ -43,7 +47,7 @@ uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
 // ins
-in vec3 varyingColor;
+flat in vec3 varyingColor;
 in vec2 varyingUV;
 in vec3 varyingN;
 in vec3 varyingP;
@@ -85,6 +89,14 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
     return ambient + diffuse + specular;
 }
 
+vec3 typeToColor(int type){
+	switch(type){
+	case VOXEL_TYPE_GRASS: return vec3(.1, 1, .1);
+	case VOXEL_TYPE_STONE: return vec3(.7, .7, .7);
+	default: return vec3(0, 0, 0);
+	}
+}
+
 void main(void) {
     vec3 N = normalize(varyingN);
     vec3 V = normalize(-varyingP);
@@ -93,6 +105,6 @@ void main(void) {
     for(uint i = 0u; i < num_lights; i++)
        color += calculateLighting(lights[i], mv_matrix * rawPosition, N, V);
 
-    color *= texture2D(sampler, varyingUV).rgb;
-    fragColor = vec4(color, 1);
+    if(varyingColor.x > 0) color *= texture2D(sampler, varyingUV).rgb;
+    fragColor = vec4(color * typeToColor( int(varyingColor.y)), 1);
 }

@@ -48,7 +48,7 @@ uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
 // outs
-out vec3 varyingColor;
+flat out vec3 varyingColor;
 out vec2 varyingUV;
 out vec3 varyingP;
 out vec3 varyingN;
