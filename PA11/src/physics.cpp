@@ -27,7 +27,7 @@ bool Physics::initialize(Engine* engine, const Arguments& args) {
 	// btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config); 
 
 	// Set gravity
-	world.setGravity({0, -9.8, 0});
+	world->setGravity({0, -9.8, 0});
 
 	// Debug Rendering
 #ifdef PHYSICS_DEBUG
@@ -47,7 +47,7 @@ bool Physics::initialize(Engine* engine, const Arguments& args) {
 
 void Physics::update(float dt) {
 	// Update the physics simulation
-	world.stepSimulation(dt);
+	world.read_lock()->stepSimulation(dt);
 }
 
 // void Physics::addContactCallback(Object::ptr& obj, ContactEvent e) { contactEvents[obj->getCollider().getEntity().id] = e; }

@@ -3,6 +3,7 @@
 
 #include "arguments.h"
 #include "graphics_headers.h"
+#include "monitor.hpp"
 
 #include <map>
 #include <functional>
@@ -47,7 +48,8 @@ public:
 	// virtual void onContact(const btCollisionCallback::CallbackData& callbackData) override;
 
 	// Get the world
-	btDiscreteDynamicsWorld& getWorld() { return world; }
+	monitor<btDiscreteDynamicsWorld>& getWorld() { return world; }
+	btDiscreteDynamicsWorld& getWorldUnsafe() { return world.unsafe(); }
 
 	void addContactCallback(std::shared_ptr<Object>& obj, ContactEvent e);
 	void addContactCallback(std::shared_ptr<Object>&& obj, ContactEvent e) { addContactCallback(obj, e); }
@@ -65,7 +67,7 @@ protected:
 	btCollisionDispatcher dispatcher;
 	btDbvtBroadphase broadphase;
 	btSequentialImpulseConstraintSolver solver;
-	btDiscreteDynamicsWorld world;
+	monitor<btDiscreteDynamicsWorld> world;
 
 	// std::map<uint32_t, ContactEvent> contactEvents;
 

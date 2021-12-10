@@ -59,7 +59,7 @@ struct VoxelWorld {
 		btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
 		callback.m_collisionFilterMask = collisionMask; // Apply collision mask
 		// callback.m_collisionFilterGroup = ~CollisionGroups::All;
-		Physics::getSingleton().getWorld().rayTest(toBullet(start), toBullet(end), callback);
+		Physics::getSingleton().getWorldUnsafe().rayTest(toBullet(start), toBullet(end), callback);
 		if(!callback.hasHit()) return {};
 		return RaycastResult{callback.m_closestHitFraction, callback.m_collisionObject, callback.m_collisionFilterGroup, callback.m_collisionFilterMask, toGLM(callback.m_hitPointWorld), toGLM(callback.m_hitNormalWorld)};
 	}

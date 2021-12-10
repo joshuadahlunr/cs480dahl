@@ -83,14 +83,16 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
 				// Wait a moment
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
+				if(nextMesh->isPhysicsInitalized()) continue; // Ignore anything that already has collisions
 
 				// Generate the chunk's collision mesh
-				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment, 1'000'000);
+				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment, 1'000'000, false);
 				nextMesh->createMeshCollider(args, Physics::getSingleton(), CONCAVE_MESH);
 				nextMesh->makeStatic();
+				nextMesh->addToPhysicsWorld(Physics::getSingleton(), CollisionGroups::Enviornment);
 
 			// If there aren't colliders to generate... sleep for 5 milliseconds
 			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));

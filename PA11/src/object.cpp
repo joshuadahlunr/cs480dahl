@@ -45,7 +45,7 @@ Object::~Object() {
 
 	// Destroy the rigid body (if it was initialized)
 	if(rigidBody)
-		Physics::getSingleton().getWorld().removeRigidBody(rigidBody.get());
+		Physics::getSingleton().getWorld()->removeRigidBody(rigidBody.get());
 }
 
 bool Object::initializeGraphics(const Arguments& args, std::string filepath, std::string texturePath) {
@@ -71,18 +71,26 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 	return success;
 }
 
-bool Object::initializePhysics(const Arguments& args, Physics& physics, int collisionGroup /*= 0*/, float mass /*= 1*/) {
+bool Object::initializePhysics(const Arguments& args, Physics& physics, int collisionGroup /*= 0*/, float mass /*= 1*/,  bool addToWorldAutomatically /*= true*/) {
 	// Create a physics rigid body with the initial transform from the model matrix
 	motionState = std::make_unique<btDefaultMotionState>();
 	collisionShape = std::make_unique<btEmptyShape>();
 	rigidBody = std::make_unique<btRigidBody>(mass, motionState.get(), collisionShape.get());
 
-	// Add the new rigid body to the simulation
-	physics.getWorld().addRigidBody(rigidBody.get(), collisionGroup, CollisionGroups::All);
+	// Add the new rigid body to the simulation (if we are adding it at this point)
+	if(addToWorldAutomatically) addToPhysicsWorld(physics, collisionGroup);
 	// Update the postion of the physics engine
 	syncPhysicsWithGraphics();
 
 	return true;
+}
+
+void Object::addToPhysicsWorld(Physics& physics, int collisionGroup /*= CollisionGroups::None*/){
+	if(addedToPhysicsWorld) return;
+
+	// Add the new rigid body to the simulation
+	physics.getWorld()->addRigidBody(rigidBody.get(), collisionGroup, CollisionGroups::All);
+	addedToPhysicsWorld = true;
 }
 
 void Object::makeDynamic(bool recursive /*= true*/) {
