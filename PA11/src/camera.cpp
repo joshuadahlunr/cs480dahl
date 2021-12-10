@@ -27,6 +27,7 @@ bool Camera::initialize(int w, int h) {
 
 	// Set a minimum distance cap
 	minCap = 10.0;
+	maxCap = 40;
 
 	//Init projection matrices
 	projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
@@ -158,6 +159,5 @@ void Camera::mouseWheel(const SDL_MouseWheelEvent& e) {
 	distanceFromFocusPos -= e.y * distanceFromFocusPos * zoomScale;
 
 	// Limit the max zoom based on the scale of the focused celestial
-	if (distanceFromFocusPos < minCap)
-		distanceFromFocusPos = minCap;
+	distanceFromFocusPos = std::min(maxCap, std::max(minCap, distanceFromFocusPos));
 }

@@ -44,7 +44,7 @@ private:
 
 	float distanceFromFocusPos;
 	float zoomScale;
-	float minCap;
+	float minCap, maxCap;
 
 	static constexpr float orbitAngleChangeRate = 270.0;
 };

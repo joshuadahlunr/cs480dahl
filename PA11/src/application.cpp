@@ -80,7 +80,7 @@ void Application::update(float dt) {
 		inputDirection += glm::vec3(0,0,-1);
 
 	// UFO Control
-	float speed = 20;
+	float speed = 10;
 	glm::vec3 camDirection = Engine::getGraphics()->getCamera()->getLookDirection();
 	glm::vec3 planeDirection = glm::normalize(glm::vec3(camDirection.x, 0, camDirection.z));
 	glm::vec3 force = speed * inputDirection;
