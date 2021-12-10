@@ -202,8 +202,11 @@ void Graphics::render() {
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, /*near plane*/1.f, /*far plane*/350.f);
-			glm::mat4 lightView = glm::lookAt<float>(DirectionalLight::getPrimary()->lightDirection * -150.f, {0, 0, 0}, {0, 1, 0});
+			glm::vec3 ufo = sceneRoot->getChildren()[0]->getPosition();
+			ufo.y = 0;
+
+			glm::mat4 lightProjection = glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, /*near plane*/1.f, /*far plane*/350.f);
+			glm::mat4 lightView = glm::lookAt<float>(ufo + DirectionalLight::getPrimary()->lightDirection * -150.f, ufo, {0, 1, 0});
 			lightSpaceMatrix = lightProjection * lightView;
 
 			depthShader->enable();

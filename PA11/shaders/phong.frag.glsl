@@ -75,14 +75,14 @@ float shadowCalculations(float normalLightDot){
 	if(currentDepth > 1) currentDepth = 1;
 
 	// Calculate the bias to reduce stair-stepping
-	float bias = max(0.05 * (1.0 - normalLightDot), 0.005); // TODO: Tweak so that we can see the UFO's shadow when it lands
+	double bias = max(.01 * (1.0 - normalLightDot), .0005); // TODO: Tweak so that we can see the UFO's shadow when it lands
 
 	// Sample several textures around the current texture and average the results
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 	for(int x = -1; x <= 1; ++x)
 		for(int y = -1; y <= 1; ++y) {
-			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+			double pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
 			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
 		}    
 

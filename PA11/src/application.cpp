@@ -16,6 +16,16 @@ bool Application::initialize(const Arguments& args) {
 
 	this->args = args;
 
+	ufo = std::make_shared<Object>();
+	getSceneRoot()->addChild(ufo);
+	ufo->setPosition({8, 0, 8});
+	ufo->initializeGraphics(args, "ufo.obj");
+	Engine::getGraphics()->getCamera()->setFocus(ufo);
+	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
+	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
+	ufo->makeDynamic();
+	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
+
 	auto ambient = std::make_shared<AmbientLight>();
 	getSceneRoot()->addChild(ambient);
 	ambient->setAmbient({.5, .5, .5, 1});
@@ -26,17 +36,6 @@ bool Application::initialize(const Arguments& args) {
 	light->setDiffuse({1, 1, 1, 1});
 
 	world.initialize();
-
-	ufo = std::make_shared<Object>();
-	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({8, 0, 8});
-	ufo->initializeGraphics(args, "ufo.obj");
-	Engine::getGraphics()->getCamera()->setFocus(ufo);
-	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
-	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
-	ufo->makeDynamic();
-	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
-	// ufo->getRigidBody().setActivationState(DISABLE_DEACTIVATION);
 
 	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 	getSceneRoot()->addChild(npc);

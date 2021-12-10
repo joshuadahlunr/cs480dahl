@@ -14,7 +14,7 @@
 
 
 // The height and width of our shadow maps
-#define SHADOW_RESOLUTION 2048
+#define SHADOW_RESOLUTION 4096
 
 
 // Forward declarations
