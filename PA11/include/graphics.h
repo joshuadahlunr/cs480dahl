@@ -46,7 +46,7 @@ protected:
 	Camera* camera;
 	Shader* perFragShader, *perVertShader, *depthShader;
 	Shader* debug;
-	Skybox* skybox;
+	// Skybox* skybox;
 
 	GLint projectionMatrix;
 	GLint viewMatrix;

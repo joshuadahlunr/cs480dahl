@@ -79,7 +79,7 @@ void Application::update(float dt) {
 	glm::vec3 direction = glm::normalize(glm::vec3(camDirection.x, 0, camDirection.z));
 	glm::vec3 force = speed * inputDirection;
 
-	desiredVelocity = 
+	desiredVelocity =
 		direction * force.x + // forward movement
 		glm::cross(direction,glm::vec3(0,1,0)) * force.y + // up movement
 		glm::vec3(0,1,0) * force.z; // side movement
@@ -88,7 +88,7 @@ void Application::update(float dt) {
 
 	ufo->setLinearVelocity(velocity);
 
-	
+
 	// If the UFO is outside a 4 unit extension of the chunk...
 	glm::vec2 pointA = world.getPlayerChunkCoordinates() * 16 - glm::ivec2(CHUNK_WIDTH / 4); // TODO: if we do chunk scale this will need to be updated
 	glm::vec2 pointB = pointA + glm::vec2(CHUNK_WIDTH / 4) + glm::vec2(CHUNK_WIDTH);
@@ -101,7 +101,7 @@ void Application::update(float dt) {
 		else if(position.z > pointB.y)
 			world.stepPlayerPosZ();
 		else if(position.z < pointA.y)
-			world.stepPlayerNegZ();	
+			world.stepPlayerNegZ();
 	}
 
     // Tilt the ufo relative to velocity
@@ -129,7 +129,7 @@ void Application::update(float dt) {
 			npcs.erase(npcs.begin() + i);
 		}
 	}
-	
+
 	// Print world height under ufo
 	std::cout << "Height: " << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
 }

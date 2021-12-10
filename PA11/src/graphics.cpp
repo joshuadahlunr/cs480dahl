@@ -150,11 +150,11 @@ bool Graphics::initialize(int width, int height, Engine* engine, const Arguments
 	}
 
 	// Create the skybox
-	skybox = new Skybox();
-	if(!skybox->initialize(args, camera)) {
-		printf("Skybox Failed to initialize\n");
-		return false;
-	}
+	// skybox = new Skybox();
+	// if(!skybox->initialize(args, camera)) {
+	// 	printf("Skybox Failed to initialize\n");
+	// 	return false;
+	// }
 
 	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -232,11 +232,11 @@ void Graphics::render() {
 	glViewport(0, 0, windowDims.x, windowDims.y);
 
 	//clear the screen
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(.7, .7, .7, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// render the skybox first (thus everything else is drawn in front of it)
-	skybox->render();
+	// skybox->render();
 
 	// Start the correct program
 	Shader* boundShader;
