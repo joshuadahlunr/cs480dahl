@@ -53,16 +53,10 @@ struct VoxelWorld {
 	std::optional<std::array<std::reference_wrapper<Chunk::Voxel>, CHUNK_HEIGHT>> getColumn(glm::ivec3 worldPos) { return getColumn({worldPos.x, worldPos.z}); }
 	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
 
-	// Function which determines the highest Y of the world value given its X and Z coordinate
+	// Function which preforms a raycast between two points and returns the first intersection. (Optionally things may be masked from the collisions)	
 	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd, int collisionMask = CollisionGroups::All){ return raycast(startEnd.first, startEnd.second, collisionMask); }
-	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end, int collisionMask = CollisionGroups::All){
-		btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
-		callback.m_collisionFilterMask = collisionMask; // Apply collision mask
-		// callback.m_collisionFilterGroup = ~CollisionGroups::All;
-		Physics::getSingleton().getWorldUnsafe().rayTest(toBullet(start), toBullet(end), callback);
-		if(!callback.hasHit()) return {};
-		return RaycastResult{callback.m_closestHitFraction, callback.m_collisionObject, callback.m_collisionFilterGroup, callback.m_collisionFilterMask, toGLM(callback.m_hitPointWorld), toGLM(callback.m_hitNormalWorld)};
-	}
+	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end, int collisionMask = CollisionGroups::All);
+	// Function which determines the highest Y of the world value given its X and Z coordinate
 	float getWorldHeight(glm::ivec2 worldPos);
 	float getWorldHeight(glm::ivec3 worldPos) { return getWorldHeight({worldPos.x, worldPos.z}); }
 

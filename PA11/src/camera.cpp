@@ -82,6 +82,10 @@ void Camera::update(float dt) {
 	// Get the eye position relative to the focus position and at some point in rotation sphere
 	eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
+	// Preform a raycast to ensure that the camera doesn't clip through
+	auto result = app->world.raycast(focusPos, eyePos, CollisionGroups::Enviornment);
+	if(result) eyePos = result->point + result->normal * .1f;
+
 	// View dynamically updates with camera control movements
 	view = glm::lookAt(eyePos, focusPos, glm::vec3(0.0, 1.0, 0.0));
 }

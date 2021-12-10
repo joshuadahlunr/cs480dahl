@@ -270,6 +270,14 @@ std::optional<std::reference_wrapper<Chunk::Voxel>> VoxelWorld::getVoxel(glm::iv
 	return chunk->voxels[innerChunkPos.x][innerChunkPos.y][innerChunkPos.z];
 }
 
+// Function which preforms a raycast between two points and returns the first intersection. (Optionally things may be masked from the collisions)	
+std::optional<VoxelWorld::RaycastResult> VoxelWorld::raycast(glm::vec3 start, glm::vec3 end, int collisionMask /*= CollisionGroups::All*/){
+	btDiscreteDynamicsWorld::ClosestRayResultCallback callback(toBullet(start), toBullet(end));
+	callback.m_collisionFilterMask = collisionMask; // Apply collision mask
+	Physics::getSingleton().getWorldUnsafe().rayTest(toBullet(start), toBullet(end), callback);
+	if(!callback.hasHit()) return {};
+	return RaycastResult{callback.m_closestHitFraction, callback.m_collisionObject, callback.m_collisionFilterGroup, callback.m_collisionFilterMask, toGLM(callback.m_hitPointWorld), toGLM(callback.m_hitNormalWorld)};
+}
 
 // Function which determines the highest Y of the world value given its X and Z coordinate
 float VoxelWorld::getWorldHeight(glm::ivec2 worldPos){

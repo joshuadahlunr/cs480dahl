@@ -28,8 +28,6 @@ public:
 	Object::ptr ufo;
 	std::vector<std::shared_ptr<NPC>> npcs;
 
-protected:
-
 	Arguments args;
 
 	VoxelWorld world;
