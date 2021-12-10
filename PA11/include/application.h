@@ -38,6 +38,7 @@ private:
 	glm::vec3 desiredVelocity;
 	glm::vec3 velocity;
 	float accelerationRate = 0.5;
+	int npci = 0; // npc index
 };
 
 #endif // APPLICATION_H

@@ -8,7 +8,6 @@
 #include "threadTimer.h"
 #include "shader.h"
 #include "npc.h"
-
 #include "chunk.h"
 
 bool Application::initialize(const Arguments& args) {
@@ -37,12 +36,20 @@ bool Application::initialize(const Arguments& args) {
 
 	world.initialize();
 
-	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
-	getSceneRoot()->addChild(npc);
-	npc->setPosition({0, 0, 0});
-	npc->initializeGraphics(args, "cube.obj");
-
-	npcs.push_back(npc);
+	// Create the NPCs
+	int numNPCs = 10;
+	for (int i = 0; i < numNPCs; i++) {
+		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
+		getSceneRoot()->addChild(npc);
+		npc->setPosition(glm::vec3(0,0,0));
+		std::string modelFile = "cube.obj";
+		npc->initializeGraphics(args, modelFile);
+		// Create Physics
+		// npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
+		// npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, modelFile);
+		// npc->makeDynamic();
+		npcs.push_back(npc);
+	}
 
 	// Hookup the input events
 	Engine::keyboardEvent += [&](auto event) { keyboard(event);};
@@ -75,19 +82,18 @@ void Application::update(float dt) {
 	// UFO Control
 	float speed = 20;
 	glm::vec3 camDirection = Engine::getGraphics()->getCamera()->getLookDirection();
-	glm::vec3 direction = glm::normalize(glm::vec3(camDirection.x, 0, camDirection.z));
+	glm::vec3 planeDirection = glm::normalize(glm::vec3(camDirection.x, 0, camDirection.z));
 	glm::vec3 force = speed * inputDirection;
 
-	desiredVelocity =
-		direction * force.x + // forward movement
-		glm::cross(direction,glm::vec3(0,1,0)) * force.y + // up movement
+	desiredVelocity = 
+		planeDirection * force.x + // forward movement
+		glm::cross(planeDirection,glm::vec3(0,1,0)) * force.y + // up movement
 		glm::vec3(0,1,0) * force.z; // side movement
     glm::vec3 diff = desiredVelocity - velocity;
     velocity += diff * accelerationRate * dt;
 
 	ufo->setLinearVelocity(velocity);
-
-
+	
 	// If the UFO is outside a 4 unit extension of the chunk...
 	glm::vec2 pointA = world.getPlayerChunkCoordinates() * 16 - glm::ivec2(CHUNK_WIDTH / 4); // TODO: if we do chunk scale this will need to be updated
 	glm::vec2 pointB = pointA + glm::vec2(CHUNK_WIDTH / 4) + glm::vec2(CHUNK_WIDTH);
@@ -108,29 +114,38 @@ void Application::update(float dt) {
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
 
 	// Create NPCs at a radius around the UFO if not enough NPCs in proximity
-	float proximity = 100;
-	if (npcs.size() < proximity) {
-		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
-		getSceneRoot()->addChild(npc);
-		// Set position to somewhere in a circle around the UFO
-		float angle = (float) (rand() % 360);
-		float innerRadiusPercentage = 0.49;
-		npc->setPosition(ufo->getPosition() + glm::vec3(glm::sin(glm::radians(angle)) * proximity * innerRadiusPercentage, 0, glm::cos(glm::radians(angle)) * proximity * innerRadiusPercentage));
-		npc->initializeGraphics(args, "cube.obj");
-
-		npcs.push_back(npc);
-	}
-
-	// Destroy NPCs if they go out of range from UFO
-	for (int i = 0; i < npcs.size(); i++) {
-		if (glm::distance(npcs[i]->getPosition(), ufo->getPosition()) > proximity) {
-			npcs[i].get()->Object::~Object();
-			npcs.erase(npcs.begin() + i);
+	float proximity = 25;
+	//float angle = (float) (rand() % 360);
+	//float probOfRepos = 0.2;
+	float innerRadiusPercentage = .75;
+	float realSpeed = glm::length(velocity);
+	glm::vec3 direction = glm::normalize(velocity);
+	
+	// Only modify things when UFO is moving
+	if (realSpeed > 0.2f) {
+		// Check a NPC position in relationship to the moving UFO
+		if (glm::distance(npcs[npci]->getPosition(), glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) > proximity) {
+			int angleTolerance = 90;
+			float angle = std::atan2(direction.x, direction.z) + glm::radians((float) (rand() % angleTolerance) - (angleTolerance / 2));
+			//std::cout << glm::degrees(angle) << " " << direction.x << " " << direction.z << std::endl;
+			glm::vec3 newPos = ufo->getPosition() + (glm::vec3(glm::sin(angle), 0, glm::cos(angle)) * proximity * innerRadiusPercentage);
+			newPos.y = world.getWorldHeight((glm::ivec3) newPos);
+			npcs[npci]->setPosition(newPos);
+			npcs[npci]->setLinearVelocity(glm::vec3());
+		}
+		// Increment a once per frame index for npcs
+		npci ++;
+		if (npci >= npcs.size()) {
+			npci = 0;
 		}
 	}
 
+	//ufo->getPosition() + glm::vec3(glm::sin(glm::radians(angle)) * proximity * innerRadiusPercentage, 0, glm::cos(glm::radians(angle)) * proximity * innerRadiusPercentage)
+
+
+	
 	// Print world height under ufo
-	std::cout << "Height: " << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
+	//std::cout << "Height: " << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
 }
 
 void Application::render(Shader* boundShader){

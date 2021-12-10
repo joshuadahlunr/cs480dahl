@@ -3,6 +3,9 @@
 NPC::NPC() {}
 
 void NPC::update(float dt) {
+	// Call the base update
+	Object::update(dt);
+
 	// Add waypoints if none
 	if (waypoints.size() < 1) {
 		float x = rand() % (int) (wanderDistance * 2 + 1) - (wanderDistance) + getPosition().x;
@@ -13,23 +16,19 @@ void NPC::update(float dt) {
 
 	if(waypoints.empty()) return;
 
-	// decrement a wait
-	if (glm::distance(waypoints.front(), getPosition()) < 1.0f) {
-		currentWait -= dt;
+	// // decrement a wait
+	// if (glm::distance(waypoints.front(), getPosition()) < 1.0f) {
+	// 	currentWait -= dt;
 
-		if (currentWait < 0) {
-			waypoints.pop();
-			currentWait = waitTimes.front();
-		}
-	} else {
-		glm::vec3 direction = glm::normalize(waypoints.front() - getPosition());
+	// 	if (currentWait < 0) {
+	// 		waypoints.pop();
+	// 		currentWait = waitTimes.front();
+	// 	}
+	// } else {
+	// 	glm::vec3 direction = glm::normalize(waypoints.front() - getPosition());
 
-		float speed = 5;
-		setPosition(getPosition() + (direction * speed * dt));
-	}
-
-
-
-
+	// 	float speed = 5;
+	// 	setPosition(getPosition() + (direction * speed * dt));
+	// }
 }
 
