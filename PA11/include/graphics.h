@@ -5,13 +5,17 @@
 #include <string>
 #include <vector>
 
-
 #include "graphics_headers.h"
 #include "shader.h"
 #include "object.h"
 #include "light.h"
 #include "gui.h"
 #include "arguments.h"
+
+
+// The height and width of our shadow maps
+#define SHADOW_RESOLUTION 2048
+
 
 // Forward declarations
 class Engine;
@@ -27,6 +31,7 @@ public:
 	bool initialize(int width, int height, Engine* engine, const Arguments& args);
 	void update(float dt);
 	void render();
+	void renderScene(Shader* boundShader);
 
 	GUI* getGUI() const { return gui; }
 	Camera* getCamera() const { return camera; }
@@ -39,12 +44,19 @@ protected:
 
 	Engine* engine;
 	Camera* camera;
-	Shader* perFragShader, *perVertShader;
+	Shader* perFragShader, *perVertShader, *depthShader;
+	Shader* debug;
 	Skybox* skybox;
 
 	GLint projectionMatrix;
 	GLint viewMatrix;
 	GLint modelMatrix;
+
+	// Shadow Mapping
+	GLuint depthMapFBO;
+	GLuint depthMap;
+	GLuint debugVBO;
+	GLint lightSpaceMatrixLocation;
 
 	Object::ptr& sceneRoot;
 };

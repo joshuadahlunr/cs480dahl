@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <string>
 
+#include <glm/glm.hpp>
+
 
 // Uncomment to enable VSYNC
 // #define USE_VSYNC
@@ -18,10 +20,13 @@ public:
 
 	SDL_Window* getWindow() const { return gWindow; }
 	SDL_GLContext getContext() const { return gContext; }
+	glm::ivec2 getDimensions() const { return dimensions; }
 
 private:
 	SDL_Window* gWindow;
 	SDL_GLContext gContext;
+
+	glm::ivec2 dimensions;
 };
 
 #endif /* WINDOW_H */

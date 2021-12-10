@@ -32,12 +32,18 @@ AmbientLight::AmbientLight(std::string lightVariable /* = "lights"*/) : Light(Li
 	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
 }
 
+// Memory backing the primary directional light
+DirectionalLight* DirectionalLight::primary = nullptr;
+
 DirectionalLight::DirectionalLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Directional, setupID()) {
 	uniformLocationLightType = lightVariable + "[" + std::to_string(id) + "].type";
 	uniformLocationAmbient = lightVariable + "[" + std::to_string(id) + "].ambient";
 	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
 	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
 	uniformLocationDirection = lightVariable + "[" + std::to_string(id) + "].direction";
+
+	// If we are the first directional light mark us as primary
+	if(!primary) primary = this;
 }
 
 PointLight::PointLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Point, setupID()) {

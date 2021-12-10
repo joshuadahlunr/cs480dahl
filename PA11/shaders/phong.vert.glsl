@@ -46,6 +46,7 @@ uniform Material material;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
+uniform mat4 lightSpaceMatrix;
 
 // outs
 flat out vec3 varyingColor;
@@ -53,6 +54,7 @@ out vec2 varyingUV;
 out vec3 varyingP;
 out vec3 varyingN;
 out vec4 worldPosition;
+out vec4 lightSpacePosition;
 flat out mat4 mv_matrix;
 
 void main(void) {
@@ -65,6 +67,7 @@ void main(void) {
 
     gl_Position = projectionMatrix * mv_matrix * vec4(v_position,1.0);
     worldPosition = modelMatrix * vec4(v_position, 1);
+    lightSpacePosition = lightSpaceMatrix * worldPosition;
 
 	varyingColor = v_color;
 	varyingUV = v_uv;

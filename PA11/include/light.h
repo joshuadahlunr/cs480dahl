@@ -77,10 +77,14 @@ public:
 
 // Global light object for a single light source across the whole scene
 class DirectionalLight : public Light {
+	static DirectionalLight* primary;
+
 public:
 	DirectionalLight(std::string lightVariable = "lights");
 
 	void setEnabled(bool enable) override { type = enable ? Type::Directional : Type::Disabled; }
+
+	static DirectionalLight* getPrimary() { return primary; }
 };
 
 // Point light object for a light source casting in all directions

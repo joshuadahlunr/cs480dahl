@@ -1,4 +1,4 @@
-#version 330
+#version 430
 
 #define VOXEL_TYPE_AIR 0
 #define VOXEL_TYPE_GRASS 1
@@ -40,11 +40,13 @@ uniform Light lights[MAX_LIGHTS];
 uniform uint num_lights;
 
 uniform Material material;
-uniform sampler2D sampler;
+layout(binding = 0) uniform sampler2D sampler;
+layout(binding = 1) uniform sampler2D shadowMap;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
+uniform mat4 lightSpaceMatrix;
 
 // Fog variables
 uniform vec3 playerPosition;
@@ -56,9 +58,37 @@ in vec2 varyingUV;
 in vec3 varyingN;
 in vec3 varyingP;
 in vec4 worldPosition;
+in vec4 lightSpacePosition;
 flat in mat4 mv_matrix;
 
 out vec4 fragColor;
+
+// Function which calculates if the current pixel should be in shadow or not
+float shadowCalculations(float normalLightDot){
+	// perform perspective divide (normalized to [0, 1])
+	vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(shadowMap, projCoords.xy).r; 
+	// get depth of current fragment from light's perspective (clampped to a maximum value of 1)
+	float currentDepth = projCoords.z;
+	if(currentDepth > 1) currentDepth = 1;
+
+	// Calculate the bias to reduce stair-stepping
+	float bias = max(0.05 * (1.0 - normalLightDot), 0.005); // TODO: Tweak so that we can see the UFO's shadow when it lands
+
+	// Sample several textures around the current texture and average the results
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	for(int x = -1; x <= 1; ++x)
+		for(int y = -1; y <= 1; ++y) {
+			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+		}    
+
+	// Return the averaged result of the differet pixels
+	return shadow / 9;
+}
 
 // Function which preforms lighting calculations
 vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
@@ -87,12 +117,16 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 
 	vec3 R = normalize(reflect(-L,N));
 
-	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0) * spotlightFalloff;
+	float kD = max(dot(N,L), 0.0);
+	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * kD * spotlightFalloff;
 	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
-	if(max(dot(N,L), 0.0) == 0) specular = vec3(0);
+	if(kD == 0) specular = vec3(0);
 
-	return ambient + diffuse + specular;
-}
+	float shadowMask = 0;
+	if(light.type == TYPE_DIRECTIONAL) shadowMask = shadowCalculations(kD);
+
+	return ambient + (1.0 - shadowMask) * (diffuse + specular);
+} 
 
 // Function which returns 0 when there shouldn't be fog, 1 when there should be and smoothly blends between them
 float fogMask(){
@@ -118,7 +152,7 @@ void main(void) {
 	for(uint i = 0u; i < num_lights; i++)
 	   color += calculateLighting(lights[i], viewMatrix * worldPosition, N, V);
 
-	if(varyingColor.x > 0) color *= texture2D(sampler, varyingUV).rgb;
+	if(varyingColor.x > 0) color *= texture(sampler, varyingUV).rgb;
 	fragColor = vec4(color * typeToColor( int(varyingColor.y)), 1);
 
 	/// Apply fog
