@@ -140,7 +140,7 @@ vec3 typeToColor(int type){
 	switch(type){
 	case VOXEL_TYPE_GRASS: return vec3(.1, 1, .1);
 	case VOXEL_TYPE_STONE: return vec3(.7, .7, .7);
-	default: return vec3(0, 0, 0);
+	default: return vec3(1);
 	}
 }
 

@@ -391,7 +391,7 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 			pos = onImportTransformation * pos;
 
 			// Extract the (first) vertex color if it exists
-			glm::vec3 color(1, 1, 1); // White by default
+			glm::vec3 color(1, 0, 0); // Enable textures, no voxel tint by default
 			if(mesh->HasVertexColors(0)) {
 				auto col = mesh->mColors[0][vert];
 				color = glm::vec3(col.r, col.g, col.b);
