@@ -115,11 +115,11 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 		}
 	}
 
-	vec3 R = normalize(reflect(-L,N));
+	vec3 H = normalize(L + V);
 
 	float kD = max(dot(N,L), 0.0);
 	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * kD * spotlightFalloff;
-	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess) * spotlightFalloff;
+	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(N, H), 0.0f), 4 * material.shininess) * spotlightFalloff;
 	if(kD == 0) specular = vec3(0);
 
 	float shadowMask = 0;
