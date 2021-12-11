@@ -8,27 +8,37 @@ void NPC::update(float dt) {
 
 	// Add waypoints if none
 	if (waypoints.size() < 1) {
-		float x = rand() % (int) (wanderDistance * 2 + 1) - (wanderDistance) + getPosition().x;
-		float z = rand() % (int) (wanderDistance * 2 + 1) - (wanderDistance) + getPosition().z;
-		waypoints.push(glm::vec3(x, 0, z));
+		float x = ( rand() % (int) (wanderDistance)) - (wanderDistance * 0.5) + getPosition().x;
+		float z = ( rand() % (int) (wanderDistance)) - (wanderDistance * 0.5) + getPosition().z;
+		waypoints.push(glm::vec3(x, getPosition().y, z));
 		waitTimes.push(rand() % (5));
 	}
 
 	if(waypoints.empty()) return;
 
-	// // decrement a wait
-	// if (glm::distance(waypoints.front(), getPosition()) < 1.0f) {
-	// 	currentWait -= dt;
+	// decrement a wait
+	if (glm::distance(waypoints.front(), getPosition()) < 1.0f) {
+		currentWait -= dt;
 
-	// 	if (currentWait < 0) {
-	// 		waypoints.pop();
-	// 		currentWait = waitTimes.front();
-	// 	}
-	// } else {
-	// 	glm::vec3 direction = glm::normalize(waypoints.front() - getPosition());
+		if (currentWait < 0) {
+			waypoints.pop();
+			currentWait = waitTimes.front();
+		}
+	} else {
+		glm::vec3 direction = glm::normalize(waypoints.front() - getPosition());
+		float angle = getRotation().y;
 
-	// 	float speed = 5;
-	// 	setPosition(getPosition() + (direction * speed * dt));
-	// }
+		setRotation(glm::quat(glm::vec3(glm::sin(angle),0,glm::cos(angle)), direction), true);
+
+
+		float speed = 5;
+		// setPosition(getPosition() + (direction * speed * dt));
+		setPosition(getPosition() + direction * speed * dt);
+	}
+}
+
+void NPC::clearTargets() {
+	waypoints = std::queue<glm::vec3>();
+	waitTimes = std::queue<float>();
 }
 

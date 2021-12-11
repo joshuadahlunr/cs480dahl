@@ -41,14 +41,22 @@ bool Application::initialize(const Arguments& args) {
 	for (int i = 0; i < numNPCs; i++) {
 		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 		getSceneRoot()->addChild(npc);
-		npc->setPosition(glm::vec3(0,0,0));
 		std::string modelFile = "cow.obj";
 		npc->initializeGraphics(args, modelFile, "texturemap.png");
 
 		// Create Physics
-		// npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
-		// npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, modelFile);
-		// npc->makeDynamic();
+		npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
+		npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
+		npc->makeDynamic();
+		float range = 50;
+		float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
+		float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
+		float y = -50;
+		if (!isnan(world.getWorldHeight(glm::ivec3(x, 0, z))))
+			y = world.getWorldHeight(glm::ivec3(x, 0, z));
+	
+		npc->setPosition(glm::vec3(x, y, z));
+
 		npcs.push_back(npc);
 	}
 
@@ -115,7 +123,7 @@ void Application::update(float dt) {
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
 
 	// Create NPCs at a radius around the UFO if not enough NPCs in proximity
-	float proximity = 25;
+	float proximity = 50;
 	//float angle = (float) (rand() % 360);
 	//float probOfRepos = 0.2;
 	float innerRadiusPercentage = .75;
@@ -130,9 +138,14 @@ void Application::update(float dt) {
 			float angle = std::atan2(direction.x, direction.z) + glm::radians((float) (rand() % angleTolerance) - (angleTolerance / 2));
 			//std::cout << glm::degrees(angle) << " " << direction.x << " " << direction.z << std::endl;
 			glm::vec3 newPos = ufo->getPosition() + (glm::vec3(glm::sin(angle), 0, glm::cos(angle)) * proximity * innerRadiusPercentage);
-			newPos.y = world.getWorldHeight((glm::ivec3) newPos);
-			npcs[npci]->setPosition(newPos);
-			npcs[npci]->setLinearVelocity(glm::vec3());
+			float y = world.getWorldHeight((glm::ivec3) newPos);
+			if (!isnan(y)) {
+				newPos.y = y;
+				//std::cout << glm::distance(newPos, glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) << std::endl;
+				npcs[npci]->setPosition(newPos);
+				npcs[npci]->setLinearVelocity(glm::vec3());
+				npcs[npci]->clearTargets();
+			}
 		}
 		// Increment a once per frame index for npcs
 		npci ++;

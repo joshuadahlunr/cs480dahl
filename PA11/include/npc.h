@@ -12,6 +12,7 @@ public:
 	NPC();
 
 	void update(float dt);
+    void clearTargets();
 
 private:
     std::queue<glm::vec3> waypoints;
