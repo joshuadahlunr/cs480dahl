@@ -72,6 +72,7 @@ public:
 	void setRotation(glm::quat rot, bool relativeToParent = false);
 	glm::quat getRotation();
 	glm::vec3 up() {return glm::vec3(model[0][1], model[1][1], model[2][1]);}
+	glm::vec3 down() {return -glm::vec3(-model[0][1], model[1][1], -model[2][1]);}
 	glm::vec3 right() {return glm::vec3(model[0][0], model[1][0], model[2][0]);}
 	glm::vec3 forward() {return glm::vec3(model[0][2], model[1][2], model[2][2]);}
 	void rotate(float rads, glm::vec3 axis) { setModel(glm::rotate(model, rads, axis)); }

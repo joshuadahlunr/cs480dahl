@@ -1,5 +1,4 @@
 #include "application.h"
-#include "light.h"
 #include "window.h"
 #include "graphics.h"
 #include "sound.h"
@@ -25,6 +24,12 @@ bool Application::initialize(const Arguments& args) {
 	ufo->makeDynamic();
 	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
 
+	ufoLight = std::make_shared<SpotLight>();
+	ufo->addChild(ufoLight);
+	ufoLight->setAmbient({.6, .6, 1, 1});
+	ufoLight->setDiffuse({.7, .7, 1, 1});
+	ufoLight->setSpecular({.8, .8, 1, 1});
+
 	auto ambient = std::make_shared<AmbientLight>();
 	getSceneRoot()->addChild(ambient);
 	ambient->setAmbient({.5, .5, .5, 1});
@@ -32,7 +37,7 @@ bool Application::initialize(const Arguments& args) {
 	auto light = std::make_shared<DirectionalLight>();
 	getSceneRoot()->addChild(light);
 	light->setDirection({-.5, -1, -.3});
-	light->setDiffuse({1, 1, 1, 1});
+	light->setDiffuse({.8, .8, .8, 1});
 
 	world.initialize();
 
@@ -128,6 +133,9 @@ void Application::controlUFO(float dt) {
     // Tilt the ufo relative to velocity
 	glm::vec3 noYVel = glm::vec3(velocity.x, 0, velocity.z);
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
+
+	// Update the ufo light direction
+	ufoLight->setDirection(ufo->down());
 }
 
 void Application::repositionNPCs(float dt) {
@@ -178,6 +186,7 @@ void Application::update(float dt) {
 	float abductionDistance = 20;
 	if (abducting) {
 		// Find a new abduction target
+		ufoLight->setCutoffAngle(75);
 		if (abductionTarget == nullptr) {
 			std::shared_ptr<NPC> closest = nullptr;
 			float bestDistance = 999999;
@@ -191,10 +200,6 @@ void Application::update(float dt) {
 			abductionTarget = closest;
 			if (abductionTarget != nullptr) {
 				// if new target found
-				// auto light = std::make_shared<SpotLight>();
-				// ufo->addChild(light);
-				// light->setDirection({0, -1, 0});
-				// light->setDiffuse({.8, .8, 1, 1});
 
 				abductionTarget->getRigidBody().setGravity({0, 0, 0});
 				abductionTarget->setMovementState(false);
@@ -218,6 +223,7 @@ void Application::update(float dt) {
 			abductionTarget->setMovementState(true);
 			abductionTarget = nullptr;
 		}
+		ufoLight->setCutoffAngle(0);
 	}
 }
 

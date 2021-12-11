@@ -4,6 +4,8 @@
 #include "engine.h"
 #include "leaderboard.h"
 #include "voxel_world.h"
+#include "light.h"
+
 
 #include <vector>
 
@@ -45,6 +47,8 @@ private:
 
 	float accelerationRate = 0.5;
 	int npci = 0; // npc index
+
+	std::shared_ptr<SpotLight> ufoLight;
 };
 
 #endif // APPLICATION_H
