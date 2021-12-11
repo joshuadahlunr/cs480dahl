@@ -15,8 +15,7 @@ public:
     void clearTargets();
 
 private:
-    std::queue<glm::vec3> waypoints;
-    std::queue<float> waitTimes;
+    glm::vec3 waypoint;
 
     float wanderDistance = 20; // how far a npc could wander per waypoint
     float minTargetDistance = 1;

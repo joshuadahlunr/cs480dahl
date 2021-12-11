@@ -68,6 +68,7 @@ public:
 	void setPosition(glm::vec3 _pos, bool relativeToParent = false);
 	glm::vec3 getPosition() { return glm::vec3(model[3][0], model[3][1], model[3][2]); }
 	void translate(glm::vec3 translation) { setModel(glm::translate(model, translation)); }
+	void resetOrientation() { setRotation(glm::quat()); }
 	void setRotation(glm::quat rot, bool relativeToParent = false);
 	glm::quat getRotation();
 	glm::vec3 up() {return glm::vec3(model[0][1], model[1][1], model[2][1]);}

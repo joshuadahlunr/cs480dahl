@@ -44,10 +44,6 @@ bool Application::initialize(const Arguments& args) {
 		std::string modelFile = "cow.obj";
 		npc->initializeGraphics(args, modelFile, "texturemap.png");
 
-		// Create Physics
-		npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
-		npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
-		npc->makeDynamic();
 		float range = 50;
 		float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
 		float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
@@ -56,7 +52,10 @@ bool Application::initialize(const Arguments& args) {
 			y = world.getWorldHeight(glm::ivec3(x, 0, z));
 	
 		npc->setPosition(glm::vec3(x, y, z));
-
+		// Create Physics
+		npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::Cow, /*mass*/ 100);
+		npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
+		npc->makeDynamic();
 		npcs.push_back(npc);
 	}
 
