@@ -19,13 +19,6 @@ bool Physics::initialize(Engine* engine, const Arguments& args) {
 	// Setup the singleton
 	singleton = this;
 
-	// Initalize Bullet
-	// btDefaultCollisionConfiguration* config = new btDefaultCollisionConfiguration();
-	// btCollisionDispatcher* dispatcher = new btCollisionDispatcher(config);
-	// btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-	// btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-	// btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, config); 
-
 	// Set gravity
 	world->setGravity({0, -9.8, 0});
 
@@ -38,7 +31,7 @@ bool Physics::initialize(Engine* engine, const Arguments& args) {
 	lineShader->finalize();
 
 	debugDrawer = std::make_unique<BulletDebugDrawer_OpenGL>();
-	world.setDebugDrawer(debugDrawer.get());
+	world->setDebugDrawer(debugDrawer.get());
 	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe); //| btIDebugDraw::DBG_DrawAabb);
 #endif
 
@@ -69,7 +62,7 @@ void Physics::render(Camera* camera) {
 	lineShader->enable();
 
 	// Update matricies and draw
-	world.debugDrawWorld();
+	world.read_lock()->debugDrawWorld();
 	debugDrawer->render(lineShader, camera->getView(), camera->getProjection());
 }
 

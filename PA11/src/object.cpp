@@ -240,7 +240,7 @@ bool Object::createMeshCollider(const Arguments& args, Physics& physics, size_t 
 				indices.push_back(hull.m_triangles[idx + 2]);
 			}
 
-			auto trimesh = new btTriangleMesh(); // TODO: Leak
+			trimeshs.emplace_back( std::move(std::make_unique<btTriangleMesh>()) );
 			for (int i = 0; i < indices.size(); i += 3)
 			{
 				int index0 = indices[i];
@@ -251,41 +251,11 @@ bool Object::createMeshCollider(const Arguments& args, Physics& physics, size_t 
 				btVector3 vertex1 = verts[index1];
 				btVector3 vertex2 = verts[index2];
 
-				trimesh->addTriangle(vertex0, vertex1, vertex2);
+				trimeshs.back()->addTriangle(vertex0, vertex1, vertex2);
 			}
 
-			auto shape = new btConvexTriangleMeshShape(trimesh); // TODO: Leaks... works
-
-			// auto = new 
-
-			// btConvexShape *tmpshape = new btConvexTriangleMeshShape(trimesh);
-			// btShapeHull *hull = new btShapeHull(tmpshape);
-			// btScalar margin = tmpshape->getMargin();
-			// hull->buildHull(margin);
-
-			// // Pick the object we are attaching to...
-			// Object::ptr target;
-			// // If this is the first hull, attach it to ourselves,
-			// if(i == 0) target = shared_from_this();
-			// // Otherwise, create a new submesh to attach the hull to
-			// else {
-			// 	target = addChild(std::make_shared<Submesh>());
-			// 	target->initializePhysics(args, physics, true);
-			// 	if(rigidBody->getCollisionFlags() & btCollisionObject::CF_DYNAMIC_OBJECT) target->makeDynamic(); // TODO: Broken
-			// 	else if(rigidBody->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) target->makeDynamic();
-			// 	else target->makeDynamic();
-			// }
-
-			// auto shape = new btConvexHullShape((float*) verts.data(), verts.size(), sizeof(btVector3)); // TODO: Leak?
-			// auto shape = new btConvexHullShape((float*) hull->getVertexPointer(), hull->numVertices(), sizeof(btVector3)); // TODO: Leak?
-			// shape->optimizeConvexHull ();
-
-			((btCompoundShape*) collisionShape.get())->addChildShape(btTransform::getIdentity(), shape);
-		
-			// target->collisionShape  = ;
-
-			// // Save the generated shape as the shape for sub-objects
-			// if(i != 0) target->rigidBody->setCollisionShape(target->collisionShape.get());
+			shapes.emplace_back( std::move(std::make_unique<btConvexTriangleMeshShape>( trimeshs.back().get() )) );
+			((btCompoundShape*) collisionShape.get())->addChildShape(btTransform::getIdentity(), shapes.back().get());
 		}
 
 		// Release decomposer memory
@@ -294,7 +264,7 @@ bool Object::createMeshCollider(const Arguments& args, Physics& physics, size_t 
 
 	// Us a concave mesh
 	} else {//if(maxHulls == 1) 
-		auto trimesh = new btTriangleMesh(); // TODO: Leak
+		trimeshs.emplace_back( std::move(std::make_unique<btTriangleMesh>()) );
 		for (int i = 0; i < indices.size(); i += 3)
 		{
 			int index0 = indices[i];
@@ -305,40 +275,11 @@ bool Object::createMeshCollider(const Arguments& args, Physics& physics, size_t 
 			btVector3 vertex1 = toBullet(vertices[index1].vertex);
 			btVector3 vertex2 = toBullet(vertices[index2].vertex);
 
-			trimesh->addTriangle(vertex0, vertex1, vertex2);
+			trimeshs.back()->addTriangle(vertex0, vertex1, vertex2);
 		}
 
-		// auto shape = new btConvexTriangleMeshShape(trimesh);
-
-		collisionShape  = std::make_unique<btBvhTriangleMeshShape>(trimesh, true);
+		collisionShape  = std::make_unique<btBvhTriangleMeshShape>(trimeshs.back().get(), true);
 	}
-
-	// Bullet doesn't recommend supporting concave meshes, and we have pretty fleshed out convex support now, so I didn't bother to implement it
-
-	// // If we are not worried about converting the mesh into a convex mesh... simply create a concave collision shape
-	// else {
-	// 	btIndexedMesh mesh;
-	// 	mesh.m_numVertices = points.size() / 3;
-	// 	mesh.m_vertexBase = reinterpret_cast<unsigned char*>(points.data());
-	// 	mesh.m_vertexStride = 3 * sizeof(float);
-	// 	mesh.m_vertexType = PHY_FLOAT;
-		
-	// 	mesh.m_numTriangles = indices.size() / 3;
-	// 	mesh.m_triangleIndexBase = reinterpret_cast<unsigned char*>(indices.data());
-	// 	mesh.m_triangleIndexStride = 3 * sizeof(int);
-	// 	mesh.m_indexType = PHY_INTEGER;
-		
-	// 	btStridingMeshInterface data;
-	// 	data.addIndexedMesh(mesh);
-
-	// 	btTriangleMesh* triangleMesh = Physics::getSingleton()->getFactory().createTriangleMesh();
-
-	// 	// Add the triangle vertex array to the triangle mesh
-	// 	triangleMesh->addSubpart(triangleArray);
-
-	// 	// Create the concave mesh shape
-	// 	shape = Physics::getSingleton()->getFactory().createConcaveMeshShape(triangleMesh);
-	// }
 
 	// Add the collider to the rigid/static body
 	rigidBody->setCollisionShape(collisionShape.get());

@@ -145,14 +145,14 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	// std::unique_ptr<CollisionMesh> collisionMesh = nullptr;
-
 	GLuint VB;
 	GLuint IB;
 	GLuint tex = -1;
 
 	// Physics rigidbody
 	bool addedToPhysicsWorld = false;
+	std::vector<std::unique_ptr<btTriangleMesh>> trimeshs;
+	std::vector<std::unique_ptr<btConvexTriangleMeshShape>> shapes;
 	std::unique_ptr<btDefaultMotionState> motionState = nullptr;
 	std::unique_ptr<btRigidBody> rigidBody = nullptr;
 	std::unique_ptr<btCollisionShape> collisionShape = nullptr;
