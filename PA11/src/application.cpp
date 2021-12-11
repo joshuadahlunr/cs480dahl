@@ -37,26 +37,9 @@ bool Application::initialize(const Arguments& args) {
 	world.initialize();
 
 	// Create the NPCs
-	int numNPCs = 10;
-	for (int i = 0; i < numNPCs; i++) {
-		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
-		getSceneRoot()->addChild(npc);
-		std::string modelFile = "cow.obj";
-		npc->initializeGraphics(args, modelFile, "texturemap.png");
-
-		float range = 50;
-		float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
-		float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
-		float y = -50;
-		if (!isnan(world.getWorldHeight(glm::ivec3(x, 0, z))))
-			y = world.getWorldHeight(glm::ivec3(x, 0, z));
-	
-		npc->setPosition(glm::vec3(x, y, z));
-		// Create Physics
-		npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::Cow, /*mass*/ 100);
-		npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
-		npc->makeDynamic();
-		npcs.push_back(npc);
+	int numCows = 10;
+	for (int i = 0; i < numCows; i++) {
+		createNPC("cow");
 	}
 
 	// Hookup the input events
@@ -68,12 +51,35 @@ bool Application::initialize(const Arguments& args) {
 	return ret;
 }
 
-void Application::update(float dt) {
-	world.update(dt);
+void Application::createNPC(std::string type) {
+	std::shared_ptr<NPC> npc = std::make_shared<NPC>();
+	std::string modelFile = "";
+	if (type == "cow") {
+		modelFile = "cow.obj";
+	}
+	getSceneRoot()->addChild(npc);
+	npc->initializeGraphics(args, modelFile, "texturemap.png");
 
+	float range = 50;
+	float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
+	float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
+	float y = -50;
+	if (!isnan(world.getWorldHeight(glm::ivec3(x, 0, z))))
+		y = world.getWorldHeight(glm::ivec3(x, 0, z));
+
+	npc->setPosition(glm::vec3(x, y, z));
+	// Create Physics
+	npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::Cow, /*mass*/ 100);
+	npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
+	npc->makeDynamic();
+	npcs.push_back(npc);
+}
+
+void Application::controlUFO(float dt) {
 	// Capture input
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 	inputDirection = glm::vec3();
+	abducting = false;
 	if (keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP])
 		inputDirection += glm::vec3(1,0,0);
 	if (keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN])
@@ -86,6 +92,8 @@ void Application::update(float dt) {
 		inputDirection += glm::vec3(0,0,1);
 	if (keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN])
 		inputDirection += glm::vec3(0,0,-1);
+	if (keystate[SDL_SCANCODE_SPACE])
+		abducting = true;
 
 	// UFO Control
 	float speed = 10;
@@ -120,45 +128,97 @@ void Application::update(float dt) {
     // Tilt the ufo relative to velocity
 	glm::vec3 noYVel = glm::vec3(velocity.x, 0, velocity.z);
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
+}
 
-	// Create NPCs at a radius around the UFO if not enough NPCs in proximity
+void Application::repositionNPCs(float dt) {
 	float proximity = 50;
 	//float angle = (float) (rand() % 360);
 	//float probOfRepos = 0.2;
 	float innerRadiusPercentage = .75;
-	float realSpeed = glm::length(velocity);
 	glm::vec3 direction = glm::normalize(velocity);
-	
-	// Only modify things when UFO is moving
-	if (realSpeed > 0.2f) {
-		// Check a NPC position in relationship to the moving UFO
-		if (glm::distance(npcs[npci]->getPosition(), glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) > proximity) {
-			int angleTolerance = 90;
-			float angle = std::atan2(direction.x, direction.z) + glm::radians((float) (rand() % angleTolerance) - (angleTolerance / 2));
-			//std::cout << glm::degrees(angle) << " " << direction.x << " " << direction.z << std::endl;
-			glm::vec3 newPos = ufo->getPosition() + (glm::vec3(glm::sin(angle), 0, glm::cos(angle)) * proximity * innerRadiusPercentage);
-			float y = world.getWorldHeight((glm::ivec3) newPos);
-			if (!isnan(y)) {
-				newPos.y = y;
-				//std::cout << glm::distance(newPos, glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) << std::endl;
-				npcs[npci]->setPosition(newPos);
-				npcs[npci]->setLinearVelocity(glm::vec3());
-				npcs[npci]->clearTargets();
-			}
-		}
-		// Increment a once per frame index for npcs
-		npci ++;
-		if (npci >= npcs.size()) {
-			npci = 0;
+
+	// Check a NPC position in relationship to the moving UFO
+	if (glm::distance(npcs[npci]->getPosition(), glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) > proximity) {
+		// Get the angle relative to UFO movement and within some random range
+		int angleTolerance = 90;
+		float angle = std::atan2(direction.x, direction.z) + glm::radians((float) (rand() % angleTolerance) - (angleTolerance / 2));
+		//std::cout << glm::degrees(angle) << " " << direction.x << " " << direction.z << std::endl;
+		glm::vec3 newPos = ufo->getPosition() + (glm::vec3(glm::sin(angle), 0, glm::cos(angle)) * proximity * innerRadiusPercentage);
+		float y = world.getWorldHeight((glm::ivec3) newPos + glm::ivec3(0,10,0));
+		if (!isnan(y)) {
+			newPos.y = y;
+			//std::cout << glm::distance(newPos, glm::vec3(ufo->getPosition().x, npcs[npci]->getPosition().y, ufo->getPosition().z)) << std::endl;
+			npcs[npci]->setPosition(newPos);
+			npcs[npci]->setLinearVelocity(glm::vec3());
+			npcs[npci]->clearTargets();
 		}
 	}
+	// Increment a once per frame index for npcs
+	npci ++;
+	if (npci >= npcs.size()) {
+		npci = 0;
+	}
+}
 
-	//ufo->getPosition() + glm::vec3(glm::sin(glm::radians(angle)) * proximity * innerRadiusPercentage, 0, glm::cos(glm::radians(angle)) * proximity * innerRadiusPercentage)
+void Application::update(float dt) {
+	// Update the physics world
+	world.update(dt);
 
+	// Move the UFO with input
+	controlUFO(dt);
 
-	
-	// Print world height under ufo
-	//std::cout << "Height: " << world.getWorldHeight((glm::ivec3) ufo->getPosition()) << std::endl;
+	// Only modify npcs when UFO is moving
+	float realSpeed = glm::length(velocity);
+	if (realSpeed > 0.2f) {
+		// Move NPC's to new locations
+		repositionNPCs(dt);
+	}
+
+	// Attempt to abduct something
+	float abductionDistance = 20;
+	if (abducting) {
+		// Find a new abduction target
+		if (abductionTarget == nullptr) {
+			std::shared_ptr<NPC> closest = nullptr;
+			float bestDistance = 999999;
+			for (std::shared_ptr<NPC> npc : npcs) {
+				float distance = glm::distance(npc->getPosition(), ufo->getPosition());
+				if (distance < abductionDistance && distance < bestDistance) {
+					bestDistance = distance;
+					closest = npc;
+				}
+			}
+			abductionTarget = closest;
+			if (abductionTarget != nullptr) {
+				// if new target found
+				// auto light = std::make_shared<SpotLight>();
+				// ufo->addChild(light);
+				// light->setDirection({0, -1, 0});
+				// light->setDiffuse({.8, .8, 1, 1});
+
+				abductionTarget->getRigidBody().setGravity({0, 0, 0});
+				abductionTarget->setMovementState(false);
+				abductionTarget->setAngularVelocity(glm::vec3((rand() % 2) - 1, (rand() % 2) - 1, (rand() % 2) - 1));
+			}
+		} else {
+			if (glm::distance(abductionTarget->getPosition(), ufo->getPosition()) < abductionDistance) {
+				glm::vec3 direction = glm::normalize(ufo->getPosition() - abductionTarget->getPosition());
+				abductionTarget->setLinearVelocity(direction * 100.0f * dt);
+			} else {
+				// We moved away and need to drop the target
+				abductionTarget->getRigidBody().setGravity({0, -9.81, 0});
+				abductionTarget->setMovementState(true);
+				abductionTarget = nullptr;
+			}
+		}
+	} else {
+		// Release target
+		if (abductionTarget != nullptr) {
+			abductionTarget->getRigidBody().setGravity({0, -9.81, 0});
+			abductionTarget->setMovementState(true);
+			abductionTarget = nullptr;
+		}
+	}
 }
 
 void Application::render(Shader* boundShader){

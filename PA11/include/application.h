@@ -20,6 +20,10 @@ public:
 	void render(Shader* boundShader) override;
 	void drawGUI();
 
+	void createNPC(std::string type);
+	void controlUFO(float dt);
+	void repositionNPCs(float dt);
+
 	virtual void keyboard(const SDL_KeyboardEvent& e);
 	void mouseButton(const SDL_MouseButtonEvent& e);
 	void mouseMotion(const SDL_MouseMotionEvent& e);
@@ -29,12 +33,16 @@ public:
 	std::vector<std::shared_ptr<NPC>> npcs;
 
 	Arguments args;
-
 	VoxelWorld world;
+
 private:
 	glm::vec3 inputDirection;
 	glm::vec3 desiredVelocity;
 	glm::vec3 velocity;
+
+	bool abducting = false;
+	std::shared_ptr<NPC> abductionTarget = nullptr;
+
 	float accelerationRate = 0.5;
 	int npci = 0; // npc index
 };
