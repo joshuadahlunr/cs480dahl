@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 	if(!args.getCanContinue()) return 1;
 
 	// Start an engine
-	Application *engine = new Application("Pinball Game", 1000, 1000);
+	Application *engine = new Application("Beef Thief", 1000, 1000);
 	if(!engine->initialize(args)) {
 		printf("The engine failed to start.\n");
 		delete engine;

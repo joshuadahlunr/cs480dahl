@@ -18,7 +18,7 @@ bool Application::initialize(const Arguments& args) {
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
 	ufo->setPosition({8, 0, 8});
-	ufo->initializeGraphics(args, "ufo.obj");
+	ufo->initializeGraphics(args, "ufo.obj", "texturemap.png");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
 	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
@@ -42,8 +42,9 @@ bool Application::initialize(const Arguments& args) {
 		std::shared_ptr<NPC> npc = std::make_shared<NPC>();
 		getSceneRoot()->addChild(npc);
 		npc->setPosition(glm::vec3(0,0,0));
-		std::string modelFile = "cube.obj";
-		npc->initializeGraphics(args, modelFile);
+		std::string modelFile = "cow.obj";
+		npc->initializeGraphics(args, modelFile, "texturemap.png");
+
 		// Create Physics
 		// npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::UFO, /*mass*/ 100);
 		// npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, modelFile);
