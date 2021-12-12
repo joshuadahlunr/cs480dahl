@@ -231,7 +231,7 @@ void Graphics::render() {
 
 	
 	// Then render the scene normally
-	auto windowDims = engine->getWindow()->getDimensions();
+	auto windowDims = getCamera()->getDimensions();
 	glViewport(0, 0, windowDims.x, windowDims.y);
 
 	//clear the screen
