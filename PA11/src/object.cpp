@@ -22,9 +22,6 @@
 #include <BulletCollision/CollisionShapes/btShapeHull.h>
 
 Object::Object() {
-	// Create the vertex and face buffers for this object
-	glGenBuffers(1, &VB);
-	glGenBuffers(1, &IB);
 	// Mark that we don't have a parent
 	parent = nullptr;
 	// Ensure that we don't have a physics component
@@ -48,7 +45,10 @@ Object::~Object() {
 		Physics::getSingleton().getWorld()->removeRigidBody(rigidBody.get());
 }
 
-bool Object::initializeGraphics(const Arguments& args, std::string filepath, std::string texturePath) {
+bool Object::initializeGraphics(const Arguments& args, std::string filepath, std::string texturePath, bool inThread) {
+	// If the invalid texture hasn't been set yet, load the invalid texture
+	if(invalidTex == std::numeric_limits<GLuint>::max()) initalizeInvalidTexture(args);
+
 	bool success = true;
 	// If the filepath doesn't already have the shader directory path, add the shader dirrectory path
 	std::string modelDirectory = args.getResourcePath() + "models/";
@@ -56,10 +56,11 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 		filepath = modelDirectory + filepath;
 
 	// Load the model
-	success &= LoadModelFile(args, filepath);
+	success &= LoadModelFile(args, filepath, glm::mat4(1), inThread);
 
-	// Load the texture (error texture if none provided)
-	success &= loadTextureFile(args, args.getResourcePath() + "textures/" + texturePath, false);
+	// Load the texture (error texture if none provided, loading fails, or we are in a thread)
+	if(texturePath.empty() || inThread || !loadTextureFile(args, args.getResourcePath() + "textures/" + texturePath, false))
+		tex = invalidTex;
 
 	// Ensure that the child model matrix is the same as the normal model matrix
 	childModel = model;
@@ -68,6 +69,14 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 	for(auto& child: children)
 		success &= child->initializeGraphics(args);
 
+	return success;
+}
+
+GLuint Object::invalidTex = -1;
+
+bool Object::initalizeInvalidTexture(const Arguments& args){
+	auto success = loadTextureFile(args, args.getResourcePath() + "textures/invalid.png", false);
+	if(success) invalidTex = tex;
 	return success;
 }
 
@@ -287,7 +296,7 @@ bool Object::createMeshCollider(const Arguments& args, Physics& physics, size_t 
 	return true;
 }
 
-bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation) {
+bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation, bool inThread) {
 	// Load the model
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
@@ -372,14 +381,21 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 				obj->indices.push_back(mesh->mFaces[face].mIndices[index]);
 
 		// Upload the model to the GPU
-		obj->finalizeModel();
+		if(!inThread) obj->finalizeModel();
 	}
 
 	return true;
 }
 
 // Uploads the model data to the GPU
-void Object::finalizeModel() {
+void Object::finalizeModel(bool recursive) {
+	// If graphics hasn't been initalized
+	if(VB == std::numeric_limits<GLuint>::max() && IB == std::numeric_limits<GLuint>::max()){
+		// Create the vertex and face buffers for this object
+		glGenBuffers(1, &VB);
+		glGenBuffers(1, &IB);
+	}
+
 	// Add the data to the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VB);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
@@ -387,6 +403,10 @@ void Object::finalizeModel() {
 	// Add the data to the face buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+	if(recursive)
+		for(auto& child: children)
+			child->finalizeModel(true);
 }
 
 // Function which loads a texture for this model and binds it
@@ -429,43 +449,46 @@ void Object::update(float dt) {
 }
 
 void Object::render(Shader* boundShader) {
-	// Set the model matrix
-	glUniformMatrix4fv(boundShader->getUniformLocation("modelMatrix"), 1, GL_FALSE, glm::value_ptr(getModel()));
+	// Only render if graphics have been initalized...
+	if(VB != std::numeric_limits<GLuint>::max() && IB != std::numeric_limits<GLuint>::max()){
+		// Set the model matrix
+		glUniformMatrix4fv(boundShader->getUniformLocation("modelMatrix"), 1, GL_FALSE, glm::value_ptr(getModel()));
 
-	// Enable 3 vertex attributes
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
+		// Enable 3 vertex attributes
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
 
-	// Specify that we are using the vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VB);
-	// Specify where in the vertex buffer we can find position, color, and UVs
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
+		// Specify that we are using the vertex buffer
+		glBindBuffer(GL_ARRAY_BUFFER, VB);
+		// Specify where in the vertex buffer we can find position, color, and UVs
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,uv));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
 
 
-	//bind texture (if it exists)
-	if(tex != -1) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex);
+		//bind texture (if it exists)
+		if(tex != -1) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, tex);
+		}
+
+		// Specify that we are using the index buffer
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
+
+		// Enable backface culling
+		glEnable(GL_CULL_FACE);
+		// Draw the triangles
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+		// Disable the attributes
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
 	}
-
-	// Specify that we are using the index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-
-	// Enable backface culling
-	glEnable(GL_CULL_FACE);
-	// Draw the triangles
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
-	// Disable the attributes
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
 
 	// Pass along to children.
 	for(auto& child: children)
