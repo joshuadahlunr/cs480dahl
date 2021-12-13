@@ -35,6 +35,9 @@ Sound::Sound() {
 	// soundEffects["Charging"] = new SoundEffect("../sound/mixkit-arcade-rising-231.wav");
 	// soundEffects["Bounce"] = new SoundEffect("../sound/mixkit-arcade-bonus-alert-767.wav");
 	// soundEffects["LoseBall"] = new SoundEffect("../sound/mixkit-retro-arcade-lose-2027.wav");
+	soundEffects["Abducting"] = new SoundEffect("../sounds/505379__bloodpixelhero__alien-alarm.wav");
+	soundEffects["Score"] = new SoundEffect("../sounds/mixkit-retro-game-notification-212.wav");
+	soundEffects["Penalty"] = new SoundEffect("../sounds/mixkit-failure-arcade-alert-notification-240.wav");
 }
 
 Sound::~Sound() {
@@ -48,6 +51,7 @@ Sound::~Sound() {
 }
 
 void Sound::startSound(std::string key, bool fromBeginning, bool looping) {
+	std::cout << key << std::endl;
 	SoundEffect* effect = soundEffects[key];
 	// If the effect is already playing and we aren't starting it over... abort!
 	if(effect->isPlaying && !fromBeginning)
