@@ -64,6 +64,8 @@ bool Application::initialize(const Arguments& args) {
 	Engine::mouseMotionEvent += [&](auto event) { mouseMotion(event); };
 	Engine::mouseWheelEvent += [&](auto event) { mouseWheel(event); };
 
+	Engine::getSound()->startSound("Music", true, true);
+
 	reset();
 
 	return ret;
