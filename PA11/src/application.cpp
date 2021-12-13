@@ -48,12 +48,12 @@ bool Application::initialize(const Arguments& args) {
 	world->initialize();
 
 	// Create the NPCs
-	int numCows = 5;
+	int numCows = 3;
 	for (int i = 0; i < numCows; i++) {
 		createNPC("cow");
 	}
 
-	int numAliens = 5;
+	int numAliens = 7;
 	for (int i = 0; i < numAliens; i++) {
 		createNPC("alien");
 	}
@@ -64,6 +64,8 @@ bool Application::initialize(const Arguments& args) {
 	Engine::mouseMotionEvent += [&](auto event) { mouseMotion(event); };
 	Engine::mouseWheelEvent += [&](auto event) { mouseWheel(event); };
 
+	reset();
+
 	return ret;
 }
 
@@ -73,9 +75,11 @@ void Application::createNPC(std::string type) {
 	if (type == "cow") {
 		npc = std::make_shared<Cow>(world);
 		modelFile = "cow.obj";
+		npc->setSpeed(5);
 	} else if (type == "alien") {
 		npc = std::make_shared<Alien>(world);
 		modelFile = "alien.obj";
+		npc->setSpeed(1);
 	}
 	getSceneRoot()->addChild(npc);
 	npc->initializeGraphics(args, modelFile, "texturemap.png");
@@ -187,7 +191,7 @@ void Application::repositionNPC(std::shared_ptr<NPC> npc, bool checkDistance = t
 
 void Application::reset() {
 	float height = world->getWorldHeight({8, 8});
-	if(std::isnan(height)) height = 0;
+	if(std::isnan(height)) height = -25;
 	ufo->setPosition(glm::vec3(8,height + 20,8));
 	timeRemaining = 120;
 	points = 0;
@@ -267,6 +271,16 @@ void Application::update(float dt) {
 					// NPC is being abducted so disable abduction
 					npc->setIsBeingAbducted(false);
 				} 
+			}
+			// If the UFO is near the alien set the alien to move towards the UFO
+			if (npc->getTypeID() == 2) {
+				float distanceToUFO = glm::distance(ufo->getPosition(), npc->getPosition());
+				if (distanceToUFO < 75) {
+					npc->setWaypoint(ufo->getPosition());
+					npc->setSpeed(20);
+				} else {
+					npc->setSpeed(7);
+				}
 			}
 		}
 	}

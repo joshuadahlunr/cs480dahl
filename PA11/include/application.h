@@ -54,7 +54,7 @@ private:
 	glm::vec3 velocity;
 
 	bool abducting = false;
-	float timeRemaining = 60;
+	float timeRemaining = 0;
 
 	float accelerationRate = 0.5;
 	int npci = 0; // npc index
