@@ -22,7 +22,7 @@ public:
 
 	Object();
 	~Object();
-	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png");
+	virtual bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "", bool inThread = false);
 	virtual bool initializePhysics(const Arguments& args, Physics& physics, int collisionGroup = CollisionGroups::CG_NONE, float mass = 1, bool addToWorldAutomatically = true);
 	void addToPhysicsWorld(Physics& physics, int collisionGroup = CollisionGroups::CG_NONE);
 	virtual void update(float dt);
