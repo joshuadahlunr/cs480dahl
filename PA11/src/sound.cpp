@@ -35,6 +35,7 @@ Sound::Sound() {
 	// soundEffects["Charging"] = new SoundEffect("../sound/mixkit-arcade-rising-231.wav");
 	// soundEffects["Bounce"] = new SoundEffect("../sound/mixkit-arcade-bonus-alert-767.wav");
 	// soundEffects["LoseBall"] = new SoundEffect("../sound/mixkit-retro-arcade-lose-2027.wav");
+	soundEffects["Music"] = new SoundEffect("../sounds/410574__yummie__game-background-music-loop-short.mp3");
 	soundEffects["Abducting"] = new SoundEffect("../sounds/505379__bloodpixelhero__alien-alarm.wav");
 	soundEffects["Score"] = new SoundEffect("../sounds/mixkit-retro-game-notification-212.wav");
 	soundEffects["Penalty"] = new SoundEffect("../sounds/mixkit-failure-arcade-alert-notification-240.wav");
