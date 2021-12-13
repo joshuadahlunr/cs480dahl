@@ -21,7 +21,7 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({8, 0, 8});
+	ufo->setPosition({8, -30, 8});
 	ufo->initializeGraphics(args, "ufo.obj", "texturemap.png");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::CG_UFO, /*mass*/ 100);
@@ -186,8 +186,10 @@ void Application::repositionNPC(std::shared_ptr<NPC> npc, bool checkDistance = t
 }
 
 void Application::reset() {
-	ufo->setPosition(glm::vec3(0,0,0));
-	timeRemaining = 60;
+	float height = world->getWorldHeight({8, 8});
+	if(std::isnan(height)) height = 0;
+	ufo->setPosition(glm::vec3(8,height + 20,8));
+	timeRemaining = 120;
 	points = 0;
 }
 
@@ -240,7 +242,7 @@ void Application::update(float dt) {
 
 					// move npc towards UFO
 					glm::vec3 npcToUfoDirection = -dirVec;
-					float abductionSpeed = 100.0f;
+					float abductionSpeed = 200.0f;
 					npc->setLinearVelocity(npcToUfoDirection * abductionSpeed * dt);
 
 					// check if object is captured
