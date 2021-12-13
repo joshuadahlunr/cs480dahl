@@ -95,7 +95,7 @@ void GUI::render() {
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
 			ImGui::NewLine();
-			TextCenter("Pin Ball Game");
+			TextCenter("Beef Thief");
 			ImGui::NewLine();
 			TextCenter("A 2021 CS 480/680 Group Project");
 			TextCenter("- Joshua Dahl");
@@ -105,10 +105,11 @@ void GUI::render() {
 			TextCenter("University of Nevada, Reno");
 			ImGui::NewLine();
 
-			TextCenter("The objective of the game is to collect\n as many cows as you can within the time limit.\n Collecting aliens reduces your score while collecting cows increases your score.");
+			TextCenter("The objective of the game is to collect"); 
+			TextCenter("as many cows as you can within the time limit.");
+			TextCenter("The more visible you are the more your score decreases");
+			TextCenter("while collecting cows increases your score.");
 			ImGui::NewLine();
-
-
 
 			ImGui::TextColored(ImVec4(.9,.9,1,1), "Key Bindings");
 			if (ImGui::BeginTable("", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
@@ -221,9 +222,11 @@ void GUI::render() {
 
 		TextCenter("Time Remaining: " + stream.str() + "s");
 		TextCenter("Points: " + std::to_string(app->getScore()));
-		stream << std::fixed << std::setprecision(2) << app->visibility;
+		std::stringstream vis;
 
-		TextCenter("Visibility: " + std::to_string(app->visibility));
+		vis << std::fixed << std::setprecision(2) << (app->visibility * 100);
+
+		TextCenter("Visibility: " + vis.str() );
 		TextCenter("Sightings: " + std::to_string(app->sightings));
 
 
