@@ -139,9 +139,9 @@ void Application::controlUFO(float dt) {
 	ufo->setLinearVelocity(velocity);
 
 	if (glm::length(velocity) > (speed / 2.0f)) {
-		visibility += 0.1 * dt;
+		visibility += 0.05 * dt;
 	} else {
-		visibility -= 0.1 * dt;
+		visibility -= 0.2 * dt;
 	}
 
 	if (visibility < 0) {
@@ -245,6 +245,8 @@ void Application::update(float dt) {
 		if (npci >= npcs.size()) {
 			npci = 0;
 		}
+
+		//std::cout << npcs[npci]->getPosition().x << npcs[npci]->getPosition().y << npcs[npci]->getPosition().y << std::endl;
 
 		// Attempt to abduct something
 		float abductionDistance = 20;
