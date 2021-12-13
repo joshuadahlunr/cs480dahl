@@ -29,6 +29,9 @@ bool Camera::initialize(int w, int h) {
 	minCap = 10.0;
 	maxCap = 40;
 
+	// Save the window's dimensions
+	dimensions = {w, h};
+
 	//Init projection matrices
 	projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
 								 float(w)/float(h), //Aspect Ratio, so Circles stay Circular
@@ -83,7 +86,7 @@ void Camera::update(float dt) {
 	eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
 	// Preform a raycast to ensure that the camera doesn't clip through
-	auto result = app->world.raycast(focusPos, eyePos, CollisionGroups::Enviornment);
+	auto result = app->getWorld()->raycast(focusPos, eyePos, CollisionGroups::CG_ENVIRONMENT);
 	if(result) eyePos = result->point + result->normal * .1f;
 
 	// View dynamically updates with camera control movements
@@ -97,6 +100,7 @@ int Camera::windowResizeEventListener(void* data, SDL_Event* event) {
 		Camera* camera = (Camera*) data;
 
 		int w = event->window.data1, h = event->window.data2;
+		camera->dimensions = {w, h}; // Save the window's dimensions
 		camera->projection = glm::perspective( 45.0f, //the FoV typically 90 degrees is good which is what this is set to
 											float(w)/float(h), //Aspect Ratio, so Circles stay Circular
 											0.01f, //Distance to the near plane, normally a small value like this

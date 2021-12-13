@@ -6,7 +6,6 @@
 #include "voxel_world.h"
 #include "light.h"
 
-
 #include <vector>
 
 class NPC;
@@ -14,17 +13,22 @@ class NPC;
 // Class which provides engine related internals
 class Application: public Engine {
 public:
-	Application(std::string name, int width, int height): Engine(name, width, height), world(args) {}
-	Application(std::string name): Engine(name), world(args) {}
+	Application(std::string name, int width, int height): Engine(name, width, height), world(std::make_shared<VoxelWorld>(args)) {}
+	Application(std::string name): Engine(name), world(std::make_shared<VoxelWorld>(args)) {}
+
+	~Application() {leaderboard.save(); };
 
 	bool initialize(const Arguments& args);
 	void update(float dt) override;
 	void render(Shader* boundShader) override;
 	void drawGUI();
+	void reset();
 
 	void createNPC(std::string type);
 	void controlUFO(float dt);
-	void repositionNPCs(float dt);
+	void repositionNPC(std::shared_ptr<NPC> npc, bool checkDistance);
+	int getScore() {return points; };
+	float getTimeRemaining() {return timeRemaining;};
 
 	virtual void keyboard(const SDL_KeyboardEvent& e);
 	void mouseButton(const SDL_MouseButtonEvent& e);
@@ -34,16 +38,23 @@ public:
 	Object::ptr ufo;
 	std::vector<std::shared_ptr<NPC>> npcs;
 
+	std::shared_ptr<VoxelWorld> getWorld() const { return world; }
+
 	Arguments args;
-	VoxelWorld world;
+
+	int points = 0;
+	bool gameOver = false;
+	Leaderboard leaderboard;
 
 private:
+	std::shared_ptr<VoxelWorld> world;
+
 	glm::vec3 inputDirection;
 	glm::vec3 desiredVelocity;
 	glm::vec3 velocity;
 
 	bool abducting = false;
-	std::shared_ptr<NPC> abductionTarget = nullptr;
+	float timeRemaining = 60;
 
 	float accelerationRate = 0.5;
 	int npci = 0; // npc index

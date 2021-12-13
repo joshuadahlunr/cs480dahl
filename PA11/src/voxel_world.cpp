@@ -90,10 +90,10 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				if(nextMesh->isPhysicsInitalized()) continue; // Ignore anything that already has collisions
 
 				// Generate the chunk's collision mesh
-				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment, 1'000'000, false);
+				nextMesh->initializePhysics(args, Physics::getSingleton(), CollisionGroups::CG_ENVIRONMENT, 1'000'000, false);
 				nextMesh->createMeshCollider(args, Physics::getSingleton(), CONCAVE_MESH);
 				nextMesh->makeStatic();
-				nextMesh->addToPhysicsWorld(Physics::getSingleton(), CollisionGroups::Enviornment);
+				nextMesh->addToPhysicsWorld(Physics::getSingleton(), CollisionGroups::CG_ENVIRONMENT);
 
 			// If there aren't colliders to generate... sleep for 5 milliseconds
 			} else std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -282,7 +282,7 @@ std::optional<VoxelWorld::RaycastResult> VoxelWorld::raycast(glm::vec3 start, gl
 
 // Function which determines the highest Y of the world value given its X and Z coordinate
 float VoxelWorld::getWorldHeight(glm::ivec2 worldPos){
-	auto result = raycast( dir2end({X(worldPos), 255, Z(worldPos)}, {0, -1, 0}), CollisionGroups::Enviornment );
+	auto result = raycast( dir2end({X(worldPos), 255, Z(worldPos)}, {0, -1, 0}), CollisionGroups::CG_ENVIRONMENT );
 	if(!result) return NAN;
 	
 	return result->point.y;

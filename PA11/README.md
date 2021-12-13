@@ -1,12 +1,23 @@
 # PA11: Beef Theif
 
-## Extra Credit
+## Features
 
-- 
+- Infinate Smooth Voxel Terrain
+- Full Physics Integration
+- UFO Movement
+- Cow Abduction
+- Person Avoidance
+
+### Extra Credit / Not Covered in Class
+
+- Shadows
+- Compute Shaders
+- Multi-threading
 
 ## Team
 
 Our team is composed of the following members:  
+
 - Joshua Dahl
 - Bryan Dedeurwaerder
 - Jonathan Peters
@@ -14,6 +25,7 @@ Our team is composed of the following members:
 # Arguments and Operation
 
 The command to run the program (assuming that we compiled in a build directory one level below root) is:
+
 ```bash
 ./PA11 -c config.json
 ```
@@ -63,7 +75,12 @@ git submodule init
 git submodule update
 ```
 
-If git is not being used libraries will need to be download manually and then must then be extracted into `PA11/thirdparty` (The symbolic-links must be overwritten).
+If git is not being used libraries will need to be download manually and then must then be extracted into `PA11/thirdparty` (The symbolic-links must be overwritten). These additional libraries can be found by visting:
+
+- https://github.com/ocornut/imgui
+- https://github.com/Auburn/FastNoise2
+- https://github.com/jdbener/Compute-Shaders
+- https://github.com/kmammou/v-hacd
 
 ## CMake Instructions
 The building of the project is done using CMake (at least version 3.8), installation with apt-get or brew may be necessary. A compiler capable of compiling c++17 code is required (any compiler shipped with a modern distribution of Linux should be sufficient).

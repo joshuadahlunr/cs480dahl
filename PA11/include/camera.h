@@ -20,6 +20,8 @@ public:
 	glm::vec3 getLookDirection() { return normalize(focusPos - eyePos);}
 	void setFocus(std::shared_ptr<Object> object) {focusObj = object;}
 
+	glm::ivec2 getDimensions() const { return dimensions; }
+
 	// The camera updates some matricies when the window is resized.
 	static int windowResizeEventListener(void* data, SDL_Event* event);
 
@@ -45,6 +47,8 @@ private:
 	float distanceFromFocusPos;
 	float zoomScale;
 	float minCap, maxCap;
+
+	glm::ivec2 dimensions;
 
 	static constexpr float orbitAngleChangeRate = 270.0;
 };

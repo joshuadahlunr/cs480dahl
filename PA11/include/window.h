@@ -20,13 +20,10 @@ public:
 
 	SDL_Window* getWindow() const { return gWindow; }
 	SDL_GLContext getContext() const { return gContext; }
-	glm::ivec2 getDimensions() const { return dimensions; }
 
 private:
 	SDL_Window* gWindow;
 	SDL_GLContext gContext;
-
-	glm::ivec2 dimensions;
 };
 
 #endif /* WINDOW_H */

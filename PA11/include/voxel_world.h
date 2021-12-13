@@ -54,8 +54,8 @@ struct VoxelWorld {
 	std::optional<std::reference_wrapper<Chunk::Voxel>> getVoxel(glm::ivec3 worldPos);
 
 	// Function which preforms a raycast between two points and returns the first intersection. (Optionally things may be masked from the collisions)	
-	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd, int collisionMask = CollisionGroups::All){ return raycast(startEnd.first, startEnd.second, collisionMask); }
-	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end, int collisionMask = CollisionGroups::All);
+	std::optional<RaycastResult> raycast(std::pair<glm::vec3, glm::vec3> startEnd, int collisionMask = CollisionGroups::CG_ALL){ return raycast(startEnd.first, startEnd.second, collisionMask); }
+	std::optional<RaycastResult> raycast(glm::vec3 start, glm::vec3 end, int collisionMask = CollisionGroups::CG_ALL);
 	// Function which determines the highest Y of the world value given its X and Z coordinate
 	float getWorldHeight(glm::ivec2 worldPos);
 	float getWorldHeight(glm::ivec3 worldPos) { return getWorldHeight({worldPos.x, worldPos.z}); }
