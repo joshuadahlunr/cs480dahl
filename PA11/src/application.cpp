@@ -303,7 +303,7 @@ void Application::update(float dt) {
 			// If the UFO is near the alien set the alien to move towards the UFO
 			if (npc->getTypeID() == 2) {
 				float distanceToUFO = glm::distance(ufo->getPosition(), npc->getPosition());
-				if (distanceToUFO < 75) {
+				if ((100 - distanceToUFO) * visibility > 10) {
 					npc->setWaypoint(ufo->getPosition());
 					npc->setSpeed(20);
 					if (distanceToUFO < abductionDistance) {
