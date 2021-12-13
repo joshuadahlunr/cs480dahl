@@ -32,7 +32,7 @@ void NPC::update(float dt) {
 			float angle = std::atan2(getLinearVelocity().z, getLinearVelocity().x);
 
 			if (glm::length(getLinearVelocity()) > 0.5f) 
-				rotate(-angle, glm::vec3(0, 1, 0));
+				setRotation(glm::quat(glm::vec3(0,-angle, 0)));
 			//rotate(glm::degrees(angle), glm::vec3(0,1,0));
 
 			float speed = 5;
