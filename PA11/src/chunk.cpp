@@ -505,7 +505,7 @@ void Chunk::generateTrees(const Arguments& args) {
 				tree->setPosition(v.vertex, true);
 				tree->rotate(rand(), glm::vec3(0, 1, 0));
 				tree->initializeGraphics(args, rand() % 100 < 50 ? "tree1.obj" : "tree2.obj", "", true);
-				tree->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment);
+				tree->initializePhysics(args, Physics::getSingleton(), CollisionGroups::CG_ENVIRONMENT);
 			}
 		}
 	}
