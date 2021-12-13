@@ -7,6 +7,7 @@
 - UFO Movement
 - Cow Abduction
 - Person Avoidance
+- Resizeable Window
 
 ### Extra Credit / Not Covered in Class
 
@@ -42,7 +43,9 @@ The command to run the program (assuming that we compiled in a build directory o
 
 
 ## Operation
-- Holding right click will let you rotate the camera
+- Holding right click will let you rotate the camera.
+- Arrow keys or WASD to move.
+- Space to abduct.
 
 
 # Dependencies, Building, and Running
