@@ -52,7 +52,6 @@ Sound::~Sound() {
 }
 
 void Sound::startSound(std::string key, bool fromBeginning, bool looping) {
-	std::cout << key << std::endl;
 	SoundEffect* effect = soundEffects[key];
 	// If the effect is already playing and we aren't starting it over... abort!
 	if(effect->isPlaying && !fromBeginning)
