@@ -21,13 +21,20 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({8, -30, 8});
+	ufo->setPosition({8, -100, 8});
 	ufo->initializeGraphics(args, "ufo.obj", "texturemap.png");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::CG_UFO, /*mass*/ 100);
 	ufo->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "ufo.obj");
 	ufo->makeDynamic();
 	ufo->getRigidBody().setGravity({0, 0, 0}); // Disable gravity on the UFO
+	// Sleep until the ground under the UFO has spawned, and then set the UFO's position relative to the ground
+	std::thread([this](){
+		while(std::isnan(world->getWorldHeight({8, 8})))
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		
+		reset();
+	}).detach();
 
 	ufoLight = std::make_shared<SpotLight>();
 	ufo->addChild(ufoLight);
