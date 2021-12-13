@@ -110,10 +110,14 @@ void Application::controlUFO(float dt) {
 	if (keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN])
 		inputDirection += glm::vec3(0,0,-1);
 	if (keystate[SDL_SCANCODE_SPACE]) {
-		abducting = true;
-		ufoLight->setCutoffAngle(75);
+		if(!abducting) {
+			abducting = true;
+			Engine::getSound()->startSound("Abducting", true, true);
+			ufoLight->setCutoffAngle(75);
+		}
 	} else {
 		abducting = false;
+		Engine::getSound()->stopSound("Abducting");
 		ufoLight->setCutoffAngle(0);
 	}
 
@@ -271,9 +275,11 @@ void Application::update(float dt) {
 						npc->setIsBeingAbducted(false);
 						repositionNPC(npc, false);
 						if (npc->getTypeID() == 2) {
+							Engine::getSound()->startSound("Penalty");
 							timeRemaining = 0;
 						} else {
 							points += rand() % 5 + 5;
+							Engine::getSound()->startSound("Score");
 						}
 						std::cout << "Your score is: " << points << std::endl;
 					}
