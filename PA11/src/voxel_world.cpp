@@ -54,6 +54,7 @@ void VoxelWorld::initialize(glm::ivec2 playerChunk /*= {0, 0}*/){
 				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 
 				nextMesh->rebuildMesh(args);
+				nextMesh->generateTrees(args);
 
 				if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 				nextMesh->state = Chunk::GenerateState::Meshed;

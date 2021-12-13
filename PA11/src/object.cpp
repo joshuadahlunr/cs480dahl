@@ -75,7 +75,7 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 GLuint Object::invalidTex = -1;
 
 bool Object::initalizeInvalidTexture(const Arguments& args){
-	auto success = loadTextureFile(args, args.getResourcePath() + "textures/invalid.png", false);
+	auto success = loadTextureFile(args, args.getResourcePath() + "textures/texturemap.png", false);
 	if(success) invalidTex = tex;
 	return success;
 }
@@ -325,19 +325,19 @@ bool Object::LoadModelFile(const Arguments& args, const std::string& path, glm::
 		// Extract this mesh from the scene
 		const aiMesh* mesh = scene->mMeshes[meshIndex];
 
-		// If the mesh has a material...
-		if(mesh->mMaterialIndex > 0) {
-			// Extract the material from the scene
-			const aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
-			// Extract the path to the diffuse texture
-			aiString _path;
-			mat->GetTexture(aiTextureType_DIFFUSE, 0, &_path);
+		// // If the mesh has a material...
+		// if(mesh->mMaterialIndex > 0) {
+		// 	// Extract the material from the scene
+		// 	const aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+		// 	// Extract the path to the diffuse texture
+		// 	aiString _path;
+		// 	mat->GetTexture(aiTextureType_DIFFUSE, 0, &_path);
 
-			if(_path.length > 0)
-				if( !obj->loadTextureFile(args, std::string(_path.C_Str())) )
-					return false;
+		// 	if(_path.length > 0)
+		// 		if( !obj->loadTextureFile(args, std::string(_path.C_Str())) )
+		// 			return false;
 
-		}
+		// }
 
 		// For each vertex...
 		for(int vert = 0; vert < mesh->mNumVertices; vert++) {
@@ -442,7 +442,6 @@ bool Object::loadTextureFile(const Arguments& args, std::string path, bool makeR
 void Object::update(float dt) {
 	// Make sure the graphics position is updated to match the physics position
 	syncGraphicsWithPhysics();
-
 	// Pass along to children
 	for(auto& child: children)
 		child->update(dt);

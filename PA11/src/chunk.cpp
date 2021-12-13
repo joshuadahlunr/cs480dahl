@@ -394,29 +394,29 @@ std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> calculateMarchingCubes(con
 
 	/* Find the vertices where the surface intersects the cube */
 	if (edgeTable[cubeindex] & 1)
-		vertlist[0] = vertexInterp(isolevel, {grid.points[0], grid.values[0].isoLevel}, {grid.points[1], grid.values[1].isoLevel}, grid.values[0].type, grid.values[1].type);
+		vertlist[0] = vertexInterp(isolevel, glm::vec4(grid.points[0], grid.values[0].isoLevel), glm::vec4(grid.points[1], grid.values[1].isoLevel), grid.values[0].type, grid.values[1].type);
 	if (edgeTable[cubeindex] & 2)
-		vertlist[1] = vertexInterp(isolevel, {grid.points[1], grid.values[1].isoLevel}, {grid.points[2], grid.values[2].isoLevel}, grid.values[1].type, grid.values[2].type);
+		vertlist[1] = vertexInterp(isolevel, glm::vec4(grid.points[1], grid.values[1].isoLevel), glm::vec4(grid.points[2], grid.values[2].isoLevel), grid.values[1].type, grid.values[2].type);
 	if (edgeTable[cubeindex] & 4)
-		vertlist[2] = vertexInterp(isolevel, {grid.points[2], grid.values[2].isoLevel}, {grid.points[3], grid.values[3].isoLevel}, grid.values[2].type, grid.values[3].type);
+		vertlist[2] = vertexInterp(isolevel, glm::vec4(grid.points[2], grid.values[2].isoLevel), glm::vec4(grid.points[3], grid.values[3].isoLevel), grid.values[2].type, grid.values[3].type);
 	if (edgeTable[cubeindex] & 8)
-		vertlist[3] = vertexInterp(isolevel, {grid.points[3], grid.values[3].isoLevel}, {grid.points[0], grid.values[0].isoLevel}, grid.values[3].type, grid.values[0].type);
+		vertlist[3] = vertexInterp(isolevel, glm::vec4(grid.points[3], grid.values[3].isoLevel), glm::vec4(grid.points[0], grid.values[0].isoLevel), grid.values[3].type, grid.values[0].type);
 	if (edgeTable[cubeindex] & 16)
-		vertlist[4] = vertexInterp(isolevel, {grid.points[4], grid.values[4].isoLevel}, {grid.points[5], grid.values[5].isoLevel}, grid.values[4].type, grid.values[5].type);
+		vertlist[4] = vertexInterp(isolevel, glm::vec4(grid.points[4], grid.values[4].isoLevel), glm::vec4(grid.points[5], grid.values[5].isoLevel), grid.values[4].type, grid.values[5].type);
 	if (edgeTable[cubeindex] & 32)
-		vertlist[5] = vertexInterp(isolevel, {grid.points[5], grid.values[5].isoLevel}, {grid.points[6], grid.values[6].isoLevel}, grid.values[5].type, grid.values[6].type);
+		vertlist[5] = vertexInterp(isolevel, glm::vec4(grid.points[5], grid.values[5].isoLevel), glm::vec4(grid.points[6], grid.values[6].isoLevel), grid.values[5].type, grid.values[6].type);
 	if (edgeTable[cubeindex] & 64)
-		vertlist[6] = vertexInterp(isolevel, {grid.points[6], grid.values[6].isoLevel}, {grid.points[7], grid.values[7].isoLevel}, grid.values[6].type, grid.values[7].type);
+		vertlist[6] = vertexInterp(isolevel, glm::vec4(grid.points[6], grid.values[6].isoLevel), glm::vec4(grid.points[7], grid.values[7].isoLevel), grid.values[6].type, grid.values[7].type);
 	if (edgeTable[cubeindex] & 128)
-		vertlist[7] = vertexInterp(isolevel, {grid.points[7], grid.values[7].isoLevel}, {grid.points[4], grid.values[4].isoLevel}, grid.values[7].type, grid.values[4].type);
+		vertlist[7] = vertexInterp(isolevel, glm::vec4(grid.points[7], grid.values[7].isoLevel), glm::vec4(grid.points[4], grid.values[4].isoLevel), grid.values[7].type, grid.values[4].type);
 	if (edgeTable[cubeindex] & 256)
-		vertlist[8] = vertexInterp(isolevel, {grid.points[0], grid.values[0].isoLevel}, {grid.points[4], grid.values[4].isoLevel}, grid.values[0].type, grid.values[4].type);
+		vertlist[8] = vertexInterp(isolevel, glm::vec4(grid.points[0], grid.values[0].isoLevel), glm::vec4(grid.points[4], grid.values[4].isoLevel), grid.values[0].type, grid.values[4].type);
 	if (edgeTable[cubeindex] & 512)
-		vertlist[9] = vertexInterp(isolevel, {grid.points[1], grid.values[1].isoLevel}, {grid.points[5], grid.values[5].isoLevel}, grid.values[1].type, grid.values[5].type);
+		vertlist[9] = vertexInterp(isolevel, glm::vec4(grid.points[1], grid.values[1].isoLevel), glm::vec4(grid.points[5], grid.values[5].isoLevel), grid.values[1].type, grid.values[5].type);
 	if (edgeTable[cubeindex] & 1024)
-		vertlist[10] = vertexInterp(isolevel, {grid.points[2], grid.values[2].isoLevel}, {grid.points[6], grid.values[6].isoLevel}, grid.values[2].type, grid.values[6].type);
+		vertlist[10] = vertexInterp(isolevel, glm::vec4(grid.points[2], grid.values[2].isoLevel), glm::vec4(grid.points[6], grid.values[6].isoLevel), grid.values[2].type, grid.values[6].type);
 	if (edgeTable[cubeindex] & 2048)
-		vertlist[11] = vertexInterp(isolevel, {grid.points[3], grid.values[3].isoLevel}, {grid.points[7], grid.values[7].isoLevel}, grid.values[3].type, grid.values[7].type);
+		vertlist[11] = vertexInterp(isolevel, glm::vec4(grid.points[3], grid.values[3].isoLevel), glm::vec4(grid.points[7], grid.values[7].isoLevel), grid.values[3].type, grid.values[7].type);
 
 	/* Create the triangle */
 	std::vector<std::pair<glm::vec3, Chunk::Voxel::Type>> out;
@@ -492,4 +492,21 @@ void Chunk::rebuildMesh(const Arguments& args) {
 	// For each vertex assign the normalized version of its accumulated normal vector
 	for(Vertex& v: vertices)
 		v.normal = glm::normalize(vertexIndicesAndNormals[v].second);
+}
+
+void Chunk::generateTrees(const Arguments& args) {
+	glm::vec3 pos = getPosition();
+	srand(pos.x + pos.y);
+	for(Vertex& v: vertices) {
+		if(acos(dot(v.normal, glm::vec3(0, 1, 0))) < TREE_MAX_ANGLE && v.vertex.y > 55) {
+			if(rand() % TREE_SPARCITY == 0) {
+			Object::ptr tree = std::make_shared<Object>();
+				addChild(tree);
+				tree->setPosition(v.vertex, true);
+				tree->rotate(rand(), glm::vec3(0, 1, 0));
+				tree->initializeGraphics(args, rand() % 100 < 50 ? "tree1.obj" : "tree2.obj", "", true);
+				tree->initializePhysics(args, Physics::getSingleton(), CollisionGroups::Enviornment);
+			}
+		}
+	}
 }

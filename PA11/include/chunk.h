@@ -7,6 +7,9 @@
 #define CHUNK_WIDTH 17
 #define CHUNK_HEIGHT 256
 
+#define TREE_MAX_ANGLE 0.0872665
+#define TREE_SPARCITY 100
+
 struct Chunk : public Object {
     using ptr = std::shared_ptr<Chunk>;
 
@@ -39,6 +42,7 @@ struct Chunk : public Object {
 
     void generateVoxels(const Arguments& args, int x, int z);
     void rebuildMesh(const Arguments& args);
+    void generateTrees(const Arguments& args);
 
     Voxel voxels[CHUNK_WIDTH][CHUNK_HEIGHT][CHUNK_WIDTH]; // X, Y, Z
 };
