@@ -75,7 +75,7 @@ bool Object::initializeGraphics(const Arguments& args, std::string filepath, std
 GLuint Object::invalidTex = -1;
 
 bool Object::initalizeInvalidTexture(const Arguments& args){
-	auto success = loadTextureFile(args, args.getResourcePath() + "textures/texturemap.png", false);
+	auto success = loadTextureFile(args, args.getResourcePath() + "textures/invalid.png", false);
 	if(success) invalidTex = tex;
 	return success;
 }

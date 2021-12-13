@@ -135,6 +135,14 @@ void VoxelWorld::update(float dt){
 		nextMesh->finalizeModel(); // TODO: Do we need to clear the current model?
 		nextMesh->loadTextureFile(args, args.getResourcePath() + "textures/invalid.png");
 
+		if(nextMesh->getChildren().size() > 0) {
+			Object::ptr firstChild = nextMesh->getChildren().front();
+			firstChild->loadTextureFile(args, args.getResourcePath() + "textures/texturemap.png");
+			for(auto& child : nextMesh->getChildren()) {
+				child->linkTexture(firstChild);
+			}
+		}
+
 		if(nextMesh->state == Chunk::GenerateState::Freed) continue; // Ignore anything that has already been freed
 		nextMesh->state = Chunk::GenerateState::Finalized;
 	}
