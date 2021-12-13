@@ -42,9 +42,12 @@ public:
 
 	Arguments args;
 
-	int points = 0;
+	float points = 0;
 	bool gameOver = false;
 	Leaderboard leaderboard;
+	float visibility = 0;
+	int sightings = 0;
+
 
 private:
 	std::shared_ptr<VoxelWorld> world;

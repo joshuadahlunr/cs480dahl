@@ -84,15 +84,6 @@ void Application::createNPC(std::string type) {
 	getSceneRoot()->addChild(npc);
 	npc->initializeGraphics(args, modelFile, "texturemap.png");
 
-	float range = 50;
-	float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
-	float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
-	float y = -50;
-	glm::ivec3 ufoPos = glm::ivec3(x, 0, z);
-	if (!isnan(world->getWorldHeight(ufoPos)))
-		y = world->getWorldHeight(ufoPos);
-
-	npc->setPosition(glm::vec3(x, y, z));
 	// Create Physics
 	npc->initializePhysics(args, Engine::getPhysics(), CollisionGroups::CG_COW, /*mass*/ 100);
 	npc->createMeshCollider(args, Engine::getPhysics(), CONVEX_MESH, "cube.obj");
@@ -140,6 +131,18 @@ void Application::controlUFO(float dt) {
     velocity += diff * accelerationRate * dt;
 
 	ufo->setLinearVelocity(velocity);
+
+	if (glm::length(velocity) > (speed / 2.0f)) {
+		visibility += 0.1 * dt;
+	} else {
+		visibility -= 0.1 * dt;
+	}
+
+	if (visibility < 0) {
+		visibility = 0;
+	} else if (visibility > 1) {
+		visibility = 1;
+	}
 	
 	// If the UFO is outside a 4 unit extension of the chunk...
 	glm::vec2 pointA = world->getPlayerChunkCoordinates() * 16 - glm::ivec2(CHUNK_WIDTH / 4); // TODO: if we do chunk scale this will need to be updated
@@ -195,6 +198,20 @@ void Application::reset() {
 	ufo->setPosition(glm::vec3(8,height + 20,8));
 	timeRemaining = 120;
 	points = 0;
+	visibility = 0;
+
+	// Reset npc positions around spawn
+	for (std::shared_ptr<NPC> npc: npcs) {
+		float range = 50;
+		float x = ufo->getPosition().x + (rand() % (int) range) -(range/2.0f);
+		float z = ufo->getPosition().z + (rand() % (int) range) -(range/2.0f);
+		float y = -50;
+		glm::ivec3 ufoPos = glm::ivec3(x, 0, z);
+		if (!isnan(world->getWorldHeight(ufoPos)))
+			y = world->getWorldHeight(ufoPos);
+
+		npc->setPosition(glm::vec3(x, y, z));
+	}
 }
 
 void Application::update(float dt) {
@@ -225,7 +242,7 @@ void Application::update(float dt) {
 
 		// Attempt to abduct something
 		float abductionDistance = 20;
-
+		sightings = 0;
 		// Find a new abduction targets
 		for (std::shared_ptr<NPC> npc : npcs) {
 			if (abducting) {
@@ -251,11 +268,12 @@ void Application::update(float dt) {
 
 					// check if object is captured
 					if (distanceToUFO < 2) {
+						npc->setIsBeingAbducted(false);
 						repositionNPC(npc, false);
 						if (npc->getTypeID() == 2) {
-							points -= 10;
+							timeRemaining = 0;
 						} else {
-							points += 10;
+							points += rand() % 5 + 5;
 						}
 						std::cout << "Your score is: " << points << std::endl;
 					}
@@ -278,6 +296,9 @@ void Application::update(float dt) {
 				if (distanceToUFO < 75) {
 					npc->setWaypoint(ufo->getPosition());
 					npc->setSpeed(20);
+					if (distanceToUFO < abductionDistance) {
+						sightings += 1;
+					}
 				} else {
 					npc->setSpeed(7);
 				}
@@ -285,6 +306,10 @@ void Application::update(float dt) {
 		}
 	}
 
+	// Reduce points if visible
+	if (sightings > 0) {
+		points -= visibility * 0.5 * dt;
+	}
 }
 
 void Application::render(Shader* boundShader){

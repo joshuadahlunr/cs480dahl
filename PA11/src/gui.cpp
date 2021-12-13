@@ -221,6 +221,12 @@ void GUI::render() {
 
 		TextCenter("Time Remaining: " + stream.str() + "s");
 		TextCenter("Points: " + std::to_string(app->getScore()));
+		stream << std::fixed << std::setprecision(2) << app->visibility;
+
+		TextCenter("Visibility: " + std::to_string(app->visibility));
+		TextCenter("Sightings: " + std::to_string(app->sightings));
+
+
 		ImGui::End();
 
 		// Game over window
