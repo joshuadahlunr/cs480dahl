@@ -21,7 +21,7 @@ bool Application::initialize(const Arguments& args) {
 
 	ufo = std::make_shared<Object>();
 	getSceneRoot()->addChild(ufo);
-	ufo->setPosition({8, 0, 8});
+	ufo->setPosition({8, -30, 8});
 	ufo->initializeGraphics(args, "ufo.obj", "texturemap.png");
 	Engine::getGraphics()->getCamera()->setFocus(ufo);
 	ufo->initializePhysics(args, Engine::getPhysics(), CollisionGroups::CG_UFO, /*mass*/ 100);
@@ -186,7 +186,9 @@ void Application::repositionNPC(std::shared_ptr<NPC> npc, bool checkDistance = t
 }
 
 void Application::reset() {
-	ufo->setPosition(glm::vec3(0,0,0));
+	float height = world->getWorldHeight({8, 8});
+	if(std::isnan(height)) height = 0;
+	ufo->setPosition(glm::vec3(8,height + 20,8));
 	timeRemaining = 60;
 	points = 0;
 }
