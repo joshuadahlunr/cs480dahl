@@ -93,14 +93,21 @@ public:
 
 	// The depth in the scene tree of this object
 	const uint sceneDepth = 0;
+
+	// Load a texture from a file
 	bool loadTextureFile(const Arguments& args, std::string path, bool makeRelative = true);
+	// Use the same texture as another already loaded object
+	void linkTexture(Object::ptr object) { tex = object->tex; }
 
 	// Uploads the model data to the GPU
-	void finalizeModel();
+	void finalizeModel(bool recursive = true);
 
 protected:
 	// Model/Texture loading
-	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1));
+	bool LoadModelFile(const Arguments& args, const std::string& path, glm::mat4 onImportTransformation = glm::mat4(1), bool inThread = true);
+
+	// Create a reference to the invalid texture
+	bool initalizeInvalidTexture(const Arguments& args);
 
 	// Physics functions
 	void setPhysicsTransform(btTransform&& t) {
@@ -147,9 +154,10 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	GLuint VB;
-	GLuint IB;
+	GLuint VB = -1;
+	GLuint IB = -1;
 	GLuint tex = -1;
+	static GLuint invalidTex;
 
 	// Physics rigidbody
 	bool addedToPhysicsWorld = false;
@@ -172,7 +180,7 @@ public:
 	using Object::Object;
 
 	// Submesh initialization doesn't do anything
-	bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png") override { return true; }
+	bool initializeGraphics(const Arguments& args, std::string filepath = "", std::string texturePath = "invalid.png", bool autoUpload = true) override { return true; }
 	// A submesh syncs it model matrix to its parent every frame
 	void update(float dt) override { setModelRelativeToParent(glm::mat4(1)); }
 };

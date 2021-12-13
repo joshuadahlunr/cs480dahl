@@ -32,8 +32,9 @@ bool Application::initialize(const Arguments& args) {
 	ufoLight = std::make_shared<SpotLight>();
 	ufo->addChild(ufoLight);
 	ufoLight->setAmbient({.6, .6, 1, 1});
-	ufoLight->setDiffuse({.7, .7, 1, 1});
+	ufoLight->setDiffuse(glm::vec4{.7, .7, 1, 1/3.0} * 3.0f);
 	ufoLight->setSpecular({.8, .8, 1, 1});
+	ufoLight->setAttenuationStartDistance(15);
 
 	auto ambient = std::make_shared<AmbientLight>();
 	getSceneRoot()->addChild(ambient);
@@ -156,7 +157,7 @@ void Application::controlUFO(float dt) {
 	ufo->setRotation(glm::quat(glm::vec3(0,1,0), glm::normalize(glm::vec3(0,speed,0) + noYVel)), true);
 
 	// Update the ufo light direction
-	ufoLight->setDirection(ufo->down());
+	//ufoLight->setDirection(ufo->down());
 }
 
 void Application::repositionNPC(std::shared_ptr<NPC> npc, bool checkDistance = true) {

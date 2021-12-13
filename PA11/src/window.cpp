@@ -43,8 +43,6 @@ bool Window::initialize(const std::string &name, int* width, int* height) {
 		printf("Widow failed to create: %s\n", SDL_GetError());
 		return false;
 	}
-	// Save the window's dimensions
-	dimensions = {*width, *height};
 
 	// Create context
 	gContext = SDL_GL_CreateContext(gWindow);

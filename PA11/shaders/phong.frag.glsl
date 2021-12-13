@@ -22,6 +22,7 @@ struct Light
 	float cutoffAngleCosine;
 	float intensity;
 	float falloff;
+	float attenuationDistance;
 };
 
 struct Material
@@ -90,6 +91,11 @@ float shadowCalculations(float normalLightDot){
 	return shadow / 9;
 }
 
+float distance2(vec3 A, vec3 B) {
+	vec3 dist = A - B;
+	return dot(dist, dist);
+}
+
 // Function which preforms lighting calculations
 vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 	// Disabled lights contribute nothing
@@ -117,9 +123,11 @@ vec3 calculateLighting(Light light, vec4 P, vec3 N, vec3 V){
 
 	vec3 H = normalize(L + V);
 
+	float attenuation = clamp((light.attenuationDistance * light.attenuationDistance) / distance2(light.position.xyz, worldPosition.xyz), 0.0, 1.0);
+
 	float kD = max(dot(N,L), 0.0);
-	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * kD * spotlightFalloff;
-	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(N, H), 0.0f), 4 * material.shininess) * spotlightFalloff;
+	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * kD * spotlightFalloff * attenuation;
+	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(N, H), 0.0f), 4 * material.shininess) * spotlightFalloff * attenuation;
 	if(kD == 0) specular = vec3(0);
 
 	float shadowMask = 0;

@@ -24,6 +24,7 @@ struct Light
     float cutoffAngleCosine;
     float intensity;
     float falloff;
+    float attenuationDistance;
 };
 
 struct Material

@@ -22,6 +22,7 @@ void Light::render(Shader* boundShader) {
 	if(!uniformLocationLightCutoffAngleCosine.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightCutoffAngleCosine.c_str()), lightCutoffAngleCosine);
 	if(!uniformLocationLightIntensity.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightIntensity.c_str()), lightIntensity);
 	if(!uniformLocationLightFalloff.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightFalloff.c_str()), lightFalloff);
+	if(!uniformLocationLightAttenuationStartDistance.empty()) glUniform1f(boundShader->getUniformLocation(uniformLocationLightAttenuationStartDistance.c_str()), lightAttenuationStartDistance);
 
 	// render base class
 	Object::render(boundShader);
@@ -41,6 +42,10 @@ DirectionalLight::DirectionalLight(std::string lightVariable /* = "lights"*/) : 
 	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
 	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
 	uniformLocationDirection = lightVariable + "[" + std::to_string(id) + "].direction";
+	uniformLocationLightAttenuationStartDistance = lightVariable + "[" + std::to_string(id) + "].attenuationDistance";
+
+	// Default attenuation for directional lights is infinty
+	lightAttenuationStartDistance = INFINITY;
 
 	// If we are the first directional light mark us as primary
 	if(!primary) primary = this;
@@ -52,6 +57,7 @@ PointLight::PointLight(std::string lightVariable /* = "lights"*/) : Light(Light:
 	uniformLocationDiffuse = lightVariable + "[" + std::to_string(id) + "].diffuse";
 	uniformLocationSpecular = lightVariable + "[" + std::to_string(id) + "].specular";
 	uniformLocationPosition = lightVariable + "[" + std::to_string(id) + "].position";
+	uniformLocationLightAttenuationStartDistance = lightVariable + "[" + std::to_string(id) + "].attenuationDistance";
 }
 
 SpotLight::SpotLight(std::string lightVariable /* = "lights"*/) : Light(Light::Type::Spot, setupID()) {
@@ -64,4 +70,5 @@ SpotLight::SpotLight(std::string lightVariable /* = "lights"*/) : Light(Light::T
 	uniformLocationLightCutoffAngleCosine = lightVariable + "[" + std::to_string(id) + "].cutoffAngleCosine";
 	uniformLocationLightIntensity = lightVariable + "[" + std::to_string(id) + "].intensity";
 	uniformLocationLightFalloff = lightVariable + "[" + std::to_string(id) + "].falloff";
+	uniformLocationLightAttenuationStartDistance = lightVariable + "[" + std::to_string(id) + "].attenuationDistance";
 }
