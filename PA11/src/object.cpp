@@ -89,7 +89,7 @@ void Object::addToPhysicsWorld(Physics& physics, int collisionGroup /*= Collisio
 	if(addedToPhysicsWorld) return;
 
 	// Add the new rigid body to the simulation
-	physics.getWorld()->addRigidBody(rigidBody.get(), collisionGroup, CollisionGroups::All);
+	physics.getWorld()->addRigidBody(rigidBody.get(), collisionGroup, CollisionGroups::CG_ALL);
 	addedToPhysicsWorld = true;
 }
 

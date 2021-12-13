@@ -83,7 +83,7 @@ void Camera::update(float dt) {
 	eyePos = focusPos + (posInSphere * distanceFromFocusPos);
 
 	// Preform a raycast to ensure that the camera doesn't clip through
-	auto result = app->world.raycast(focusPos, eyePos, CollisionGroups::Enviornment);
+	auto result = app->getWorld()->raycast(focusPos, eyePos, CollisionGroups::CG_ENVIRONMENT);
 	if(result) eyePos = result->point + result->normal * .1f;
 
 	// View dynamically updates with camera control movements

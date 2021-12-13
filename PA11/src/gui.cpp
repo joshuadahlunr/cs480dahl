@@ -8,6 +8,8 @@
 #include "window.h"
 #include "graphics.h"
 
+#include <sstream>
+
 // initialize the ImGUI IO instance
 GUI::GUI() : io( []() -> ImGuiIO& {
 	IMGUI_CHECKVERSION();
@@ -65,6 +67,30 @@ void GUI::render() {
 	// TODO: Update
 	// UI Generation
 	if (ImGui::BeginMainMenuBar()) {
+		// Leaderboard
+		if(ImGui::BeginMenu("Leaderboard")) {
+
+			ImGui::TextColored(ImVec4(.9,.9,1,1), "Leaderboard");
+			if (ImGui::BeginTable("", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+				ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::TableHeader("Player");
+					ImGui::TableSetColumnIndex(1);
+					ImGui::TableHeader("Score");
+				for (std::pair<std::string, float> stat: app->leaderboard.leaderstats) {
+					ImGui::TableNextRow();
+						ImGui::TableSetColumnIndex(0);
+						ImGui::Text(stat.first.c_str());
+						ImGui::TableSetColumnIndex(1);
+						ImGui::Text(std::to_string(stat.second).c_str());
+				}
+
+				ImGui::EndTable();
+			}
+			ImGui::EndMenu();
+		}
+
+
 		// Render help menu
 		if(ImGui::BeginMenu("Help")) {
 			ImGui::NewLine();
@@ -77,6 +103,9 @@ void GUI::render() {
 			TextCenter("- Jonathan Peters");
 			ImGui::NewLine();
 			TextCenter("University of Nevada, Reno");
+			ImGui::NewLine();
+
+			TextCenter("The objective of the game is to collect\n as many cows as you can within the time limit.\n Collecting aliens reduces your score while collecting cows increases your score.");
 			ImGui::NewLine();
 
 
@@ -113,7 +142,7 @@ void GUI::render() {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("A/Left Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Flip left paddle.");
+					ImGui::Text("UFO tilt left");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -121,7 +150,7 @@ void GUI::render() {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("D/Right Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Flip right paddle.");
+					ImGui::Text("UFO tilt right");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -129,15 +158,23 @@ void GUI::render() {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("S/Down Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Charge plunger.");
+					ImGui::Text("UFO tilt back");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 					ImGui::Text("");
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("R");
+					ImGui::Text("S/Down Arrow");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Reset the ball, lose a life.");
+					ImGui::Text("UFO tilt forward");
+
+				// ImGui::TableNextRow();
+				// 	ImGui::TableSetColumnIndex(0);
+				// 	ImGui::Text("");
+				// 	ImGui::TableSetColumnIndex(1);
+				// 	ImGui::Text("R");
+				// 	ImGui::TableSetColumnIndex(2);
+				// 	ImGui::Text("Reset the ball, lose a life.");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -145,23 +182,23 @@ void GUI::render() {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("Space");
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Toggles between per-vertex and per-fragment lighting (on release)");
+					ImGui::Text("Abducting");
 
-				ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Text(" ");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("Left Shift");
-					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Slow Zoom Speed");
+				// ImGui::TableNextRow();
+				// 	ImGui::TableSetColumnIndex(0);
+				// 	ImGui::Text(" ");
+				// 	ImGui::TableSetColumnIndex(1);
+				// 	ImGui::Text("Left Shift");
+				// 	ImGui::TableSetColumnIndex(2);
+				// 	ImGui::Text("Slow Zoom Speed");
 
-				ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Text(" ");
-					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("Tab");
-					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("Focus on Ball");
+				// ImGui::TableNextRow();
+				// 	ImGui::TableSetColumnIndex(0);
+				// 	ImGui::Text(" ");
+				// 	ImGui::TableSetColumnIndex(1);
+				// 	ImGui::Text("Tab");
+				// 	ImGui::TableSetColumnIndex(2);
+				// 	ImGui::Text("Focus on Ball");
 
 				ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
@@ -175,6 +212,33 @@ void GUI::render() {
 			}
 
 			ImGui::EndMenu();
+		}
+
+		ImGui::Begin("Your Score");
+		//TextCenter("Current");
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(2) << app->getTimeRemaining();
+
+		TextCenter("Time Remaining: " + stream.str() + "s");
+		TextCenter("Points: " + std::to_string(app->getScore()));
+		ImGui::End();
+
+		// Game over window
+		if(app->gameOver) {
+			ImGui::Begin("Round Ended");
+			TextCenter("Game Over!");
+
+			TextCenter("Your Score: " + std::to_string(app->getScore()));
+
+            ImGui::Text("Enter your name to save your score");
+ 			static char name[128] = "";
+			ImGui::Text("Name: "); ImGui::SameLine(); ImGui::InputText("", name, IM_ARRAYSIZE(name));
+			if (ImGui::Button("Confirm"))
+			{
+				app->leaderboard.updateScore(name, app->getScore());
+				app->reset();
+			}
+            ImGui::End();
 		}
 
 		app->drawGUI();

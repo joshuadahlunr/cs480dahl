@@ -2,15 +2,27 @@
 #define NPC_H
 
 #include "object.h"
+#include "voxel_world.h"
 
 class NPC : public Object {
 public:
-	NPC();
-
-	virtual void update(float dt);
+    NPC() : world(nullptr) {};
+	NPC(std::shared_ptr<VoxelWorld> vw) : world(vw) {};
+    
+	void update(float dt);
     void clearTargets();
 
     void setMovementState(bool isMoving);
+
+    bool isOnGround();
+
+    bool getIsBeingAbducted() {return isBeingAbducted; };
+    void setIsBeingAbducted(bool beingAbducted);
+    int getTypeID() { return typeID; };
+
+protected:
+    int typeID = 0;
+	std::shared_ptr<VoxelWorld> world;
 
 private:
     glm::vec3 waypoint;
@@ -19,6 +31,7 @@ private:
     float minTargetDistance = 1;
     float currentWait=0;
     bool canMove = true;
+    bool isBeingAbducted = false;
 };
 
 #endif  /* NPC_H */
