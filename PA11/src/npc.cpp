@@ -35,7 +35,7 @@ void NPC::update(float dt) {
 				setRotation(glm::quat(glm::vec3(0,-angle, 0)));
 			//rotate(glm::degrees(angle), glm::vec3(0,1,0));
 
-			float speed = 5;
+			speed = 5;
 			// setPosition(getPosition() + (direction * speed * dt));
 			applyForce(direction * speed * 100.0f);
 		}
